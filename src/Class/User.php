@@ -98,4 +98,17 @@ class User
         // Vérification du mot de passe haché
         return password_verify($password, $this->password);
     }
+
+    public static function fromMap(array $data): User
+    {
+        $user = new User();
+        $user->setId($data['id']);
+        $user->setEmail($data['email']);
+        $user->setPassword($data['password']);
+        $user->setUsername($data['username']);
+        $user->setFirstName($data['firstName']);
+        $user->setLastName($data['lastName']);
+        
+        return $user;
+    }
 }

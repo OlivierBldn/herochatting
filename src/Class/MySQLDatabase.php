@@ -1,0 +1,63 @@
+<?php // path: src/Class/MySQLDatabase.php
+
+require __DIR__ . '/../../config/db_config.php';
+require __DIR__ . '/iface.dbconnector.php';
+
+class MySQLDatabase implements DBConnectorInterface
+{
+    private static $instance;
+    private $connection;
+
+    private function __construct()
+    {
+        global $dbinfos; // Importez les informations de configuration globales
+
+        $mysqlConfig = $dbinfos['mysql'];
+
+        try {
+            // Establish connection to MySQL database using PDO
+            $this->connection = new PDO(
+                'mysql:host=' . $mysqlConfig['host'] . ';dbname=' . $mysqlConfig['dbname'],
+                $mysqlConfig['username'],
+                $mysqlConfig['password']
+            );
+            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Erreur de connexion à la base de données : " . $e->getMessage());
+        }
+    }
+
+    public static function getInstance()
+    {
+        if (!self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    public function select($query): array
+    {
+        try {
+            $stmt = $this->connection->prepare($query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Erreur lors de la sélection dans la base de données : " . $e->getMessage());
+        }
+    }
+
+    public function execute($query): bool
+    {
+        try {
+            $stmt = $this->connection->prepare($query);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            die("Erreur lors de l'exécution de la requête : " . $e->getMessage());
+        }
+    }
+}
