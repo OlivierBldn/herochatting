@@ -5,13 +5,13 @@ require __DIR__ . '/../Class/class.DBConnectorFactory.php';
 class UniverseRepository
 {
     private $dbConnector;
-    private $dbType;
+    // private $dbType;
 
     public function __construct()
     {
-        $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
         
-        $this->dbConnector = DBConnectorFactory::getConnector($this->dbType);
+        $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
     public function create($universeData)

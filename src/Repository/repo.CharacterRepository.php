@@ -6,7 +6,7 @@ require __DIR__ . '/../Class/class.DBConnectorFactory.php';
 class CharacterRepository
 {
     private $dbConnector;
-    private $dbType;
+    // private $dbType;
 
     public function __construct()
     {

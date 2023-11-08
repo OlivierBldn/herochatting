@@ -1,8 +1,6 @@
-<?php // path: src/Class/class.UniversePrototype.php
+<?php // path: src/Class/class.Universe.php
 
-include '/Interface/iface.PrototypeInterface.php';
-
-class UniversePrototype implements Prototype
+class Universe
 {
     private $id;
     private $name;
@@ -17,11 +15,6 @@ class UniversePrototype implements Prototype
         $this->description = $description;
         $this->image = $image;
         $this->userId = $userId;
-    }
-
-    public function clone(): Prototype
-    {
-        return new self($this->userId);
     }
 
     // Getter pour l'ID de l'univers

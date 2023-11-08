@@ -1,6 +1,8 @@
-<?php // path: src/Class/class.Universe.php
+<?php // path: src/Class/class.UniversePrototype.php
 
-class Universe
+require __DIR__ . '/Interface/iface.UniversePrototypeInterface.php';
+
+class Universe implements UniversePrototype
 {
     private $id;
     private $name;
@@ -13,8 +15,19 @@ class Universe
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
-        $this->image = $image;
+        $this->image = $image ?? "placeholder.png";
         $this->userId = $userId;
+    }
+
+    public function clone(): UniversePrototype
+    {
+        $universeClone = new Universe();
+        $universeClone->setId($this->id);
+        $universeClone->setName($this->name);
+        $universeClone->setDescription($this->description);
+        $universeClone->setImage($this->image);
+        $universeClone->setUserId($this->userId);
+        return $universeClone;
     }
 
     // Getter pour l'ID de l'univers

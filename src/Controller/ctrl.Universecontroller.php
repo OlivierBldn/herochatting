@@ -15,17 +15,67 @@ class UniverseController
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
 
-            if (!isset($requestData['name'], $requestData['description'], $requestData['image']) ||
-                empty($requestData['name']) || empty($requestData['description']) || empty($requestData['image'])) {
-                http_response_code(400);
-                echo json_encode(['message' => 'Données manquantes ou invalides']);
-                return;
+            // if (!isset($requestData['name'], $requestData['description'], $requestData['image']) ||
+            //     empty($requestData['name']) || empty($requestData['description']) || empty($requestData['image'])) {
+            //     http_response_code(400);
+            //     echo json_encode(['message' => 'Données manquantes ou invalides']);
+            //     return;
+            // }
+
+            print_r($requestData);
+
+            if (!isset($requestData['id_user']) || empty($requestData['id_user'])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Données manquantes ou invalides']);
+            return;
             }
 
             $requestData['userId'] = $userId;
-            
+
+
+            //--------clone-------
+            // $newUniverse = new Universe();
+            // $newUniverse->setName($requestData['name']);
+            // $newUniverse->setDescription($requestData['description']);
+            // $newUniverse->setImage($requestData['image']);
+            // $newUniverse->setUserId($requestData['userId']);
+
+            // $universeRepository = new UniverseRepository();
+            // $success = $universeRepository->create($newUniverse->toMap());
+
+
+
+            //------clone2------
+
             $universeRepository = new UniverseRepository();
-            $success = $universeRepository->create($requestData);
+
+            $existingUniverse = new Universe();
+            
+            if (!$existingUniverse) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Univers non trouvé']);
+                return;
+            }
+
+            $newUniverse = $existingUniverse->clone();
+
+            if (isset($requestData['name'])) {
+                $newUniverse->setName($requestData['name']);
+            }
+            if (isset($requestData['description'])) {
+                $newUniverse->setDescription($requestData['description']);
+            }
+            if (isset($requestData['image'])) {
+                $newUniverse->setImage($requestData['image']);
+            }
+            $newUniverse->setUserId($requestData['userId']);
+
+            $success = $universeRepository->create($newUniverse->toMap());
+
+            //-----------------
+            
+            // $universeRepository = new UniverseRepository();
+            // $success = $universeRepository->create($requestData);
 
             if ($success) {
                 $successResponse = [
@@ -210,7 +260,32 @@ class UniverseController
             }
 
             $universeRepository = new UniverseRepository();
-            $success = $universeRepository->update($universeId, $requestData);
+            // $success = $universeRepository->update($universeId, $requestData);
+
+            $existingUniverse = new Universe();
+
+            if (!$existingUniverse) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Univers non trouvé']);
+                return;
+            }
+
+            $updatedUniverse = $existingUniverse->clone();
+
+            if (isset($requestData['name'])) {
+                $updatedUniverse->setName($requestData['name']);
+            }
+            if (isset($requestData['description'])) {
+                $updatedUniverse->setDescription($requestData['description']);
+            }
+            if (isset($requestData['image'])) {
+                $updatedUniverse->setImage($requestData['image']);
+            }
+            if (isset($requestData['userId'])) {
+                $updatedUniverse->setUserId($requestData['userId']);
+            }
+
+            $success = $universeRepository->update($universeId, $updatedUniverse->toMap());
 
             if ($success) {
                 http_response_code(200);
