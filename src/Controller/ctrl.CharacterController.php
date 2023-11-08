@@ -1,10 +1,10 @@
-<?php // path: src/Controller/UniverseController.php
+<?php // path: src/Controller/ctrl.CharacterController.php
 
-require_once __DIR__ . '/../Repository/UniverseRepository.php';
+require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 
-class UniverseController
+class CharacterController
 {
-    public function createUniverse($requestMethod, $userId)
+    public function createCharacter($requestMethod, $universeId)
     {
         if ($requestMethod !== 'POST') {
             http_response_code(405);
@@ -22,32 +22,32 @@ class UniverseController
                 return;
             }
 
-            $requestData['userId'] = $userId;
-            
-            $universeRepository = new UniverseRepository();
-            $success = $universeRepository->create($requestData);
+            $requestData['universeId'] = $universeId;
+
+            $characterRepository = new CharacterRepository();
+            $success = $characterRepository->create($requestData);
 
             if ($success) {
                 $successResponse = [
                     'success' => true,
-                    'message' => 'Univers créé avec succès.'
+                    'message' => 'Personnage créé avec succès.'
                 ];
                 http_response_code(201);
                 echo json_encode($successResponse);
             } else {
-                throw new Exception("Erreur lors de la création de l'univers");
+                throw new Exception("Erreur lors de la création du personnage");
             }
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la création de l\'univers : ' . $e->getMessage()
+                'message' => 'Erreur lors de la création du personnage : ' . $e->getMessage()
             ];
             http_response_code(500);
             echo json_encode($errorResponse);
         }
     }
 
-    public function getAllUniversesByUserId($requestMethod)
+    public function getAllCharacters($requestMethod)
     {
         if ($requestMethod !== 'GET') {
             http_response_code(405);
@@ -55,37 +55,19 @@ class UniverseController
             return;
         }
 
-        $requestUri = $_SERVER['REQUEST_URI'];
-
-        $segments = explode('/', $requestUri);
-
-        if(!isset($segments[3])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'URL malformée']);
-            return;
-        }
-
-        $userId = (int) $segments[3];
-
-        if ($userId <= 0) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Utilisateur invalide']);
-            return;
-        }
-
         try {
-            $universeRepository = new UniverseRepository();
-            $universes = $universeRepository->getAllByUserId($userId);
+            $characterRepository = new CharacterRepository();
+            $characters = $characterRepository->getAll();
 
-            if (empty($universes)) {
+            if (empty($characters)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucun univers trouvé.',
+                    'message' => 'Aucun personnage trouvé.',
                 ];
             } else {
                 $responseData = [];
-                foreach ($universes as $universe) {
-                    $responseData[] = $universe->toMap();
+                foreach ($characters as $character) {
+                    $responseData[] = $character->toMap();
                 }
 
                 $response = [
@@ -100,7 +82,7 @@ class UniverseController
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des univers : ' . $e->getMessage()
+                'message' => 'Erreur lors de la récupération des personnages : ' . $e->getMessage()
             ];
 
             header('Content-Type: application/json');
@@ -109,8 +91,7 @@ class UniverseController
         }
     }
 
-
-    public function getAllUniverses($requestMethod)
+    public function getAllCharactersByUniverseId($requestMethod, $universeId)
     {
         if ($requestMethod !== 'GET') {
             http_response_code(405);
@@ -119,19 +100,18 @@ class UniverseController
         }
 
         try {
-            $universeRepository = new UniverseRepository();
-            $universes = $universeRepository->getAll();
+            $characterRepository = new CharacterRepository();
+            $characters = $characterRepository->getAllByUniverseId($universeId);
 
-            if (empty($universes)) {
+            if (empty($characters)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucun univers trouvé.',
-                    'data' => []
+                    'message' => 'Aucun personnage trouvé.',
                 ];
             } else {
                 $responseData = [];
-                foreach ($universes as $universe) {
-                    $responseData[] = $universe->toMap();
+                foreach ($characters as $character) {
+                    $responseData[] = $character->toMap();
                 }
 
                 $response = [
@@ -146,7 +126,7 @@ class UniverseController
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des univers : ' . $e->getMessage()
+                'message' => 'Erreur lors de la récupération des personnages : ' . $e->getMessage()
             ];
 
             header('Content-Type: application/json');
@@ -155,7 +135,7 @@ class UniverseController
         }
     }
 
-    public function getUniverseById($requestMethod, $universeId)
+    public function getCharacterById($requestMethod, $characterId)
     {
         if ($requestMethod !== 'GET') {
             http_response_code(405);
@@ -163,28 +143,28 @@ class UniverseController
             return;
         }
 
-        $universeId = (int) $universeId;
+        $characterId = (int) $characterId;
 
         try {
-            $universeRepository = new UniverseRepository();
-            $universe = $universeRepository->getById($universeId);
+            $characterRepository = new CharacterRepository();
+            $character = $characterRepository->getById($characterId);
 
-            if ($universe !== null) {
-                $universeData = $universe->toMap();
+            if ($character !== null) {
+                $characterData = $character->toMap();
 
                 http_response_code(200);
-                echo json_encode($universeData);
+                echo json_encode($characterData);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Univers non trouvé']);
+                echo json_encode(['message' => 'Personnage non trouvé']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la récupération de l\'univers : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la récupération du personnage : ' . $e->getMessage()]);
         }
     }
 
-    public function updateUniverse($requestMethod, $universeId)
+    public function updateCharacter($requestMethod, $characterId)
     {
         if ($requestMethod !== 'PUT') {
             http_response_code(405);
@@ -192,14 +172,14 @@ class UniverseController
             return;
         }
 
-        $universeId = (int) $universeId;
+        $characterId = (int) $characterId;
 
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
 
-            if ($universeId <= 0) {
+            if ($characterId <= 0) {
                 http_response_code(400);
-                echo json_encode(['message' => 'L\'identifiant de l\'univers est invalide']);
+                echo json_encode(['message' => 'L\'identifiant du personnage est invalide']);
                 return;
             }
 
@@ -209,22 +189,22 @@ class UniverseController
                 return;
             }
 
-            $universeRepository = new UniverseRepository();
-            $success = $universeRepository->update($universeId, $requestData);
+            $characterRepository = new CharacterRepository();
+            $success = $characterRepository->update($characterId, $requestData);
 
             if ($success) {
                 http_response_code(200);
-                echo json_encode(['message' => 'Univers mis à jour avec succès']);
+                echo json_encode(['message' => 'Personnage mis à jour avec succès']);
             } else {
-                throw new Exception("Erreur lors de la mise à jour de l'univers");
+                throw new Exception("Erreur lors de la mise à jour du personnage");
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la mise à jour de l\'univers : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la mise à jour du personnage : ' . $e->getMessage()]);
         }
     }
 
-    public function deleteUniverse($requestMethod, $universeId)
+    public function deleteCharacter($requestMethod, $characterId)
     {
         if ($requestMethod !== 'DELETE') {
             http_response_code(405);
@@ -232,24 +212,24 @@ class UniverseController
             return;
         }
 
-        $universeId = (int) $universeId;
+        $characterId = (int) $characterId;
 
         try {
-            $universeRepository = new UniverseRepository();
-            $universe = $universeRepository->getById($universeId);
+            $characterRepository = new CharacterRepository();
+            $character = $characterRepository->getById($characterId);
 
-            if ($universe) {
-                $universeRepository->delete($universeId);
+            if ($character) {
+                $characterRepository->delete($characterId);
 
                 http_response_code(200);
-                echo json_encode(['message' => 'Univers supprimé avec succès']);
+                echo json_encode(['message' => 'Personnage supprimé avec succès']);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Univers non trouvé']);
+                echo json_encode(['message' => 'Personnage non trouvé']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la suppression de l\'univers : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la suppression du personnage : ' . $e->getMessage()]);
         }
     }
 }

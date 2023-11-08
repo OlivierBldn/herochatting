@@ -1,4 +1,4 @@
-<?php // path: src/Class/RouteHandler.php
+<?php // path: src/Class/class.RouteHandler.php
 
 class RouteHandler
 {
@@ -15,6 +15,7 @@ class RouteHandler
 
         // Parcourir les routes pour trouver une correspondance
         foreach ($routes as $pattern => $route) {
+
             if (preg_match($pattern, $uri, $matches)) {
                 $className = $route['class'];
                 $controllerName = $route['controller'];

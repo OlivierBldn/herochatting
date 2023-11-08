@@ -1,7 +1,7 @@
-<?php // path: src/Repository/CharacterRepository.php
+<?php // path: src/Repository/repo.CharacterRepository.php
 
 // require __DIR__ . '/../Class/factory.dbconnector.php';
-require __DIR__ . '/../Class/DBConnectorFactory.php';
+require __DIR__ . '/../Class/class.DBConnectorFactory.php';
 
 class CharacterRepository
 {

@@ -1,4 +1,4 @@
-<?php // path: src/Class/AbstractDatabase.php
+<?php // path: src/Class/class.AbstractDatabase.php
 
 abstract class AbstractDatabase implements DBConnectorInterface
 {

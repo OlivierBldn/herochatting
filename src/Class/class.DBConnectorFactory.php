@@ -1,4 +1,4 @@
-<?php // path: src/Class/DBConnectorFactory.php
+<?php // path: src/Class/class.DBConnectorFactory.php
 
 class DBConnectorFactory
 {

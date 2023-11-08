@@ -1,4 +1,4 @@
-<?php // path: src/Controller/ErrorHandlerController.php
+<?php // path: src/Controller/ctrl.ErrorHandlerController.php
 
 class CustomErrorHandler
 {

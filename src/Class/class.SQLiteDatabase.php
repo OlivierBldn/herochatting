@@ -1,4 +1,4 @@
-<?php // path: src/Class/SQLiteDatabase.php
+<?php // path: src/Class/class.SQLiteDatabase.php
 
 // require __DIR__ . '/iface.dbconnector.php';
 // require __DIR__ . '/../../config/db_config.php';
@@ -100,7 +100,7 @@
 
 
 require __DIR__ . '/../../config/db_config.php';
-require __DIR__ . './DBConnectorInterface.php';
+require __DIR__ . './Interface/iface.DBConnectorInterface.php';
 
 class SQLiteDatabase extends AbstractDatabase
 {

@@ -1,7 +1,7 @@
 <?php // path: src/Class/PostgreSQLDatabase.php
 
 require __DIR__ . '/../../config/db_config.php';
-require __DIR__ . '/iface.dbconnector.php';
+require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
 class PostgreSQLDatabase implements DBConnectorInterface
 {

@@ -1,6 +1,6 @@
-<?php // path: src/Repository/UniverseRepository.php
+<?php // path: src/Repository/repo.UniverseRepository.php
 
-require __DIR__ . '/../Class/factory.dbconnector.php';
+require __DIR__ . '/../Class/class.DBConnectorFactory.php';
 
 class UniverseRepository
 {

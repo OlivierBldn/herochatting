@@ -1,9 +1,9 @@
 <?php // path: index.php
 
 // Appel du fichier de l'autoloader
-require __DIR__ . '/src/Autoloader.php';
+require __DIR__ . '/src/Class/class.Autoloader.php';
 require __DIR__ . '/config/api_config.php';
-require __DIR__ . '/src/Class/RouteHandler.php';
+require __DIR__ . '/src/Class/class.RouteHandler.php';
 $userRoutes = require __DIR__ . '/config/routes/user-routes.php';
 $universeRoutes = require __DIR__ . '/config/routes/universe-routes.php';
 $characterRoutes = require __DIR__ . '/config/routes/character-routes.php';

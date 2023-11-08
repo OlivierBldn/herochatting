@@ -1,4 +1,4 @@
-<?php // path: src/Class/Character.php
+<?php // path: src/Class/class.Character.php
 
 class Character
 {

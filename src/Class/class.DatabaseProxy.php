@@ -1,4 +1,4 @@
-<?php // path: src/Class/DatabaseProxy.php
+<?php // path: src/Class/class.DatabaseProxy.php
 
 class DatabaseProxy implements DBConnectorInterface
 {

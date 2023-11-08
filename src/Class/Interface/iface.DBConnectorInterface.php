@@ -1,4 +1,4 @@
-<?php // path: src/Class/DBConnectorInterface.php
+<?php // path: src/Class/interface/iface.DBConnectorInterface.php
 
 interface DBConnectorInterface
 {

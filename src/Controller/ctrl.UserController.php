@@ -1,6 +1,6 @@
-<?php // path: src/Controller/UserController.php
+<?php // path: src/Controller/ctrl.UserController.php
 
-require_once __DIR__ . '/../Repository/UserRepository.php';
+require_once __DIR__ . '/../Repository/repo.UserRepository.php';
 
 class UserController
 {

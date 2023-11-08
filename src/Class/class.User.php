@@ -1,4 +1,4 @@
-<?php // path: src/Class/User.php
+<?php // path: src/Class/class.User.php
 
 class User
 {
