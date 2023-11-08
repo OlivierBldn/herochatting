@@ -91,7 +91,7 @@ class SQLiteDatabase implements DBConnectorInterface
     }
 
     
-    public function lastInsertRowID()
+    public function lastInsertRowID(): int
     {
         return $this->connection->lastInsertRowID();
     }

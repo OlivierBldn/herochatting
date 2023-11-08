@@ -27,7 +27,7 @@ class CharacterRepository
         $image = $newCharacter->getImage();
         $universeId = $newCharacter->getUniverseId();
 
-        $sql = 'INSERT INTO mycharacter (name, description, image, id_universe) 
+        $sql = 'INSERT INTO `character` (name, description, image, id_universe) 
                 VALUES (:name, :description, :image, :id_universe)';
 
         $parameters = [
@@ -54,7 +54,7 @@ class CharacterRepository
     
     public function getAll()
     {
-        $sql = 'SELECT * FROM mycharacter';
+        $sql = 'SELECT * FROM `character`';
 
         try {
             $allCharactersArraySql = $this->dbConnector->select($sql);
@@ -73,7 +73,7 @@ class CharacterRepository
 
     public function getAllByUniverseId($universeId)
     {
-        $sql = 'SELECT * FROM mycharacter WHERE id_universe = :id_universe';
+        $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
         $params = [':id_universe' => $universeId];
 
         try {
@@ -92,7 +92,7 @@ class CharacterRepository
 
     public function getById($id)
     {
-        $sql = 'SELECT * FROM mycharacter WHERE id = :id';
+        $sql = 'SELECT * FROM `character` WHERE id = :id';
         $params = [':id' => $id];
     
         try {
@@ -121,7 +121,7 @@ class CharacterRepository
         $image = $characterData['image'] ?? $existingCharacter->getImage();
         $universeId = $characterData['universeId'] ?? $existingCharacter->getUniverseId();
     
-        $sql = 'UPDATE mycharacter SET name = :name, description = :description, image = :image, id_universe = :id_universe WHERE id = :characterId';
+        $sql = 'UPDATE `character` SET name = :name, description = :description, image = :image, id_universe = :id_universe WHERE id = :characterId';
     
         $parameters = [
             ':name' => $name,
@@ -146,7 +146,7 @@ class CharacterRepository
 
     public function delete($id)
     {
-        $sql = "DELETE FROM mycharacter WHERE id = :id";
+        $sql = "DELETE FROM `character` WHERE id = :id";
         $params = [':id' => $id];
 
         $success = $this->dbConnector->execute($sql, $params);

@@ -60,7 +60,7 @@ class MySQLDatabase implements DBConnectorInterface
         }
     }
 
-    public function lastInsertRowID()
+    public function lastInsertRowID(): int
     {
         return $this->connection->lastInsertId();
     }
