@@ -1,6 +1,7 @@
 <?php // path: src/Repository/CharacterRepository.php
 
-require __DIR__ . '/../Class/factory.dbconnector.php';
+// require __DIR__ . '/../Class/factory.dbconnector.php';
+require __DIR__ . '/../Class/DBConnectorFactory.php';
 
 class CharacterRepository
 {
@@ -9,9 +10,9 @@ class CharacterRepository
 
     public function __construct()
     {
-        $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
         
-        $this->dbConnector = DBConnectorFactory::getConnector($this->dbType);
+        $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
     public function create($characterData)
