@@ -99,16 +99,32 @@ class User
         return password_verify($password, $this->password);
     }
 
-    public static function fromMap(array $data): User
+    public static function fromMap($map): ?User
     {
+        if (!$map) {
+            return null; // Gestion d'une entrée vide ou invalide
+        }
+    
         $user = new User();
-        $user->setId($data['id']);
-        $user->setEmail($data['email']);
-        $user->setPassword($data['password']);
-        $user->setUsername($data['username']);
-        $user->setFirstName($data['firstName']);
-        $user->setLastName($data['lastName']);
-        
+        $user->setId($map['id'] ?? null);
+        $user->setEmail($map['email'] ?? null);
+        $user->setPassword($map['password'] ?? null);
+        $user->setUsername($map['username'] ?? null);
+        $user->setFirstName($map['firstName'] ?? null);
+        $user->setLastName($map['lastName'] ?? null);
+    
         return $user;
+    }
+
+    public function toMap(): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'password' => $this->password,
+            'username' => $this->username,
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName
+        ];
     }
 }

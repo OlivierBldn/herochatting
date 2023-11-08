@@ -34,16 +34,29 @@ class SQLiteDatabase implements DBConnectorInterface
         return $this->connection;
     }
 
-    public function select($query): array
+    public function select($query, $params = []): array
     {
         try {
-            $result = $this->connection->query($query);
+            $stmt = $this->connection->prepare($query);
+
+            if ($stmt === false) {
+                die("Erreur de préparation de la requête SQLite : " . $this->connection->lastErrorMsg());
+            }
+
+            foreach ($params as $param => $value) {
+                $stmt->bindValue($param, $value);
+            }
+
+            $result = $stmt->execute();
+
+            if ($result === false) {
+                die("Erreur lors de l'exécution de la requête SQLite : " . $this->connection->lastErrorMsg());
+            }
+
             $return = [];
 
-            if ($result) {
-                while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-                    $return[] = $row;
-                }
+            while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+                $return[] = $row;
             }
 
             return $return;
@@ -52,12 +65,34 @@ class SQLiteDatabase implements DBConnectorInterface
         }
     }
 
-    public function execute($query): bool
+    public function execute($query, $params = []): bool
     {
         try {
-            return $this->connection->exec($query);
+            $stmt = $this->connection->prepare($query);
+
+            if ($stmt === false) {
+                die("Erreur de préparation de la requête SQLite : " . $this->connection->lastErrorMsg());
+            }
+
+            foreach ($params as $param => $value) {
+                $stmt->bindValue($param, $value);
+            }
+
+            $result = $stmt->execute();
+
+            if ($result === false) {
+                die("Erreur lors de l'exécution de la requête SQLite : " . $this->connection->lastErrorMsg());
+            }
+
+            return true;
         } catch (Exception $e) {
             die("Erreur lors de l'exécution de la requête SQLite : " . $e->getMessage());
         }
+    }
+
+    
+    public function lastInsertRowID()
+    {
+        return $this->connection->lastInsertRowID();
     }
 }

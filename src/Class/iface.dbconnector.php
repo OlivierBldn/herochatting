@@ -2,6 +2,6 @@
 
 interface DBConnectorInterface
 {
-    public function select($query) : array;
-    public function execute($query) : bool;
+    public function select($query, $params = []) : array;
+    public function execute($query, $params = []) : bool;
 }

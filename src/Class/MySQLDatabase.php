@@ -40,24 +40,50 @@ class MySQLDatabase implements DBConnectorInterface
         return $this->connection;
     }
 
-    public function select($query): array
+    // public function select($query): array
+    // {
+    //     try {
+    //         $stmt = $this->connection->prepare($query);
+    //         $stmt->execute();
+    //         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    //     } catch (PDOException $e) {
+    //         die("Erreur lors de la sélection dans la base de données : " . $e->getMessage());
+    //     }
+    // }
+
+    // public function execute($query): bool
+    // {
+    //     try {
+    //         $stmt = $this->connection->prepare($query);
+    //         return $stmt->execute();
+    //     } catch (PDOException $e) {
+    //         die("Erreur lors de l'exécution de la requête : " . $e->getMessage());
+    //     }
+    // }
+
+    public function select($query, $params = []): array
     {
         try {
             $stmt = $this->connection->prepare($query);
-            $stmt->execute();
+            $stmt->execute($params);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            die("Erreur lors de la sélection dans la base de données : " . $e->getMessage());
+            die("Erreur lors de la sélection dans la base de données MySQL : " . $e->getMessage());
         }
     }
 
-    public function execute($query): bool
+    public function execute($query, $params = []): bool
     {
         try {
             $stmt = $this->connection->prepare($query);
-            return $stmt->execute();
+            return $stmt->execute($params);
         } catch (PDOException $e) {
-            die("Erreur lors de l'exécution de la requête : " . $e->getMessage());
+            die("Erreur lors de l'exécution de la requête MySQL : " . $e->getMessage());
         }
+    }
+
+    public function lastInsertRowID()
+    {
+        return $this->connection->lastInsertId();
     }
 }
