@@ -6,15 +6,15 @@ class Character
     private $name;
     private $description;
     private $image;
-    private $id_universe;
-    
-    public function __construct($id = null, $name = null, $description = null, $image = null, $id_universe = null)
+    private $universeId;
+
+    public function __construct($id = null, $name = null, $description = null, $image = null, $universeId = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
         $this->image = $image;
-        $this->id_universe = $id_universe;
+        $this->universeId = $universeId;
     }
 
     // Getter pour l'ID du personnage
@@ -65,32 +65,28 @@ class Character
         $this->image = $image;
     }
 
-     // Getter pour l'ID de l'univers lié au personnage
-    public function getIdUniverse()
+    // Getter pour l'ID de l'univers associé au personnage (clé étrangère)
+    public function getUniverseId()
     {
-        return $this->id_universe;
+        return $this->universeId;
     }
 
-    // Setter pour l'ID de l'univers lié au personnage
-    public function setIdUniverse($id_universe)
+    // Setter pour l'ID de l'univers associé au personnage (clé étrangère)
+    public function setUniverseId($universeId)
     {
-        $this->id_universe = $id_universe;
+        $this->universeId = $universeId;
     }
-
 
     public static function fromMap($map): Character
     {
         $character = new Character();
-        $character->setId($map['id']);
-        $character->setName($map['name']);
-        $character->setDescription($map['description']);
-        $character->setImage($map['image']);
-        $character->setIdUniverse($map['id_universe']);
-        
+        $character->setId($map['id'] ?? null);
+        $character->setName($map['name'] ?? null);
+        $character->setDescription($map['description'] ?? null);
+        $character->setImage($map['image'] ?? null);
+        $character->setUniverseId($map['id_universe'] ?? null);
         return $character;
     }
-
-
 
     public function toMap(): array
     {
@@ -99,7 +95,7 @@ class Character
             'name' => $this->name,
             'description' => $this->description,
             'image' => $this->image,
-            'id_universe' => $this->id_universe
+            'id_universe' => $this->universeId
         ];
     }
 }

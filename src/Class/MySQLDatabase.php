@@ -10,12 +10,11 @@ class MySQLDatabase implements DBConnectorInterface
 
     private function __construct()
     {
-        global $dbinfos; // Importez les informations de configuration globales
+        global $dbinfos;
 
         $mysqlConfig = $dbinfos['mysql'];
 
         try {
-            // Establish connection to MySQL database using PDO
             $this->connection = new PDO(
                 'mysql:host=' . $mysqlConfig['host'] . ';dbname=' . $mysqlConfig['dbname'],
                 $mysqlConfig['username'],
@@ -39,27 +38,6 @@ class MySQLDatabase implements DBConnectorInterface
     {
         return $this->connection;
     }
-
-    // public function select($query): array
-    // {
-    //     try {
-    //         $stmt = $this->connection->prepare($query);
-    //         $stmt->execute();
-    //         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    //     } catch (PDOException $e) {
-    //         die("Erreur lors de la sélection dans la base de données : " . $e->getMessage());
-    //     }
-    // }
-
-    // public function execute($query): bool
-    // {
-    //     try {
-    //         $stmt = $this->connection->prepare($query);
-    //         return $stmt->execute();
-    //     } catch (PDOException $e) {
-    //         die("Erreur lors de l'exécution de la requête : " . $e->getMessage());
-    //     }
-    // }
 
     public function select($query, $params = []): array
     {

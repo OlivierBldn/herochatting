@@ -77,16 +77,14 @@ class Universe
         $this->userId = $userId;
     }
 
-    // Ajoutez ici d'autres méthodes spécifiques à la classe Universe, si nécessaire.
-
     public static function fromMap($map): Universe
     {
         $universe = new Universe();
-        $universe->setId($map['id']);
-        $universe->setName($map['name']);
-        $universe->setDescription($map['description']);
-        $universe->setImage($map['image']);
-        $universe->setUserId($map['user_id']); // Assurez-vous que le nom de la colonne est correct
+        $universe->setId($map['id'] ?? null);
+        $universe->setName($map['name'] ?? null);
+        $universe->setDescription($map['description'] ?? null);
+        $universe->setImage($map['image'] ?? null);
+        $universe->setUserId($map['id_user'] ?? null);
         return $universe;
     }
 
@@ -97,7 +95,7 @@ class Universe
             'name' => $this->name,
             'description' => $this->description,
             'image' => $this->image,
-            'user_id' => $this->userId // Assurez-vous que le nom de la colonne est correct
+            'id_user' => $this->userId
         ];
     }
 }

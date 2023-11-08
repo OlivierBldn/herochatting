@@ -5,6 +5,8 @@ require __DIR__ . '/src/Autoloader.php';
 require __DIR__ . '/config/api_config.php';
 require __DIR__ . '/src/Class/RouteHandler.php';
 $userRoutes = require __DIR__ . '/config/routes/user-routes.php';
+$universeRoutes = require __DIR__ . '/config/routes/universe-routes.php';
+$characterRoutes = require __DIR__ . '/config/routes/character-routes.php';
 
 // Enregistrement de l'autoloader
 Autoloader::register();
@@ -16,7 +18,7 @@ $basePath = '/'.__WEBSITE_URL__;
 $uri = str_replace($basePath, '', $uri);
 
 // Chargement de configuration de routage
-$routes = $userRoutes;
+$routes = array_merge($userRoutes, $universeRoutes, $characterRoutes);
 
 // Création d'une instance de RouterController
 $routeHandler = new RouteHandler();
