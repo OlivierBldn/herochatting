@@ -22,8 +22,6 @@ class UniverseController
             //     return;
             // }
 
-            print_r($requestData);
-
             if (!isset($requestData['id_user']) || empty($requestData['id_user'])) {
             http_response_code(400);
             echo json_encode(['message' => 'Données manquantes ou invalides']);

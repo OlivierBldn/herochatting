@@ -16,7 +16,7 @@ class DBConnectorFactory
             case 'mysql':
                 $realDatabase = new MySQLDatabase();
                 break;
-            case 'postgresql':
+            case 'pgsql':
                 $realDatabase = new PostgreSQLDatabase();
                 break;
             default:

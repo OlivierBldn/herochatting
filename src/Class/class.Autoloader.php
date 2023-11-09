@@ -6,7 +6,7 @@ class Autoloader
     {
         spl_autoload_register(function ($className) {
             $directories = [
-                __DIR__ . './',
+                __DIR__ . '/',
                 __DIR__ . '/../Controller/',
             ];
 

@@ -3,65 +3,69 @@
 require __DIR__ . '/../../config/db_config.php';
 require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
-class PostgreSQLDatabase implements DBConnectorInterface
+class PostgreSQLDatabase extends AbstractDatabase
 {
-    private static $instance;
-    private $connection;
+    protected $connection;
 
-    private function __construct()
+    public function __construct()
     {
         global $dbinfos;
 
-        $pgsqlConfig = $dbinfos['postgresql'];
+        $pgsqlConfig = $dbinfos['pgsql'];
 
-        try {
-            $this->connection = new PDO(
-                'pgsql:host=' . $pgsqlConfig['host'] . ';dbname=' . $pgsqlConfig['dbname'],
-                $pgsqlConfig['username'],
-                $pgsqlConfig['password']
-            );
-            $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Erreur de connexion à la base de données PostgreSQL : " . $e->getMessage());
+        $connectionString = "host={$pgsqlConfig['host']} port={$pgsqlConfig['port']} dbname={$pgsqlConfig['dbname']} user={$pgsqlConfig['username']} password={$pgsqlConfig['password']}";
+
+        $this->connection = pg_connect($connectionString);
+
+        if (!$this->connection) {
+            die("Erreur de connexion à la base de données : " . pg_last_error());
         }
-    }
-
-    public static function getInstance()
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    public function getConnection()
-    {
-        return $this->connection;
     }
 
     public function select($query, $params = []): array
     {
-        try {
-            $stmt = $this->connection->prepare($query);
-            $stmt->execute($params);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            die("Erreur lors de la sélection dans la base de données MySQL : " . $e->getMessage());
+        if (!empty($params)) {
+            $result = pg_query_params($this->connection, $query, $params);
+        } else {
+            $result = pg_query($this->connection, $query);
         }
+
+        if (!$result) {
+            die("Erreur lors de la sélection dans la base de données PostgreSQL : " . pg_last_error($this->connection));
+        }
+
+        return pg_fetch_all($result);
     }
 
     public function execute($query, $params = []): bool
     {
-        try {
-            $stmt = $this->connection->prepare($query);
-            return $stmt->execute($params);
-        } catch (PDOException $e) {
-            die("Erreur lors de l'exécution de la requête MySQL : " . $e->getMessage());
+        $result = pg_query_params($this->connection, $query, $params);
+
+        if (!$result) {
+            die("Erreur lors de l'exécution de la requête PostgreSQL : " . pg_last_error($this->connection));
         }
+
+        return true;
     }
 
-    public function lastInsertRowID(): int
+    public function close()
     {
-        return $this->connection->lastInsertId();
+        pg_close($this->connection);
+    }
+
+    public function lastInsertRowId(): int
+    {
+        $result = pg_query($this->connection, "SELECT lastval()");
+    
+        if ($result) {
+            $row = pg_fetch_row($result);
+            $lastOid = $row[0];
+    
+            if ($lastOid !== false) {
+                return (int)$lastOid;
+            }
+        }
+    
+        return 0;
     }
 }

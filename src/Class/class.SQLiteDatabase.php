@@ -100,7 +100,7 @@
 
 
 require __DIR__ . '/../../config/db_config.php';
-require __DIR__ . './Interface/iface.DBConnectorInterface.php';
+require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
 class SQLiteDatabase extends AbstractDatabase
 {
@@ -171,5 +171,10 @@ class SQLiteDatabase extends AbstractDatabase
         } catch (Exception $e) {
             die("Erreur lors de l'exécution de la requête SQLite : " . $e->getMessage());
         }
+    }
+
+    public function lastInsertRowID(): int
+    {
+        return $this->connection->lastInsertRowID();
     }
 }

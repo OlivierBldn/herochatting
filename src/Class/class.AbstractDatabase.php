@@ -17,9 +17,4 @@ abstract class AbstractDatabase implements DBConnectorInterface
     {
         return $this->connection;
     }
-
-    public function lastInsertRowID(): int
-    {
-        return $this->connection->lastInsertRowID();
-    }
 }

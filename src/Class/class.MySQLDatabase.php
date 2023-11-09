@@ -110,4 +110,10 @@ class MySQLDatabase extends AbstractDatabase
             die("Erreur lors de l'exécution de la requête MySQL : " . $e->getMessage());
         }
     }
+
+
+    public function lastInsertRowID(): int
+    {
+        return $this->connection->lastInsertRowID();
+    }
 }

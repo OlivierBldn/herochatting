@@ -1,16 +1,16 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
-// require __DIR__ . '/../Class/factory.dbconnector.php';
 require __DIR__ . '/../Class/class.DBConnectorFactory.php';
+require __DIR__ . '/../../config/db_config.php';
 
 class CharacterRepository
 {
     private $dbConnector;
-    // private $dbType;
+    private $dbType;
 
     public function __construct()
     {
-        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        $this->dbType = $GLOBALS['dbinfos']['database_type'];
         
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
@@ -28,15 +28,37 @@ class CharacterRepository
         $image = $newCharacter->getImage();
         $universeId = $newCharacter->getUniverseId();
 
-        $sql = 'INSERT INTO `character` (name, description, image, id_universe) 
-                VALUES (:name, :description, :image, :id_universe)';
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'INSERT INTO `character` (name, description, image, id_universe) 
+                        VALUES (:name, :description, :image, :id_universe)';
+                        
+                $parameters = [
+                    ':name' => $name,
+                    ':description' => $description,
+                    ':image' => $image,
+                    ':id_universe' => $universeId
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'INSERT INTO "character" (name, description, image, id_universe) 
+                        VALUES (name, description, image, id_universe)';
 
-        $parameters = [
-            ':name' => $name,
-            ':description' => $description,
-            ':image' => $image,
-            ':id_universe' => $universeId
-        ];
+            case 'pgsql':
+                $sql = 'INSERT INTO "character" (name, description, image, id_universe) 
+                        VALUES ($1, $2, $3, $4)';
+
+                $parameters = [
+                    $name,
+                    $description,
+                    $image,
+                    $universeId
+                ];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
 
         try {
             $success = $this->dbConnector->execute($sql, $parameters);
@@ -55,7 +77,17 @@ class CharacterRepository
     
     public function getAll()
     {
-        $sql = 'SELECT * FROM `character`';
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT * FROM `character`';
+                break;
+            case 'pgsql':
+                $sql = 'SELECT * FROM "character"';
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
 
         try {
             $allCharactersArraySql = $this->dbConnector->select($sql);
@@ -74,8 +106,23 @@ class CharacterRepository
 
     public function getAllByUniverseId($universeId)
     {
-        $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
-        $params = [':id_universe' => $universeId];
+        // $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
+
+                $params = [':id_universe' => $universeId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT * FROM "character" WHERE id_universe = $1';
+
+                $params = [$universeId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
 
         try {
             $characters = $this->dbConnector->select($sql, $params);
@@ -93,8 +140,21 @@ class CharacterRepository
 
     public function getById($id)
     {
-        $sql = 'SELECT * FROM `character` WHERE id = :id';
-        $params = [':id' => $id];
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT * FROM `character` WHERE id = :id';
+
+                $params = [':id' => $id];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT * FROM "character" WHERE id = $1';
+
+                $params = [$id];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
     
         try {
             $characterMap = $this->dbConnector->select($sql, $params);
@@ -121,16 +181,28 @@ class CharacterRepository
         $description = $characterData['description'] ?? $existingCharacter->getDescription();
         $image = $characterData['image'] ?? $existingCharacter->getImage();
         $universeId = $characterData['universeId'] ?? $existingCharacter->getUniverseId();
-    
-        $sql = 'UPDATE `character` SET name = :name, description = :description, image = :image, id_universe = :id_universe WHERE id = :characterId';
-    
-        $parameters = [
-            ':name' => $name,
-            ':description' => $description,
-            ':image' => $image,
-            ':id_universe' => $universeId,
-            ':characterId' => $characterId
-        ];
+
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'UPDATE `character` SET name = :name, description = :description, image = :image, id_universe = :id_universe WHERE id = :characterId';
+                        
+                $parameters = [
+                    ':name' => $name,
+                    ':description' => $description,
+                    ':image' => $image,
+                    ':id_universe' => $universeId,
+                    ':characterId' => $characterId
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'UPDATE "character" SET name = $1, description = $2, image = $3, id_universe = $4 WHERE id = $5';
+
+                $parameters = [$name, $description, $image, $universeId, $characterId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
     
         try {
             $success = $this->dbConnector->execute($sql, $parameters);
@@ -147,8 +219,21 @@ class CharacterRepository
 
     public function delete($id)
     {
-        $sql = "DELETE FROM `character` WHERE id = :id";
-        $params = [':id' => $id];
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'DELETE FROM `character` WHERE id = :id';
+
+                $params = [':id' => $id];
+                break;
+            case 'pgsql':
+                $sql = 'DELETE FROM "character" WHERE id = $1';
+
+                $parameters = [$id];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
 
         $success = $this->dbConnector->execute($sql, $params);
 

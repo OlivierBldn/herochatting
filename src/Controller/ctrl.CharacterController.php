@@ -91,11 +91,29 @@ class CharacterController
         }
     }
 
-    public function getAllCharactersByUniverseId($requestMethod, $universeId)
+    public function getAllCharactersByUniverseId($requestMethod)
     {
         if ($requestMethod !== 'GET') {
             http_response_code(405);
             echo json_encode(['message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        $requestUri = $_SERVER['REQUEST_URI'];
+
+        $segments = explode('/', $requestUri);
+
+        if(!isset($segments[3])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'URL malformée']);
+            return;
+        }
+
+        $universeId = (int) $segments[3];
+
+        if ($universeId <= 0) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Univers invalide']);
             return;
         }
 
