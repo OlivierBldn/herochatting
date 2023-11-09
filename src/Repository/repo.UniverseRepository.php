@@ -235,7 +235,7 @@ class UniverseRepository
                 throw new Exception("Type de base de données non reconnu");
         }
 
-        $success = $this->dbConnector->execute($sql, $params);
+        $success = $this->dbConnector->execute($sql, $parameters);
 
         if (!$success) {
             throw new Exception("Erreur lors de la suppression de l'univers");
