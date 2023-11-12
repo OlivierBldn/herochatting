@@ -23,4 +23,16 @@ class DatabaseProxy implements DBConnectorInterface
     {
         return $this->realDatabase->lastInsertRowID();
     }
+
+    public function beginTransaction() {
+        $this->realDatabase->beginTransaction();
+    }
+
+    public function commit() {
+        $this->realDatabase->commit();
+    }
+
+    public function rollBack() {
+        $this->realDatabase->rollBack();
+    }
 }

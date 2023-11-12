@@ -2,31 +2,25 @@
 
 require __DIR__ . '/Interface/iface.UniversePrototypeInterface.php';
 
-class Universe implements UniversePrototype
-{
+class Universe implements UniversePrototype {
     private $id;
     private $name;
     private $description;
     private $image;
-    private $userId;
 
-    public function __construct($id = null, $name = null, $description = null, $image = null, $userId = null)
-    {
+    public function __construct($id = null, $name = null, $description = null, $image = null) {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
         $this->image = $image ?? "placeholder.png";
-        $this->userId = $userId;
     }
 
-    public function clone(): UniversePrototype
-    {
+    public function clone(): UniversePrototype {
         $universeClone = new Universe();
         $universeClone->setId($this->id);
         $universeClone->setName($this->name);
         $universeClone->setDescription($this->description);
         $universeClone->setImage($this->image);
-        $universeClone->setUserId($this->userId);
         return $universeClone;
     }
 
@@ -78,37 +72,21 @@ class Universe implements UniversePrototype
         $this->image = $image;
     }
 
-    // Getter pour l'ID de l'utilisateur associé à l'univers (clé étrangère)
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
-    // Setter pour l'ID de l'utilisateur associé à l'univers (clé étrangère)
-    public function setUserId($userId)
-    {
-        $this->userId = $userId;
-    }
-
-    public static function fromMap($map): Universe
-    {
+    public static function fromMap($map): Universe {
         $universe = new Universe();
         $universe->setId($map['id'] ?? null);
         $universe->setName($map['name'] ?? null);
         $universe->setDescription($map['description'] ?? null);
         $universe->setImage($map['image'] ?? null);
-        $universe->setUserId($map['id_user'] ?? null);
         return $universe;
     }
 
-    public function toMap(): array
-    {
+    public function toMap(): array {
         return [
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'image' => $this->image,
-            'id_user' => $this->userId
+            'image' => $this->image
         ];
     }
 }

@@ -68,4 +68,16 @@ class PostgreSQLDatabase extends AbstractDatabase
     
         return 0;
     }
+
+    public function beginTransaction() {
+        pg_query($this->connection, "BEGIN");
+    }
+
+    public function commit() {
+        pg_query($this->connection, "COMMIT");
+    }
+
+    public function rollBack() {
+        pg_query($this->connection, "ROLLBACK");
+    }
 }

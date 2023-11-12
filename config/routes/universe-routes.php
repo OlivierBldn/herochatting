@@ -5,7 +5,6 @@ $universeRoutes = [
         'class' => 'Universe',
         'controller' => 'UniverseController',
         'methods' => [
-            'POST' => 'createUniverse',
             'GET' => 'getAllUniverses',
         ],
     ],
@@ -23,6 +22,7 @@ $universeRoutes = [
         'controller' => 'UniverseController',
         'methods' => [
             'GET' => 'getAllUniversesByUserId',
+            'POST' => 'createUniverse',
         ],
     ],
 ];

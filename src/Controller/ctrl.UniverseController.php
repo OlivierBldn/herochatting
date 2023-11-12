@@ -4,7 +4,7 @@ require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 
 class UniverseController
 {
-    public function createUniverse($requestMethod, $userId)
+    public function createUniverse($requestMethod)
     {
         if ($requestMethod !== 'POST') {
             http_response_code(405);
@@ -15,35 +15,12 @@ class UniverseController
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
 
-            // if (!isset($requestData['name'], $requestData['description'], $requestData['image']) ||
-            //     empty($requestData['name']) || empty($requestData['description']) || empty($requestData['image'])) {
-            //     http_response_code(400);
-            //     echo json_encode(['message' => 'Données manquantes ou invalides']);
-            //     return;
-            // }
-
-            if (!isset($requestData['id_user']) || empty($requestData['id_user'])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Données manquantes ou invalides']);
-            return;
+            if (!isset($requestData['name'], $requestData['description'], $requestData['image']) ||
+                empty($requestData['name']) || empty($requestData['description']) || empty($requestData['image'])) {
+                http_response_code(400);
+                echo json_encode(['message' => 'Données manquantes ou invalides']);
+                return;
             }
-
-            $requestData['userId'] = $userId;
-
-
-            //--------clone-------
-            // $newUniverse = new Universe();
-            // $newUniverse->setName($requestData['name']);
-            // $newUniverse->setDescription($requestData['description']);
-            // $newUniverse->setImage($requestData['image']);
-            // $newUniverse->setUserId($requestData['userId']);
-
-            // $universeRepository = new UniverseRepository();
-            // $success = $universeRepository->create($newUniverse->toMap());
-
-
-
-            //------clone2------
 
             $universeRepository = new UniverseRepository();
 
@@ -66,16 +43,11 @@ class UniverseController
             if (isset($requestData['image'])) {
                 $newUniverse->setImage($requestData['image']);
             }
-            $newUniverse->setUserId($requestData['userId']);
 
             $success = $universeRepository->create($newUniverse->toMap());
 
-            //-----------------
-            
-            // $universeRepository = new UniverseRepository();
-            // $success = $universeRepository->create($requestData);
-
             if ($success) {
+                
                 $successResponse = [
                     'success' => true,
                     'message' => 'Univers créé avec succès.'
@@ -258,7 +230,6 @@ class UniverseController
             }
 
             $universeRepository = new UniverseRepository();
-            // $success = $universeRepository->update($universeId, $requestData);
 
             $existingUniverse = new Universe();
 
@@ -268,7 +239,7 @@ class UniverseController
                 return;
             }
 
-            $updatedUniverse = $existingUniverse->clone();
+            $updatedUniverse = $existingUniverse;
 
             if (isset($requestData['name'])) {
                 $updatedUniverse->setName($requestData['name']);
@@ -278,9 +249,6 @@ class UniverseController
             }
             if (isset($requestData['image'])) {
                 $updatedUniverse->setImage($requestData['image']);
-            }
-            if (isset($requestData['userId'])) {
-                $updatedUniverse->setUserId($requestData['userId']);
             }
 
             $success = $universeRepository->update($universeId, $updatedUniverse->toMap());

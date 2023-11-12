@@ -6,6 +6,5 @@ interface UniversePrototype
     public function setName($name);
     public function setImage($image);
     public function setDescription($description);
-    public function setUserId($userId);
     public function toMap(): array;
 }

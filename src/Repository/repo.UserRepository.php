@@ -1,7 +1,6 @@
 <?php // path: src/Repository/repo.UserRepository.php
 
-require __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require __DIR__ . '/../../config/db_config.php';
+require __DIR__ . '/repo.UniverseRepository.php';
 
 class UserRepository
 {
@@ -32,7 +31,7 @@ class UserRepository
         switch ($this->dbType) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'INSERT INTO "user" (email, password, username, firstName, lastName) 
+                $sql = 'INSERT INTO `user` (email, password, username, firstName, lastName) 
                         VALUES (:email, :password, :username, :firstName, :lastName)';
                         
                 $parameters = [
@@ -142,11 +141,16 @@ class UserRepository
             throw new Exception("Utilisateur non trouvé");
         }
     
-        $email = $userData['email'] ?? $existingUser->getEmail();
-        $username = $userData['username'] ?? $existingUser->getUsername();
-        $firstName = $userData['firstName'] ?? $existingUser->getFirstName();
-        $lastName = $userData['lastName'] ?? $existingUser->getLastName();
-        $password = $userData['password'] ?? $existingUser->getPassword();
+        // Utiliser les setters pour assurer un traitement correct des données
+        $existingUser->setEmail($userData['email'] ?? $existingUser->getEmail());
+        $existingUser->setUsername($userData['username'] ?? $existingUser->getUsername());
+        $existingUser->setFirstName($userData['firstName'] ?? $existingUser->getFirstName());
+        $existingUser->setLastName($userData['lastName'] ?? $existingUser->getLastName());
+
+        // Hacher le mot de passe s'il est présent dans $userData
+        if (isset($userData['password']) && !empty($userData['password'])) {
+            $existingUser->setPassword($userData['password']);
+        }
     
         switch ($this->dbType) {
             case 'mysql':
@@ -154,19 +158,26 @@ class UserRepository
                 $sql = 'UPDATE `user` SET email = :email, username = :username, firstName = :firstName, lastName = :lastName, password = :password WHERE id = :userId';
                         
                 $parameters = [
-                    ':email' => $email,
-                    ':username' => $username,
-                    ':firstName' => $firstName,
-                    ':lastName' => $lastName,
+                    ':email' => $existingUser->getEmail(),
+                    ':username' => $existingUser->getUsername(),
+                    ':firstName' => $existingUser->getFirstName(),
+                    ':lastName' => $existingUser->getLastName(),
                     ':userId' => $userId,
-                    ':password' => $password
+                    ':password' => $existingUser->getPassword() 
                 ];
                 break;
             case 'pgsql':
                 case 'pgsql':
                     $sql = 'UPDATE "user" SET email = $1, username = $2, "firstName" = $3, "lastName" = $4, password = $5 WHERE id = $6';
                 
-                    $parameters = [$email, $username, $firstName, $lastName, $password, $userId];
+                    $parameters = [
+                        $existingUser->getEmail(),
+                        $existingUser->getUsername(),
+                        $existingUser->getFirstName(),
+                        $existingUser->getLastName(),
+                        $existingUser->getPassword(),
+                        $userId
+                    ];
                     break;
             default:
                 throw new Exception("Type de base de données non reconnu");
@@ -187,28 +198,42 @@ class UserRepository
 
     public function delete($id)
     {
-        switch ($this->dbType) {
-            case 'mysql':
-            case 'sqlite':
-                $sql = 'DELETE FROM `user` WHERE id = :id';
-                        
-                $params = [':id' => $id];     
-                break;
-            case 'pgsql':
-                $sql = 'DELETE FROM "user" WHERE id = $1';
+        try {
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
 
-                $params = [$id];
-                break;
-            default:
-                throw new Exception("Type de base de données non reconnu");
-        }   
+            $universeRepository = new UniverseRepository();
 
-        $success = $this->dbConnector->execute($sql, $params);
+            $universesToDelete = $universeRepository->getAllByUserId($id);
 
-        if (!$success) {
-            throw new Exception("Erreur lors de la suppression de l'utilisateur");
+            foreach ($universesToDelete as $universe) {
+                $universeRepository->delete($universe->getId());
+            }
+
+            // Supprimer l'utilisateur
+            switch ($this->dbType) {
+                case 'mysql':
+                case 'sqlite':
+                    $sqlDeleteUser = 'DELETE FROM `user` WHERE id = :id';
+                    break;
+                case 'pgsql':
+                    $sqlDeleteUser = 'DELETE FROM "user" WHERE id = $1';
+                    break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+
+            // Exécuter la requête de suppression de l'utilisateur
+            $this->dbConnector->execute($sqlDeleteUser, $this->dbType === 'pgsql' ? [$id] : [':id' => $id]);
+
+            // Valider la transaction
+            $this->dbConnector->commit();
+
+            return true;
+        } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $this->dbConnector->rollBack();
+            throw new Exception("Erreur lors de la suppression de l'utilisateur et de ses univers : " . $e->getMessage());
         }
-
-        return $success;
     }
 }
