@@ -23,24 +23,6 @@ class UniverseRepository
             return false;
         }
 
-        $requestUri = $_SERVER['REQUEST_URI'];
-
-        $segments = explode('/', $requestUri);
-
-        if(!isset($segments[3])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'URL malformée']);
-            return;
-        }
-
-        $userId = (int) $segments[3];
-
-        if ($userId <= 0) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Utilisateur invalide']);
-            return;
-        }
-
         $name = $newUniverse->getName();
         $description = $newUniverse->getDescription();
         $image = $newUniverse->getImage();
@@ -218,6 +200,32 @@ class UniverseRepository
         }
     }
 
+    public function getByName($name)
+    {
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT * FROM `universe` WHERE name = :name';
+                $params = [':name' => $name];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT * FROM "universe" WHERE name = $1';
+                $params = [$name];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $universe = $this->dbConnector->select($sql, $params);
+
+            // Convertir le résultat en objet Universe si un univers est trouvé
+            return $universe ? Universe::fromMap($universe[0]) : null;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des univers par nom : " . $e->getMessage());
+        }
+    }
+
     public function update($universeId, $universeData)
     {
         $existingUniverse = $this->getById($universeId);
@@ -311,6 +319,44 @@ class UniverseRepository
             // Annuler la transaction en cas d'erreur
             $this->dbConnector->rollBack();
             throw new Exception("Erreur lors de la suppression de l'univers : " . $e->getMessage());
+        }
+    }
+
+    public function userExists($userId) {
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `user` WHERE id = :userId';
+                $params = [':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "user" WHERE id = $1';
+                $params = [$userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+    
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+        
+            switch ($this->dbType) {
+                case 'mysql':
+                case 'sqlite':
+                    $count = $result[0]['COUNT(*)'] ?? 0;
+                    break;
+        
+                case 'pgsql':
+                    $count = $result[0]['count'] ?? 0;
+                    break;
+        
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+        
+            return $count > 0;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la vérification de l'existence de l'utilisateur : " . $e->getMessage());
         }
     }
 }

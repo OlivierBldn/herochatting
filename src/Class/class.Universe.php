@@ -15,7 +15,8 @@ class Universe implements UniversePrototype {
         $this->image = $image ?? "placeholder.png";
     }
 
-    public function clone(): UniversePrototype {
+    public function clone(): UniversePrototype
+    {
         $universeClone = new Universe();
         $universeClone->setId($this->id);
         $universeClone->setName($this->name);

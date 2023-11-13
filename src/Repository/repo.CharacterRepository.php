@@ -23,27 +23,10 @@ class CharacterRepository
             return false;
         }
 
-        $requestUri = $_SERVER['REQUEST_URI'];
-
-        $segments = explode('/', $requestUri);
-
-        if(!isset($segments[3])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'URL malformée']);
-            return;
-        }
-
-        $universeId = (int) $segments[3];
-
-        if ($universeId <= 0) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Univers invalide']);
-            return;
-        }
-
         $name = $newCharacter->getName();
         $description = $newCharacter->getDescription();
         $image = $newCharacter->getImage();
+        $universeId = $characterData['universeId'];
 
         switch ($this->dbType) {
             case 'mysql':
@@ -159,14 +142,16 @@ class CharacterRepository
         switch ($this->dbType) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
-
-                $params = [':id_universe' => $universeId];
+                $sql = 'SELECT c.* FROM `character` c 
+                        INNER JOIN `universe_character` uc ON c.id = uc.characterId 
+                        WHERE uc.universeId = :universeId';
+                $parameters = [':universeId' => $universeId];
                 break;
             case 'pgsql':
-                $sql = 'SELECT * FROM "character" WHERE id_universe = $1';
-
-                $params = [$universeId];
+                $sql = 'SELECT c.* FROM "character" c 
+                        INNER JOIN "universe_character" uc ON c.id = uc.characterId 
+                        WHERE uc."universeId" = $1';
+                $parameters = [$universeId];
                 break;
             default:
                 throw new Exception("Type de base de données non reconnu");
@@ -174,7 +159,7 @@ class CharacterRepository
 
 
         try {
-            $characters = $this->dbConnector->select($sql, $params);
+            $characters = $this->dbConnector->select($sql, $parameters);
             $characterObjects = [];
 
             foreach ($characters as $character) {
@@ -218,6 +203,32 @@ class CharacterRepository
         }
     }
 
+    public function getByName($name)
+    {
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT * FROM `character` WHERE name = :name';
+                $params = [':name' => $name];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT * FROM "character" WHERE name = $1';
+                $params = [$name];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $character = $this->dbConnector->select($sql, $params);
+
+            // Convertir le résultat en objet Character si un personnage est trouvé
+            return $character ? Character::fromMap($character[0]) : null;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des personnages par nom : " . $e->getMessage());
+        }
+    }
+
     public function update($characterId, $characterData)
     {
         $existingCharacter = $this->getById($characterId);
@@ -229,25 +240,23 @@ class CharacterRepository
         $name = $characterData['name'] ?? $existingCharacter->getName();
         $description = $characterData['description'] ?? $existingCharacter->getDescription();
         $image = $characterData['image'] ?? $existingCharacter->getImage();
-        $universeId = $characterData['universeId'] ?? $existingCharacter->getUniverseId();
 
         switch ($this->dbType) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'UPDATE `character` SET name = :name, description = :description, image = :image, id_universe = :id_universe WHERE id = :characterId';
+                $sql = 'UPDATE `character` SET name = :name, description = :description, image = :image WHERE id = :characterId';
                         
                 $parameters = [
                     ':name' => $name,
                     ':description' => $description,
                     ':image' => $image,
-                    ':id_universe' => $universeId,
                     ':characterId' => $characterId
                 ];
                 break;
             case 'pgsql':
-                $sql = 'UPDATE "character" SET name = $1, description = $2, image = $3, id_universe = $4 WHERE id = $5';
+                $sql = 'UPDATE "character" SET name = $1, description = $2, image = $3 WHERE id = $4';
 
-                $parameters = [$name, $description, $image, $universeId, $characterId];
+                $parameters = [$name, $description, $image, $characterId];
                 break;
             default:
                 throw new Exception("Type de base de données non reconnu");
@@ -266,30 +275,86 @@ class CharacterRepository
         }
     }
 
-    public function delete($id)
-    {
+    public function delete($characterId) {
+        try {
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
+    
+            // Supprimer les enregistrements liés dans universe_character (si applicable)
+            switch ($this->dbType) {
+                case 'mysql':
+                case 'sqlite':
+                    $sql = 'DELETE FROM `universe_character` WHERE characterId = :characterId';
+                    $params = [':characterId' => $characterId];
+                    break;
+                case 'pgsql':
+                    $sql = 'DELETE FROM "universe_character" WHERE "characterId" = $1';
+                    $params = [$characterId];
+                    break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+            $this->dbConnector->execute($sql, $params);
+    
+            // Supprimer le personnage
+            switch ($this->dbType) {
+                case 'mysql':
+                case 'sqlite':
+                    $sql = 'DELETE FROM `character` WHERE id = :characterId';
+                    break;
+                case 'pgsql':
+                    $sql = 'DELETE FROM "character" WHERE id = $1';
+                    break;
+            }
+            $this->dbConnector->execute($sql, $params);
+    
+            // Valider la transaction
+            $this->dbConnector->commit();
+    
+            return true;
+        } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $this->dbConnector->rollBack();
+            throw new Exception("Erreur lors de la suppression du personnage : " . $e->getMessage());
+        }
+    }
+
+    public function universeExists($universeId) {
+        // La requête SQL varie en fonction du type de la base de données
         switch ($this->dbType) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'DELETE FROM `character` WHERE id = :id';
-
-                $params = [':id' => $id];
+                $sql = 'SELECT COUNT(*) FROM `universe` WHERE id = :id';
+                $params = [':id' => $universeId];
                 break;
             case 'pgsql':
-                $sql = 'DELETE FROM "character" WHERE id = $1';
-
-                $parameters = [$id];
+                $sql = 'SELECT COUNT(*) FROM "universe" WHERE id = $1';
+                $params = [$universeId];
                 break;
             default:
                 throw new Exception("Type de base de données non reconnu");
         }
 
-        $success = $this->dbConnector->execute($sql, $params);
-
-        if (!$success) {
-            throw new Exception("Erreur lors de la suppression du personnage");
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+        
+            switch ($this->dbType) {
+                case 'mysql':
+                case 'sqlite':
+                    $count = $result[0]['COUNT(*)'] ?? 0;
+                    break;
+        
+                case 'pgsql':
+                    $count = $result[0]['count'] ?? 0;
+                    break;
+        
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+        
+            return $count > 0;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la vérification de l'existence de l'univers: " . $e->getMessage());
         }
-
-        return $success;
     }
 }

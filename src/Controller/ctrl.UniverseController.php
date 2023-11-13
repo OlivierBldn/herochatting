@@ -12,6 +12,24 @@ class UniverseController
             return;
         }
 
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $segments = explode('/', $requestUri);
+
+        if(!isset($segments[3])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'URL malformée']);
+            return;
+        }
+
+        $userId = (int) $segments[3];
+        $universeRepository = new UniverseRepository();
+
+        if(!$universeRepository->userExists($userId)) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Utilisateur non trouvé']);
+            return;
+        }
+
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
 
@@ -22,17 +40,10 @@ class UniverseController
                 return;
             }
 
-            $universeRepository = new UniverseRepository();
+            $existingUniverse = $universeRepository->getByName($requestData['name']);
+            $newUniverse = $existingUniverse ? $existingUniverse->clone() : new Universe();
 
-            $existingUniverse = new Universe();
-            
-            if (!$existingUniverse) {
-                http_response_code(404);
-                echo json_encode(['message' => 'Univers non trouvé']);
-                return;
-            }
-
-            $newUniverse = $existingUniverse->clone();
+            $requestData['user_id'] = $userId;
 
             if (isset($requestData['name'])) {
                 $newUniverse->setName($requestData['name']);
@@ -47,7 +58,6 @@ class UniverseController
             $success = $universeRepository->create($newUniverse->toMap());
 
             if ($success) {
-                
                 $successResponse = [
                     'success' => true,
                     'message' => 'Univers créé avec succès.'
@@ -211,48 +221,46 @@ class UniverseController
             echo json_encode(['message' => 'Méthode non autorisée']);
             return;
         }
-
+    
         $universeId = (int) $universeId;
-
+    
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
-
+    
             if ($universeId <= 0) {
                 http_response_code(400);
                 echo json_encode(['message' => 'L\'identifiant de l\'univers est invalide']);
                 return;
             }
-
+    
             if (empty($requestData)) {
                 http_response_code(400);
                 echo json_encode(['message' => 'Aucune donnée fournie pour la mise à jour']);
                 return;
             }
-
+    
             $universeRepository = new UniverseRepository();
-
-            $existingUniverse = new Universe();
-
+            $existingUniverse = $universeRepository->getById($universeId);
+    
             if (!$existingUniverse) {
                 http_response_code(404);
                 echo json_encode(['message' => 'Univers non trouvé']);
                 return;
             }
-
-            $updatedUniverse = $existingUniverse;
-
+    
+            // Mettre à jour les propriétés de l'univers
             if (isset($requestData['name'])) {
-                $updatedUniverse->setName($requestData['name']);
+                $existingUniverse->setName($requestData['name']);
             }
             if (isset($requestData['description'])) {
-                $updatedUniverse->setDescription($requestData['description']);
+                $existingUniverse->setDescription($requestData['description']);
             }
             if (isset($requestData['image'])) {
-                $updatedUniverse->setImage($requestData['image']);
+                $existingUniverse->setImage($requestData['image']);
             }
-
-            $success = $universeRepository->update($universeId, $updatedUniverse->toMap());
-
+    
+            $success = $universeRepository->update($universeId, $existingUniverse->toMap());
+    
             if ($success) {
                 http_response_code(200);
                 echo json_encode(['message' => 'Univers mis à jour avec succès']);

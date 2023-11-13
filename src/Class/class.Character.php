@@ -1,20 +1,31 @@
 <?php // path: src/Class/class.Character.php
 
-class Character
+require __DIR__ . '/Interface/iface.CharacterPrototypeInterface.php';
+
+class Character implements CharacterPrototype
 {
     private $id;
     private $name;
     private $description;
     private $image;
-    private $universeId;
 
-    public function __construct($id = null, $name = null, $description = null, $image = null, $universeId = null)
+
+    public function __construct($id = null, $name = null, $description = null, $image = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
         $this->image = $image;
-        $this->universeId = $universeId;
+    }
+
+    public function clone(): CharacterPrototype
+    {
+        $characterClone = new Character();
+        $characterClone->setId($this->id);
+        $characterClone->setName($this->name);
+        $characterClone->setDescription($this->description);
+        $characterClone->setImage($this->image);
+        return $characterClone;
     }
 
     // Getter pour l'ID du personnage
@@ -65,18 +76,6 @@ class Character
         $this->image = $image;
     }
 
-    // Getter pour l'ID de l'univers associé au personnage (clé étrangère)
-    public function getUniverseId()
-    {
-        return $this->universeId;
-    }
-
-    // Setter pour l'ID de l'univers associé au personnage (clé étrangère)
-    public function setUniverseId($universeId)
-    {
-        $this->universeId = $universeId;
-    }
-
     public static function fromMap($map): Character
     {
         $character = new Character();
@@ -84,7 +83,6 @@ class Character
         $character->setName($map['name'] ?? null);
         $character->setDescription($map['description'] ?? null);
         $character->setImage($map['image'] ?? null);
-        $character->setUniverseId($map['id_universe'] ?? null);
         return $character;
     }
 
@@ -95,7 +93,6 @@ class Character
             'name' => $this->name,
             'description' => $this->description,
             'image' => $this->image,
-            'id_universe' => $this->universeId
         ];
     }
 }
