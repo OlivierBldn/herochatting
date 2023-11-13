@@ -23,37 +23,48 @@ class CharacterRepository
             return false;
         }
 
+        $requestUri = $_SERVER['REQUEST_URI'];
+
+        $segments = explode('/', $requestUri);
+
+        if(!isset($segments[3])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'URL malformée']);
+            return;
+        }
+
+        $universeId = (int) $segments[3];
+
+        if ($universeId <= 0) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Univers invalide']);
+            return;
+        }
+
         $name = $newCharacter->getName();
         $description = $newCharacter->getDescription();
         $image = $newCharacter->getImage();
-        $universeId = $newCharacter->getUniverseId();
 
         switch ($this->dbType) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'INSERT INTO `character` (name, description, image, id_universe) 
-                        VALUES (:name, :description, :image, :id_universe)';
+                $sql = 'INSERT INTO `character` (name, description, image) 
+                        VALUES (:name, :description, :image)';
                         
                 $parameters = [
                     ':name' => $name,
                     ':description' => $description,
                     ':image' => $image,
-                    ':id_universe' => $universeId
                 ];
                 break;
             case 'pgsql':
-                $sql = 'INSERT INTO "character" (name, description, image, id_universe) 
-                        VALUES (name, description, image, id_universe)';
-
-            case 'pgsql':
-                $sql = 'INSERT INTO "character" (name, description, image, id_universe) 
-                        VALUES ($1, $2, $3, $4)';
+                $sql = 'INSERT INTO "character" (name, description, image) 
+                        VALUES ($1, $2, $3)';
 
                 $parameters = [
                     $name,
                     $description,
                     $image,
-                    $universeId
                 ];
                 break;
             default:
@@ -64,14 +75,52 @@ class CharacterRepository
             $success = $this->dbConnector->execute($sql, $parameters);
 
             if ($success) {
-                $id = $this->dbConnector->lastInsertRowID();
+                $characterId = $this->dbConnector->lastInsertRowID();
 
-                return $id;
+                $this->linkCharacterToUniverse($universeId, $characterId);
+
+                return $characterId;
             } else {
                 throw new Exception("Erreur lors de la création du personnage");
             }
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la création du personnage : " . $e->getMessage());
+        }
+    }
+
+    public function linkCharacterToUniverse($universeId, $characterId) {
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'INSERT INTO `universe_character`
+                        VALUES (:universeId, :characterId)';
+                $parameters = [
+                    ':universeId' => $universeId,
+                    ':characterId' => $characterId
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'INSERT INTO "universe_character"
+                        VALUES ($1, $2)';
+                $parameters = [
+                    $universeId,
+                    $characterId
+                ];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+    
+        try {
+            $success = $this->dbConnector->execute($sql, $parameters);
+
+            if ($success) {
+                return true;
+            } else {
+                throw new Exception("Erreur lors de l'association du personnage à l'univers");
+            }
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de l'association du personnage à l'univers : " . $e->getMessage());
         }
     }
     

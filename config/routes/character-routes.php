@@ -5,7 +5,6 @@ $characterRoutes = [
         'class' => 'Character',
         'controller' => 'CharacterController',
         'methods' => [
-            'POST' => 'createCharacter',
             'GET' => 'getAllCharacters',
         ],
     ],
@@ -23,6 +22,7 @@ $characterRoutes = [
         'controller' => 'CharacterController',
         'methods' => [
             'GET' => 'getAllCharactersByUniverseId',
+            'POST' => 'createCharacter',
         ],
     ],
 ];
