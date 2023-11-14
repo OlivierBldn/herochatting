@@ -144,14 +144,15 @@ class CharacterController
 
         $universeId = (int) $segments[3];
 
-        if ($universeId <= 0) {
+        $characterRepository = new CharacterRepository();
+
+        if (!$characterRepository->universeExists($universeId)) {
             http_response_code(400);
-            echo json_encode(['message' => 'Univers invalide']);
+            echo json_encode(['message' => 'Univers invalide ou inexistant']);
             return;
         }
 
         try {
-            $characterRepository = new CharacterRepository();
             $characters = $characterRepository->getAllByUniverseId($universeId);
 
             if (empty($characters)) {
@@ -272,7 +273,7 @@ class CharacterController
             http_response_code(500);
             echo json_encode(['message' => 'Erreur lors de la mise à jour du personnage : ' . $e->getMessage()]);
         }
-    }    
+    }
 
     public function deleteCharacter($requestMethod, $characterId)
     {

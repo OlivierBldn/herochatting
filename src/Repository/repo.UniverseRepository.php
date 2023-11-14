@@ -59,6 +59,9 @@ class UniverseRepository
             if ($success) {
 
                 $universeId= $this->dbConnector->lastInsertRowID();
+                $requestUri = $_SERVER['REQUEST_URI'];
+                $segments = explode('/', $requestUri);
+                $userId = $segments[3];
 
                 $this->linkUniverseToUser($userId, $universeId);
 

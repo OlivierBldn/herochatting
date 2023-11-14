@@ -43,8 +43,6 @@ class UniverseController
             $existingUniverse = $universeRepository->getByName($requestData['name']);
             $newUniverse = $existingUniverse ? $existingUniverse->clone() : new Universe();
 
-            $requestData['user_id'] = $userId;
-
             if (isset($requestData['name'])) {
                 $newUniverse->setName($requestData['name']);
             }
@@ -97,14 +95,16 @@ class UniverseController
 
         $userId = (int) $segments[3];
 
-        if ($userId <= 0) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Utilisateur invalide']);
+        $universeRepository = new UniverseRepository();
+
+
+        if(!$universeRepository->userExists($userId)) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Utilisateur non trouvé']);
             return;
         }
 
         try {
-            $universeRepository = new UniverseRepository();
             $universes = $universeRepository->getAllByUserId($userId);
 
             if (empty($universes)) {
