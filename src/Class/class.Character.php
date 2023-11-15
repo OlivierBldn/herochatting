@@ -9,13 +9,12 @@ class Character implements CharacterPrototype
     private $description;
     private $image;
 
-
     public function __construct($id = null, $name = null, $description = null, $image = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
-        $this->image = $image;
+        $this->image = $image ?? "placeholder.png";
     }
 
     public function clone(): CharacterPrototype

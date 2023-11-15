@@ -1,6 +1,6 @@
 <?php // path: src/Controller/ctrl.UniverseController.php
 
-require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
+require __DIR__ . '/../Repository/repo.UniverseRepository.php';
 
 class UniverseController
 {
@@ -41,19 +41,24 @@ class UniverseController
             }
 
             $existingUniverse = $universeRepository->getByName($requestData['name']);
-            $newUniverse = $existingUniverse ? $existingUniverse->clone() : new Universe();
 
-            if (isset($requestData['name'])) {
-                $newUniverse->setName($requestData['name']);
+            switch($existingUniverse) {
+                case null:
+                    $newUniverse = new Universe();
+                    $this->setUniverseData($newUniverse, $requestData);
+                    break;
+                case true:
+                    echo json_encode(['message' => 'Un univers avec ce nom existe déjà']);
+                    $newUniverse = $existingUniverse->clone();
+                    $this->setUniverseData($existingUniverse, $existingUniverse->toMap());
+                    break;
+                default:
+                    $newUniverse = new Universe();
+                    $this->setUniverseData($newUniverse, $requestData);
+                    return;
             }
-            if (isset($requestData['description'])) {
-                $newUniverse->setDescription($requestData['description']);
-            }
-            if (isset($requestData['image'])) {
-                $newUniverse->setImage($requestData['image']);
-            }
-
-            $success = $universeRepository->create($newUniverse->toMap());
+            
+            $success = $universeRepository->create($newUniverse->toMap(), $userId);
 
             if ($success) {
                 $successResponse = [
@@ -72,6 +77,18 @@ class UniverseController
             ];
             http_response_code(500);
             echo json_encode($errorResponse);
+        }
+    }
+
+    private function setUniverseData(Universe $universe, array $requestData) {
+        if (isset($requestData['name'])) {
+            $universe->setName($requestData['name']);
+        }
+        if (isset($requestData['description'])) {
+            $universe->setDescription($requestData['description']);
+        }
+        if (isset($requestData['image'])) {
+            $universe->setImage($requestData['image']);
         }
     }
 
@@ -95,15 +112,12 @@ class UniverseController
 
         $userId = (int) $segments[3];
 
-        $universeRepository = new UniverseRepository();
-
-
-        if(!$universeRepository->userExists($userId)) {
-            http_response_code(404);
-            echo json_encode(['message' => 'Utilisateur non trouvé']);
+        if (!$universeRepository->userExists($userId)) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Utilisateur invalide']);
             return;
         }
-
+        
         try {
             $universes = $universeRepository->getAllByUserId($userId);
 
@@ -224,27 +238,21 @@ class UniverseController
     
         $universeId = (int) $universeId;
     
-        try {
-            $requestData = json_decode(file_get_contents('php://input'), true);
-    
-            if ($universeId <= 0) {
-                http_response_code(400);
-                echo json_encode(['message' => 'L\'identifiant de l\'univers est invalide']);
-                return;
-            }
-    
-            if (empty($requestData)) {
-                http_response_code(400);
-                echo json_encode(['message' => 'Aucune donnée fournie pour la mise à jour']);
-                return;
-            }
-    
+        try {    
             $universeRepository = new UniverseRepository();
             $existingUniverse = $universeRepository->getById($universeId);
     
             if (!$existingUniverse) {
                 http_response_code(404);
                 echo json_encode(['message' => 'Univers non trouvé']);
+                return;
+            }
+
+            $requestData = json_decode(file_get_contents('php://input'), true);
+    
+            if (empty($requestData)) {
+                http_response_code(400);
+                echo json_encode(['message' => 'Aucune donnée fournie pour la mise à jour']);
                 return;
             }
     

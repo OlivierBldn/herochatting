@@ -15,7 +15,7 @@ class CharacterRepository
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
-    public function create($characterData)
+    public function create($characterData, $universeId)
     {
         $newCharacter = Character::fromMap($characterData);
 
@@ -26,7 +26,6 @@ class CharacterRepository
         $name = $newCharacter->getName();
         $description = $newCharacter->getDescription();
         $image = $newCharacter->getImage();
-        $universeId = $characterData['universeId'];
 
         switch ($this->dbType) {
             case 'mysql':
@@ -229,6 +228,37 @@ class CharacterRepository
         }
     }
 
+    public function getByNameAndUniverseName($characterName, $universeName) {
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT c.* FROM `character` c 
+                        JOIN `universe_character` uc ON c.id = uc.characterId 
+                        JOIN `universe` u ON uc.universeId = u.id 
+                        WHERE c.name = :characterName AND u.name = :universeName';
+                $params = [':characterName' => $characterName, ':universeName' => $universeName];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT c.* FROM "character" c 
+                        JOIN "universe_character" uc ON c.id = uc."characterId" 
+                        JOIN "universe" u ON uc."universeId" = u.id 
+                        WHERE c.name = $1 AND u.name = $2';
+                $params = [$characterName, $universeName];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $character = $this->dbConnector->select($sql, $params);
+
+            // Convertir le résultat en objet Character si un personnage est trouvé
+            return $character ? Character::fromMap($character[0]) : null;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des personnages par nom et univers : " . $e->getMessage());
+        }
+    }
+
     public function update($characterId, $characterData)
     {
         $existingCharacter = $this->getById($characterId);
@@ -355,6 +385,57 @@ class CharacterRepository
             return $count > 0;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la vérification de l'existence de l'univers: " . $e->getMessage());
+        }
+    }
+
+    public function getAssociatedUniverseId($characterId) {
+        switch ($this->dbType) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT universeId FROM `universe_character` WHERE characterId = :characterId';
+                $params = [':characterId' => $characterId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT "universeId" FROM "universe_character" WHERE "characterId" = $1';
+                $params = [$characterId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+
+            // Retourner l'ID de l'univers si trouvé
+            return $result ? $result[0]['universeId'] : null;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération de l'ID de l'univers associé : " . $e->getMessage());
+        }
+    }
+
+    public function getUniverseNameById($universeId)
+    {
+        try {
+            switch ($this->dbType) {
+                case 'mysql':
+                case 'sqlite':
+                    $sql = 'SELECT name FROM `universe` WHERE id = :id';
+                    $params = [':id' => $universeId];
+                    break;
+                case 'pgsql':
+                    $sql = 'SELECT name FROM "universe" WHERE id = $1';
+                    $params = [$universeId];
+                    break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+
+            $result = $this->dbConnector->select($sql, $params);
+
+            // Vérifier si un enregistrement est retourné et renvoyer le nom de l'univers
+            return $result ? $result[0]['name'] : null;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération du nom de l'univers : " . $e->getMessage());
         }
     }
 }

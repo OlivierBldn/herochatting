@@ -15,7 +15,7 @@ class UniverseRepository
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
-    public function create($universeData)
+    public function create($universeData, $userId)
     {
         $newUniverse = Universe::fromMap($universeData);
 

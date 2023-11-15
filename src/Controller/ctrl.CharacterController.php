@@ -15,7 +15,7 @@ class CharacterController
         $requestUri = $_SERVER['REQUEST_URI'];
         $segments = explode('/', $requestUri);
     
-        if (!isset($segments[3])) {
+        if(!isset($segments[3])) {
             http_response_code(400);
             echo json_encode(['message' => 'URL malformée']);
             return;
@@ -42,25 +42,30 @@ class CharacterController
             }
     
             // Récupération d'un personnage existant ou création d'un nouveau
-            $existingCharacter = $characterRepository->getByName($requestData['name']);
-            $newCharacter = $existingCharacter ? $existingCharacter->clone() : new Character();
-    
-            // Mise à jour des propriétés du personnage
-            $requestData['universeId'] = $universeId;
+            $existingCharacter = $characterRepository->getByNameAndUniverseName($requestData['name'], $characterRepository->getUniverseNameById($universeId));
 
-            if (isset($requestData['name'])) {
-                $newCharacter->setName($requestData['name']);
-            }
-            if (isset($requestData['description'])) {
-                $newCharacter->setDescription($requestData['description']);
-            }
-            if (isset($requestData['image'])) {
-                $newCharacter->setImage($requestData['image']);
+            switch($existingCharacter) {
+                case null:
+                    // Créer un nouveau personnage si aucun personnage existant n'a été trouvé
+                    $newCharacter = new Character();
+                    $this->setCharacterData($newCharacter, $requestData);
+                    break;
+                case true:
+                    // Cloner le personnage existant
+                    $newCharacter = $existingCharacter->clone();
+                    $this->setCharacterData($existingCharacter, $existingCharacter->toMap());
+                    break;
+                default:
+                    // Gérer les autres cas (si nécessaire)
+                    $newCharacter = new Character();
+                    $this->setCharacterData($newCharacter, $requestData);
+                    return;
             }
             
-            $success = $characterRepository->create($requestData);
+            $success = $characterRepository->create($newCharacter->toMap(), $universeId);
     
             if ($success) {
+
                 $successResponse = [
                     'success' => true,
                     'message' => 'Personnage créé avec succès.'
@@ -78,7 +83,19 @@ class CharacterController
             http_response_code(500);
             echo json_encode($errorResponse);
         }
-    }    
+    }
+
+    private function setCharacterData(Character $character, array $requestData) {
+        if (isset($requestData['name'])) {
+            $character->setName($requestData['name']);
+        }
+        if (isset($requestData['description'])) {
+            $character->setDescription($requestData['description']);
+        }
+        if (isset($requestData['image'])) {
+            $character->setImage($requestData['image']);
+        }
+    }
 
     public function getAllCharacters($requestMethod)
     {
@@ -143,7 +160,6 @@ class CharacterController
         }
 
         $universeId = (int) $segments[3];
-
         $characterRepository = new CharacterRepository();
 
         if (!$characterRepository->universeExists($universeId)) {
