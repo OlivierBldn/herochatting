@@ -1,10 +1,12 @@
 <?php // path: src/Class/class.JWTFactory.php
 
-require_once 'vendor/autoload.php';
-use \Firebase\JWT\JWT;
-use \Firebase\JWT\Key;
+require_once __DIR__ . '/class.JWTKeySingleton.php';
+
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class JWTFactory {
+    
     public static function createToken($payload) {
         $key = JWTKeySingleton::getInstance()->getSecretKey();
         return JWT::encode($payload, $key, 'HS256');
