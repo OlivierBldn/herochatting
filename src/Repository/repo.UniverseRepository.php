@@ -1,16 +1,19 @@
 <?php // path: src/Repository/repo.UniverseRepository.php
 
 require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require __DIR__ . '/../../config/db_config.php';
+// require __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class UniverseRepository
 {
     private $dbConnector;
-    private $dbType;
+    // private $dbType;
 
     public function __construct()
     {
-        $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
+
+        // $this->dbType = __DB_INFOS__['database_type'];
         
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
@@ -27,7 +30,7 @@ class UniverseRepository
         $description = $newUniverse->getDescription();
         $image = $newUniverse->getImage();
 
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'INSERT INTO `universe` (name, description, image) 
@@ -75,7 +78,7 @@ class UniverseRepository
     }
 
     public function linkUniverseToUser($userId, $universeId) {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'INSERT INTO `user_universe`
@@ -112,7 +115,7 @@ class UniverseRepository
 
     public function getAll()
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `universe`';
@@ -140,7 +143,7 @@ class UniverseRepository
     }
 
     public function getAllByUserId($userId) {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT u.* FROM `universe` u 
@@ -174,7 +177,7 @@ class UniverseRepository
 
     public function getById($id)
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `universe` WHERE id = :id';
@@ -205,7 +208,7 @@ class UniverseRepository
 
     public function getByName($name)
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `universe` WHERE name = :name';
@@ -241,7 +244,7 @@ class UniverseRepository
         $description = $universeData['description'] ?? $existingUniverse->getDescription();
         $image = $universeData['image'] ?? $existingUniverse->getImage();
     
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'UPDATE `universe` SET name = :name, description = :description, image = :image WHERE id = :universeId';
@@ -286,7 +289,7 @@ class UniverseRepository
             $this->dbConnector->beginTransaction();
 
             // Supprimer les enregistrements liés dans user_universe
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'DELETE FROM `user_universe` WHERE universeId = :universeId';
@@ -302,7 +305,7 @@ class UniverseRepository
             $this->dbConnector->execute($sql, $params);
 
             // Supprimer l'univers
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'DELETE FROM `universe` WHERE id = :universeId';
@@ -326,7 +329,7 @@ class UniverseRepository
     }
 
     public function userExists($userId) {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT COUNT(*) FROM `user` WHERE id = :userId';
@@ -343,7 +346,7 @@ class UniverseRepository
         try {
             $result = $this->dbConnector->select($sql, $params);
         
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $count = $result[0]['COUNT(*)'] ?? 0;

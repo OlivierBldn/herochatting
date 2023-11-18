@@ -1,15 +1,18 @@
 <?php // path: src/Repository/repo.UserRepository.php
 
 require __DIR__ . '/repo.UniverseRepository.php';
+// require __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class UserRepository
 {
     private $dbConnector;
-    private $dbType;
+    // private $dbType;
 
     public function __construct()
     {
-        $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        // $this->dbType = __DB_INFOS__['database_type'];
         
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
@@ -33,7 +36,7 @@ class UserRepository
         $firstName = $newUser->getFirstName();
         $lastName = $newUser->getLastName();
 
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'INSERT INTO `user` (email, password, username, firstName, lastName) 
@@ -80,7 +83,7 @@ class UserRepository
 
     public function getAll()
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `user`';
@@ -109,7 +112,7 @@ class UserRepository
 
     public function getById($id)
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `user` WHERE id = :id';
@@ -140,7 +143,7 @@ class UserRepository
 
     public function getByEmail($email)
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `user` WHERE email = :email';
@@ -193,7 +196,7 @@ class UserRepository
             $existingUser->setPassword($userData['password']);
         }
     
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'UPDATE `user` SET email = :email, username = :username, firstName = :firstName, lastName = :lastName, password = :password WHERE id = :userId';
@@ -252,7 +255,7 @@ class UserRepository
             }
 
             // Supprimer l'utilisateur
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sqlDeleteUser = 'DELETE FROM `user` WHERE id = :id';
@@ -265,7 +268,7 @@ class UserRepository
             }
 
             // Exécuter la requête de suppression de l'utilisateur
-            $this->dbConnector->execute($sqlDeleteUser, $this->dbType === 'pgsql' ? [$id] : [':id' => $id]);
+            $this->dbConnector->execute($sqlDeleteUser, __DB_INFOS__['database_type'] === 'pgsql' ? [$id] : [':id' => $id]);
 
             // Valider la transaction
             $this->dbConnector->commit();

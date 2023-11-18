@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/Class/class.Autoloader.php';
-require __DIR__ . '/config/api_config.php';
+require __DIR__ . '/config/cfg_gobalConfig.php';
 require __DIR__ . '/src/Class/class.RouteHandler.php';
 $userRoutes = require __DIR__ . '/config/routes/user-routes.php';
 $universeRoutes = require __DIR__ . '/config/routes/universe-routes.php';

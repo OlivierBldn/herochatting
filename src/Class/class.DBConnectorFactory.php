@@ -1,15 +1,13 @@
 <?php // path: src/Class/class.DBConnectorFactory.php
 
+// require __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+
 class DBConnectorFactory
 {
     public static function getConnector()
     {
-
-        $config = require(__DIR__ . '/../../config/db_config.php');
-
-        $databaseType = $config['database_type'];
-
-        switch ($databaseType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'sqlite':
                 $realDatabase = new SQLiteDatabase();
                 break;

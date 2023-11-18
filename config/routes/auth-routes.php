@@ -2,6 +2,7 @@
 
 $authRoutes = [
     '~^/auth/login$~' => [
+        'class' => 'JWTKeySingleton',
         'controller' => 'AuthController',
         'methods' => [
             'POST' => 'authenticate',

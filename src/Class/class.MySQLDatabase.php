@@ -1,21 +1,26 @@
 <?php // path: src/Class/class.MySQLDatabase.php
 
-require __DIR__ . '/../../config/db_config.php';
+// require __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
 class MySQLDatabase extends AbstractDatabase
 {
     public function __construct()
     {
-        global $dbinfos;
-
-        $mysqlConfig = $dbinfos['mysql'];
+        // $mysqlConfig = __DB_INFOS__['mysql'];
 
         try {
+            // $this->connection = new PDO(
+            //     'mysql:host=' . $mysqlConfig['host'] . ';dbname=' . $mysqlConfig['dbname'],
+            //     $mysqlConfig['username'],
+            //     $mysqlConfig['password']
+            // );
+
             $this->connection = new PDO(
-                'mysql:host=' . $mysqlConfig['host'] . ';dbname=' . $mysqlConfig['dbname'],
-                $mysqlConfig['username'],
-                $mysqlConfig['password']
+                'mysql:host=' . __DB_INFOS__['mysql']['host'] . ';dbname=' . __DB_INFOS__['mysql']['dbname'],
+                __DB_INFOS__['mysql']['username'],
+                __DB_INFOS__['mysql']['password']
             );
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {

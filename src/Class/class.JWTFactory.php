@@ -1,6 +1,6 @@
 <?php // path: src/Class/class.JWTFactory.php
 
-require_once __DIR__ . '/class.JWTKeySingleton.php';
+require __DIR__ . '/class.JWTKeySingleton.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;

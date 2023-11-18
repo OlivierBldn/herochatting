@@ -1,7 +1,16 @@
 <?php // path: src/Class/class.RouteHandler.php
 
+require __DIR__ . '/Middleware/mdw.AuthHandlerMiddleware.php';
+
 class RouteHandler
 {
+    private $authMiddleware;
+
+    public function __construct()
+    {
+        $this->authMiddleware = new AuthHandlerMiddleware();
+    }
+
     // Fonction de routage
     function routeRequest($uri, $routes, $requestMethod)
     {
@@ -17,16 +26,23 @@ class RouteHandler
         foreach ($routes as $pattern => $route) {
 
             if (preg_match($pattern, $uri, $matches)) {
-                // $className = $route['class'];
+                $className = $route['class'];
                 $controllerName = $route['controller'];
                 $methodName = $route['methods'][$requestMethod];
 
-                // if (!class_exists($className)) {
-                //     // Classe non trouvée
-                //     http_response_code(404);
-                //     echo json_encode(['message' => 'Classe non trouvée']);
-                //     return;
-                // }
+                if (!in_array($uri, __UNPROTECTED_ROUTES__)) {
+                    $response = $this->authMiddleware->handle($requestMethod);
+                    if ($response === null) {
+                        return;
+                    }
+                }
+
+                if (!class_exists($className)) {
+                    // Classe non trouvée
+                    http_response_code(404);
+                    echo json_encode(['message' => 'Classe non trouvée']);
+                    return;
+                }
                 $controller = new $controllerName();
 
                 if (!method_exists($controller, $methodName)) {

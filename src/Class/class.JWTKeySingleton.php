@@ -1,5 +1,7 @@
 <?php // path: src/Class/class.JWTKeySingleton.php
 
+require __DIR__ . '/../../config/cfg_apiConfig.php';
+
 class JWTKeySingleton {
     private static $instance = null;
     private $secretKey;

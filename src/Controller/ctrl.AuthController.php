@@ -6,7 +6,7 @@ require_once __DIR__ . '/../Repository/repo.UserRepository.php';
 
 class AuthController {
 
-    private $websiteUrl = __WEBSITE_URL__;
+    // private $websiteUrl = __WEBSITE_URL__;
 
     public function authenticate($request) {
         $requestData = json_decode(file_get_contents('php://input'), true);
@@ -31,7 +31,7 @@ class AuthController {
 
             $payload = [
                 'iat'  => $date->getTimestamp(),
-                'aud' => $this->websiteUrl,
+                'aud' => __WEBSITE_URL__,
                 'exp'  => $expire_at,
                 'id' => $user->getId(),
                 'email' => $user->getEmail(),
@@ -41,7 +41,17 @@ class AuthController {
             $jwtKey = JWTKeySingleton::getInstance()->getSecretKey();
             $token = JWTFactory::createToken($payload, $jwtKey);
 
-            return json_encode(['token' => $token]);
+            // return json_encode(['token' => $token]);
+
+            echo json_encode([
+                'token' => $token,
+                'expire_at' => $expire_at,
+                'user' => [
+                    'id' => $user->getId(),
+                    'email' => $user->getEmail(),
+                    'username' => $user->getUsername()
+                ]
+            ]);
         } else {
             http_response_code(401);
             return json_encode(['error' => 'Authentification échouée']);

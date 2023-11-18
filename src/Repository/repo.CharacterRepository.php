@@ -1,16 +1,19 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
 require __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require __DIR__ . '/../../config/db_config.php';
+// require __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class CharacterRepository
 {
     private $dbConnector;
-    private $dbType;
+    // private $dbType;
 
     public function __construct()
     {
-        $this->dbType = $GLOBALS['dbinfos']['database_type'];
+        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
+
+        // $this->dbType = __DB_INFOS__['database_type'];
         
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
@@ -27,7 +30,7 @@ class CharacterRepository
         $description = $newCharacter->getDescription();
         $image = $newCharacter->getImage();
 
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'INSERT INTO `character` (name, description, image) 
@@ -71,7 +74,7 @@ class CharacterRepository
     }
 
     public function linkCharacterToUniverse($universeId, $characterId) {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'INSERT INTO `universe_character`
@@ -108,7 +111,7 @@ class CharacterRepository
     
     public function getAll()
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `character`';
@@ -138,7 +141,7 @@ class CharacterRepository
     public function getAllByUniverseId($universeId)
     {
         // $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT c.* FROM `character` c 
@@ -173,7 +176,7 @@ class CharacterRepository
 
     public function getById($id)
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `character` WHERE id = :id';
@@ -204,7 +207,7 @@ class CharacterRepository
 
     public function getByName($name)
     {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT * FROM `character` WHERE name = :name';
@@ -229,7 +232,7 @@ class CharacterRepository
     }
 
     public function getByNameAndUniverseName($characterName, $universeName) {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT c.* FROM `character` c 
@@ -271,7 +274,7 @@ class CharacterRepository
         $description = $characterData['description'] ?? $existingCharacter->getDescription();
         $image = $characterData['image'] ?? $existingCharacter->getImage();
 
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'UPDATE `character` SET name = :name, description = :description, image = :image WHERE id = :characterId';
@@ -311,7 +314,7 @@ class CharacterRepository
             $this->dbConnector->beginTransaction();
     
             // Supprimer les enregistrements liés dans universe_character (si applicable)
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'DELETE FROM `universe_character` WHERE characterId = :characterId';
@@ -327,7 +330,7 @@ class CharacterRepository
             $this->dbConnector->execute($sql, $params);
     
             // Supprimer le personnage
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'DELETE FROM `character` WHERE id = :characterId';
@@ -351,7 +354,7 @@ class CharacterRepository
 
     public function universeExists($universeId) {
         // La requête SQL varie en fonction du type de la base de données
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT COUNT(*) FROM `universe` WHERE id = :id';
@@ -368,7 +371,7 @@ class CharacterRepository
         try {
             $result = $this->dbConnector->select($sql, $params);
         
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $count = $result[0]['COUNT(*)'] ?? 0;
@@ -389,7 +392,7 @@ class CharacterRepository
     }
 
     public function getAssociatedUniverseId($characterId) {
-        switch ($this->dbType) {
+        switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
                 $sql = 'SELECT universeId FROM `universe_character` WHERE characterId = :characterId';
@@ -416,7 +419,7 @@ class CharacterRepository
     public function getUniverseNameById($universeId)
     {
         try {
-            switch ($this->dbType) {
+            switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'SELECT name FROM `universe` WHERE id = :id';
