@@ -1,15 +1,16 @@
 <?php // path: src/Class/class.SQLiteDatabase.php
 
-require __DIR__ . '/../../config/db_config.php';
+// require __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
 class SQLiteDatabase extends AbstractDatabase
 {
     public function __construct()
     {
-        global $dbinfos;
+        // global $dbinfos;
 
-        $databaseFile = __DIR__ . '/../../database/'.$dbinfos['sqlite']['database_file'];
+        $databaseFile = __DIR__ . '/../../database/'.__DB_INFOS__['sqlite']['database_file'];
 
         try {
             $this->connection = new SQLite3($databaseFile);

@@ -1,12 +1,13 @@
 <?php // path: index.php
 
-// Appel du fichier de l'autoloader
+require_once __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/src/Class/class.Autoloader.php';
-require __DIR__ . '/config/api_config.php';
+require __DIR__ . '/config/cfg_gobalConfig.php';
 require __DIR__ . '/src/Class/class.RouteHandler.php';
 $userRoutes = require __DIR__ . '/config/routes/user-routes.php';
 $universeRoutes = require __DIR__ . '/config/routes/universe-routes.php';
 $characterRoutes = require __DIR__ . '/config/routes/character-routes.php';
+$authRoutes = require __DIR__ . '/config/routes/auth-routes.php';
 
 // Enregistrement de l'autoloader
 Autoloader::register();
@@ -18,7 +19,7 @@ $basePath = '/'.__WEBSITE_URL__;
 $uri = str_replace($basePath, '', $uri);
 
 // Chargement de configuration de routage
-$routes = array_merge($userRoutes, $universeRoutes, $characterRoutes);
+$routes = array_merge($userRoutes, $universeRoutes, $characterRoutes, $authRoutes);
 
 // Création d'une instance de RouterController
 $routeHandler = new RouteHandler();

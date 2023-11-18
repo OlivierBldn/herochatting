@@ -108,10 +108,11 @@ class User
         $user = new User();
         $user->setId($map['id'] ?? null);
         $user->setEmail($map['email'] ?? null);
-        $user->setPassword($map['password'] ?? null);
+        // $user->setPassword($map['password'] ?? null);
         $user->setUsername($map['username'] ?? null);
         $user->setFirstName($map['firstName'] ?? null);
         $user->setLastName($map['lastName'] ?? null);
+        $user->password = $map['password'] ?? null;
     
         return $user;
     }
