@@ -1,7 +1,6 @@
 <?php // path: src/Repository/repo.UniverseRepository.php
 
 require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-// require __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class UniverseRepository
@@ -11,10 +10,6 @@ class UniverseRepository
 
     public function __construct()
     {
-        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
-
-        // $this->dbType = __DB_INFOS__['database_type'];
-        
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
@@ -313,7 +308,6 @@ class UniverseRepository
                 case 'pgsql':
                     $sql = 'DELETE FROM "universe" WHERE id = $1';
                     break;
-                // Pas besoin de default case ici car déjà géré ci-dessus
             }
             $this->dbConnector->execute($sql, $params);
 

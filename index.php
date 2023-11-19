@@ -8,6 +8,7 @@ $userRoutes = require __DIR__ . '/config/routes/user-routes.php';
 $universeRoutes = require __DIR__ . '/config/routes/universe-routes.php';
 $characterRoutes = require __DIR__ . '/config/routes/character-routes.php';
 $authRoutes = require __DIR__ . '/config/routes/auth-routes.php';
+$messageRoutes = require __DIR__ . '/config/routes/message-routes.php';
 
 // Enregistrement de l'autoloader
 Autoloader::register();
@@ -19,7 +20,7 @@ $basePath = '/'.__WEBSITE_URL__;
 $uri = str_replace($basePath, '', $uri);
 
 // Chargement de configuration de routage
-$routes = array_merge($userRoutes, $universeRoutes, $characterRoutes, $authRoutes);
+$routes = array_merge($userRoutes, $universeRoutes, $characterRoutes, $authRoutes, $messageRoutes);
 
 // Création d'une instance de RouterController
 $routeHandler = new RouteHandler();

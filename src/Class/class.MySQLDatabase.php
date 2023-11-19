@@ -1,6 +1,5 @@
 <?php // path: src/Class/class.MySQLDatabase.php
 
-// require __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
@@ -8,20 +7,15 @@ class MySQLDatabase extends AbstractDatabase
 {
     public function __construct()
     {
-        // $mysqlConfig = __DB_INFOS__['mysql'];
+        $mysqlConfig = __DB_INFOS__['mysql'];
 
         try {
-            // $this->connection = new PDO(
-            //     'mysql:host=' . $mysqlConfig['host'] . ';dbname=' . $mysqlConfig['dbname'],
-            //     $mysqlConfig['username'],
-            //     $mysqlConfig['password']
-            // );
-
             $this->connection = new PDO(
-                'mysql:host=' . __DB_INFOS__['mysql']['host'] . ';dbname=' . __DB_INFOS__['mysql']['dbname'],
-                __DB_INFOS__['mysql']['username'],
-                __DB_INFOS__['mysql']['password']
+                'mysql:host=' . $mysqlConfig['host'] . ';dbname=' . $mysqlConfig['dbname'],
+                $mysqlConfig['username'],
+                $mysqlConfig['password']
             );
+
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             die("Erreur de connexion à la base de données : " . $e->getMessage());

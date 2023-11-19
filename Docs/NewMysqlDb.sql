@@ -24,7 +24,7 @@ CREATE TABLE `character` (
 CREATE TABLE `message` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     description TEXT,
-    date DATETIME,
+    createdAt DATETIME,
     is_human BOOLEAN
 );
 
@@ -59,3 +59,10 @@ CREATE TABLE `chat_message` (
     FOREIGN KEY (chatId) REFERENCES chat(id),
     FOREIGN KEY (messageId) REFERENCES `message`(id)
 );
+
+CREATE TABLE `character_chat` (
+  `characterId` int(11) NOT NULL,
+  `chatId` int(11) NOT NULL,
+  FOREIGN KEY (`characterId`) REFERENCES `character` (`id`),
+  FOREIGN KEY (`chatId`) REFERENCES `chat` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

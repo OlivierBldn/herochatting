@@ -1,20 +1,14 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
 require __DIR__ . '/../Class/class.DBConnectorFactory.php';
-// require __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class CharacterRepository
 {
     private $dbConnector;
-    // private $dbType;
 
     public function __construct()
     {
-        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
-
-        // $this->dbType = __DB_INFOS__['database_type'];
-        
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
