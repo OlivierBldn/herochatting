@@ -1,6 +1,5 @@
 <?php // path: src/Class/PostgreSQLDatabase.php
 
-// require __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
@@ -10,11 +9,9 @@ class PostgreSQLDatabase extends AbstractDatabase
 
     public function __construct()
     {
-        // $pgsqlConfig = __DB_INFOS__['pgsql'];
+        $pgsqlConfig = __DB_INFOS__['pgsql'];
 
-        // $connectionString = "host={$pgsqlConfig['host']} port={$pgsqlConfig['port']} dbname={$pgsqlConfig['dbname']} user={$pgsqlConfig['username']} password={$pgsqlConfig['password']}";
-
-        $connectionString = "host={__DB_INFOS__['pgsql']['host']} port={__DB_INFOS__['pgsql']['port']} dbname={__DB_INFOS__['pgsql']['dbname']} user={__DB_INFOS__['pgsql']['username']} password={__DB_INFOS__['pgsql']['password']}";
+        $connectionString = "host={$pgsqlConfig['host']} port={$pgsqlConfig['port']} dbname={$pgsqlConfig['dbname']} user={$pgsqlConfig['username']} password={$pgsqlConfig['password']}";
 
         $this->connection = pg_connect($connectionString);
 

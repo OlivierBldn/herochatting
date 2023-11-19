@@ -207,8 +207,6 @@ class UniverseController
             return;
         }
 
-        $universeId = (int) $universeId;
-
         try {
             $universeRepository = new UniverseRepository();
             $universe = $universeRepository->getById($universeId);

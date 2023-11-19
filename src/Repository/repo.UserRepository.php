@@ -1,7 +1,6 @@
 <?php // path: src/Repository/repo.UserRepository.php
 
 require __DIR__ . '/repo.UniverseRepository.php';
-// require __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class UserRepository
@@ -11,9 +10,6 @@ class UserRepository
 
     public function __construct()
     {
-        // $this->dbType = $GLOBALS['dbinfos']['database_type'];
-        // $this->dbType = __DB_INFOS__['database_type'];
-        
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 

@@ -28,7 +28,7 @@ CREATE TABLE character (
 CREATE TABLE message (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     description TEXT,
-    date DATETIME,
+    createdAt DATETIME,
     is_human BOOLEAN
 );
 
@@ -67,4 +67,12 @@ CREATE TABLE chat_message (
     messageId INT,
     FOREIGN KEY (chatId) REFERENCES chat(id),
     FOREIGN KEY (messageId) REFERENCES message(id)
+);
+
+-- Création de la table character_chat
+CREATE TABLE character_chat (
+  characterId int NOT NULL,
+  chatId int NOT NULL,
+  FOREIGN KEY (characterId) REFERENCES character (id),
+  FOREIGN KEY (chatId) REFERENCES chat (id)
 );
