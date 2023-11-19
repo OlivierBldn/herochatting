@@ -1,4 +1,5 @@
 ###> config ###
 api_config.php
 db_config.php
+vendor
 ###< config ###
