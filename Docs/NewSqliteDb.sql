@@ -27,7 +27,7 @@ CREATE TABLE character (
 -- Création de la table message
 CREATE TABLE message (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    description TEXT,
+    content TEXT,
     createdAt DATETIME,
     is_human BOOLEAN
 );

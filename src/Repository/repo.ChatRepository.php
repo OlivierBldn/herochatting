@@ -10,26 +10,24 @@ class ChatRepository {
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
-    public function create(Chat $chat, $userId, $characterId) {
+    public function create($userId, $characterId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'INSERT INTO chat (name, description) VALUES (:name, :description)';
-                $params = [':name' => $chat->getName(), ':description' => $chat->getDescription()];
+                $sql = 'INSERT INTO chat DEFAULT VALUES';
                 break;
             case 'pgsql':
-                $sql = 'INSERT INTO "chat" (name, description) VALUES ($1, $2)';
-                $params = [$chat->getName(), $chat->getDescription()];
+                $sql = 'INSERT INTO "chat" DEFAULT VALUES';
                 break;
             default:
                 throw new Exception("Type de base de données non reconnu");
         }
 
         try {
-            $this->dbConnector->execute($sql, $params);
+            $this->dbConnector->execute($sql);
             $chatId = $this->dbConnector->lastInsertRowID();
 
-            $this->llinkChatToUser($chatId, $userId);
+            $this->linkChatToUser($chatId, $userId);
             $this->linkChatToCharacter($chatId, $characterId);
 
             return $chatId;
@@ -50,12 +48,15 @@ class ChatRepository {
             default:
                 throw new Exception("Type de base de données non reconnu");
         }
-
+    
         try {
             $chatsArray = $this->dbConnector->select($sql);
             $chats = [];
             foreach ($chatsArray as $chatData) {
-                $chats[] = Chat::fromMap($chatData);
+                $builder = new ChatBuilder();
+                $chat = $builder->withId($chatData['id'])
+                                ->build();
+                $chats[] = $chat;
             }
             return $chats;
         } catch (Exception $e) {
@@ -77,11 +78,14 @@ class ChatRepository {
             default:
                 throw new Exception("Type de base de données non reconnu");
         }
-
+    
         try {
             $result = $this->dbConnector->select($sql, $params);
             if (!empty($result)) {
-                return Chat::fromMap($result[0]);
+                $builder = new ChatBuilder();
+                $chat = $builder->withId($chatId)
+                                ->build();
+                return $chat;
             } else {
                 return null;
             }
@@ -89,83 +93,84 @@ class ChatRepository {
             throw new Exception("Erreur lors de la récupération de la conversation : " . $e->getMessage());
         }
     }
+    
 
-    public function getByUserId($userId) {
-        switch (__DB_INFOS__['database_type']) {
-            case 'mysql':
-            case 'sqlite':
-                $sql = 'SELECT c.* FROM chat c INNER JOIN user_chat uc ON c.id = uc.chatId WHERE uc.userId = :userId';
-                $params = [':userId' => $userId];
-                break;
-            case 'pgsql':
-                $sql = 'SELECT c.* FROM "chat" c INNER JOIN "user_chat" uc ON c.id = uc."chatId" WHERE uc."userId" = $1';
-                $params = [$userId];
-                break;
-            default:
-                throw new Exception("Type de base de données non reconnu");
-        }
+    // public function getByUserId($userId) {
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'SELECT c.* FROM chat c INNER JOIN user_chat uc ON c.id = uc.chatId WHERE uc.userId = :userId';
+    //             $params = [':userId' => $userId];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'SELECT c.* FROM "chat" c INNER JOIN "user_chat" uc ON c.id = uc."chatId" WHERE uc."userId" = $1';
+    //             $params = [$userId];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
 
-        try {
-            $chatsArray = $this->dbConnector->select($sql, $params);
-            $chats = [];
-            foreach ($chatsArray as $chatData) {
-                $chats[] = Chat::fromMap($chatData);
-            }
-            return $chats;
-        } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des conversations par utilisateur : " . $e->getMessage());
-        }
-    }
+    //     try {
+    //         $chatsArray = $this->dbConnector->select($sql, $params);
+    //         $chats = [];
+    //         foreach ($chatsArray as $chatData) {
+    //             $chats[] = Chat::fromMap($chatData);
+    //         }
+    //         return $chats;
+    //     } catch (Exception $e) {
+    //         throw new Exception("Erreur lors de la récupération des conversations par utilisateur : " . $e->getMessage());
+    //     }
+    // }
 
-    public function getByCharacterId($characterId) {
-        switch (__DB_INFOS__['database_type']) {
-            case 'mysql':
-            case 'sqlite':
-                $sql = 'SELECT c.* FROM chat c INNER JOIN character_chat cc ON c.id = cc.chatId WHERE cc.characterId = :characterId';
-                $params = [':characterId' => $characterId];
-                break;
-            case 'pgsql':
-                $sql = 'SELECT c.* FROM "chat" c INNER JOIN "character_chat" cc ON c.id = cc."chatId" WHERE cc."characterId" = $1';
-                $params = [$characterId];
-                break;
-            default:
-                throw new Exception("Type de base de données non reconnu");
-        }
+    // public function getByCharacterId($characterId) {
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'SELECT c.* FROM chat c INNER JOIN character_chat cc ON c.id = cc.chatId WHERE cc.characterId = :characterId';
+    //             $params = [':characterId' => $characterId];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'SELECT c.* FROM "chat" c INNER JOIN "character_chat" cc ON c.id = cc."chatId" WHERE cc."characterId" = $1';
+    //             $params = [$characterId];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
 
-        try {
-            $chatsArray = $this->dbConnector->select($sql, $params);
-            $chats = [];
-            foreach ($chatsArray as $chatData) {
-                $chats[] = Chat::fromMap($chatData);
-            }
-            return $chats;
-        } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des conversations par personnage : " . $e->getMessage());
-        }
-    }
+    //     try {
+    //         $chatsArray = $this->dbConnector->select($sql, $params);
+    //         $chats = [];
+    //         foreach ($chatsArray as $chatData) {
+    //             $chats[] = Chat::fromMap($chatData);
+    //         }
+    //         return $chats;
+    //     } catch (Exception $e) {
+    //         throw new Exception("Erreur lors de la récupération des conversations par personnage : " . $e->getMessage());
+    //     }
+    // }
 
-    public function update($chatId, Chat $chat) {
-        switch (__DB_INFOS__['database_type']) {
-            case 'mysql':
-            case 'sqlite':
-                $sql = 'UPDATE chat SET name = :name, description = :description WHERE id = :id';
-                $params = [':name' => $chat->getName(), ':description' => $chat->getDescription(), ':id' => $chatId];
-                break;
-            case 'pgsql':
-                $sql = 'UPDATE "chat" SET name = $1, description = $2 WHERE id = $3';
-                $params = [$chat->getName(), $chat->getDescription(), $chatId];
-                break;
-            default:
-                throw new Exception("Type de base de données non reconnu");
-        }
+    // public function update($chatId, Chat $chat) {
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'UPDATE chat SET name = :name, description = :description WHERE id = :id';
+    //             $params = [':name' => $chat->getName(), ':description' => $chat->getDescription(), ':id' => $chatId];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'UPDATE "chat" SET name = $1, description = $2 WHERE id = $3';
+    //             $params = [$chat->getName(), $chat->getDescription(), $chatId];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
 
-        try {
-            $this->dbConnector->execute($sql, $params);
-            return true;
-        } catch (Exception $e) {
-            throw new Exception("Erreur lors de la mise à jour de la conversation: " . $e->getMessage());
-        }
-    }
+    //     try {
+    //         $this->dbConnector->execute($sql, $params);
+    //         return true;
+    //     } catch (Exception $e) {
+    //         throw new Exception("Erreur lors de la mise à jour de la conversation: " . $e->getMessage());
+    //     }
+    // }
 
     public function delete($chatId) {
         switch (__DB_INFOS__['database_type']) {

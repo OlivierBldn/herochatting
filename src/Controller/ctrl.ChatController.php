@@ -9,6 +9,30 @@ class ChatController {
         $this->chatRepository = new ChatRepository();
     }
 
+    // public function createChat($requestMethod) {
+    //     if ($requestMethod !== 'POST') {
+    //         http_response_code(405);
+    //         echo json_encode(['message' => 'Method Not Allowed']);
+    //         return;
+    //     }
+
+    //     try {
+    //         $requestData = json_decode(file_get_contents('php://input'), true);
+    //         $chat = Chat::fromMap($requestData);
+
+    //         $userId = $requestData['userId'];
+    //         $characterId = $requestData['characterId'];
+
+    //         $chatId = $this->chatRepository->create($chat, $userId, $characterId);
+
+    //         http_response_code(201);
+    //         echo json_encode(['message' => 'Chat created successfully', 'chatId' => $chatId]);
+    //     } catch (Exception $e) {
+    //         http_response_code(500);
+    //         echo json_encode(['message' => 'Error creating chat: ' . $e->getMessage()]);
+    //     }
+    // }
+
     public function createChat($requestMethod) {
         if ($requestMethod !== 'POST') {
             http_response_code(405);
@@ -17,13 +41,15 @@ class ChatController {
         }
 
         try {
+            // Récupérer les données du chat depuis la requête
             $requestData = json_decode(file_get_contents('php://input'), true);
-            $chat = Chat::fromMap($requestData);
 
-            $userId = $requestData['userId'];
-            $characterId = $requestData['characterId'];
+            // Utiliser ChatBuilder pour construire l'objet Chat
+            $chatBuilder = new ChatBuilder();
+            $chat = $chatBuilder->build();
 
-            $chatId = $this->chatRepository->create($chat, $userId, $characterId);
+            // Enregistrer le chat dans la base de données
+            $chatId = $this->chatRepository->create($chat);
 
             http_response_code(201);
             echo json_encode(['message' => 'Chat created successfully', 'chatId' => $chatId]);
@@ -74,29 +100,29 @@ class ChatController {
         }
     }
 
-    public function updateChat($requestMethod, $chatId) {
-        if ($requestMethod !== 'PUT') {
-            http_response_code(405);
-            echo json_encode(['message' => 'Method Not Allowed']);
-            return;
-        }
+    // public function updateChat($requestMethod, $chatId) {
+    //     if ($requestMethod !== 'PUT') {
+    //         http_response_code(405);
+    //         echo json_encode(['message' => 'Method Not Allowed']);
+    //         return;
+    //     }
 
-        try {
-            $requestData = json_decode(file_get_contents('php://input'), true);
-            $chatData = Chat::fromMap($requestData)->toMap();
-            $success = $this->chatRepository->update($chatId, $chatData);
+    //     try {
+    //         $requestData = json_decode(file_get_contents('php://input'), true);
+    //         $chatData = Chat::fromMap($requestData)->toMap();
+    //         $success = $this->chatRepository->update($chatId, $chatData);
 
-            if ($success) {
-                http_response_code(200);
-                echo json_encode(['message' => 'Chat updated successfully']);
-            } else {
-                throw new Exception('Update failed');
-            }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['message' => 'Error updating chat: ' . $e->getMessage()]);
-        }
-    }
+    //         if ($success) {
+    //             http_response_code(200);
+    //             echo json_encode(['message' => 'Chat updated successfully']);
+    //         } else {
+    //             throw new Exception('Update failed');
+    //         }
+    //     } catch (Exception $e) {
+    //         http_response_code(500);
+    //         echo json_encode(['message' => 'Error updating chat: ' . $e->getMessage()]);
+    //     }
+    // }
 
     public function deleteChat($requestMethod, $chatId) {
         if ($requestMethod !== 'DELETE') {
@@ -119,6 +145,25 @@ class ChatController {
         }
     }
 
+    // public function getChatByUserId($requestMethod, $userId) {
+    //     if ($requestMethod !== 'GET') {
+    //         http_response_code(405);
+    //         echo json_encode(['message' => 'Method Not Allowed']);
+    //         return;
+    //     }
+
+    //     try {
+    //         $chats = $this->chatRepository->getByUserId($userId);
+    //         $chatData = array_map(function($chat) { return $chat->toMap(); }, $chats);
+
+    //         http_response_code(200);
+    //         echo json_encode(['chats' => $chatData]);
+    //     } catch (Exception $e) {
+    //         http_response_code(500);
+    //         echo json_encode(['message' => 'Error fetching chats for user: ' . $e->getMessage()]);
+    //     }
+    // }
+
     public function getChatByUserId($requestMethod, $userId) {
         if ($requestMethod !== 'GET') {
             http_response_code(405);
@@ -127,11 +172,19 @@ class ChatController {
         }
 
         try {
-            $chats = $this->chatRepository->getByUserId($userId);
-            $chatData = array_map(function($chat) { return $chat->toMap(); }, $chats);
+            $chatRows = $this->chatRepository->getByUserId($userId);
+            $chats = [];
+
+            foreach ($chatRows as $chatRow) {
+                $chat = (new ChatBuilder())
+                    ->setId($chatRow['id'])
+                    ->build();
+
+                array_push($chats, $chat->toMap());
+            }
 
             http_response_code(200);
-            echo json_encode(['chats' => $chatData]);
+            echo json_encode(['chats' => $chats]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(['message' => 'Error fetching chats for user: ' . $e->getMessage()]);

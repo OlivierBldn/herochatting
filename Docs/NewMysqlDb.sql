@@ -23,7 +23,7 @@ CREATE TABLE `character` (
 
 CREATE TABLE `message` (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    description TEXT,
+    content TEXT,
     createdAt DATETIME,
     is_human BOOLEAN
 );

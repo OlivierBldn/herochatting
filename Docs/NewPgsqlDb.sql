@@ -27,7 +27,7 @@ CREATE TABLE "character" (
 -- Création de la table message
 CREATE TABLE "message" (
     id SERIAL PRIMARY KEY,
-    description TEXT,
+    content TEXT,
     createdAt TIMESTAMP,
     is_human BOOLEAN
 );
