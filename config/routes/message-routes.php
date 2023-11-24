@@ -1,7 +1,7 @@
 <?php // path: config/routes/message-routes.php
 
 $messageRoutes = [
-    '~^/users/(\d+)/chat/(\d+)/messages$~' => [
+    '~^/users/(\d+)/chats/(\d+)/messages$~' => [
         'class' => 'Message',
         'controller' => 'MessageController',
         'methods' => [
@@ -25,13 +25,6 @@ $messageRoutes = [
             'GET' => 'getAllMessages',
         ],
     ],
-    // '~^/messages/chat/(\d+)$~' => [
-    //     'class' => 'Message',
-    //     'controller' => 'MessageController',
-    //     'methods' => [
-    //         'GET' => 'getMessagesByChatId',
-    //     ],
-    // ],
     // '~^/messages/user/(\d+)$~' => [
     //     'class' => 'Message',
     //     'controller' => 'MessageController',

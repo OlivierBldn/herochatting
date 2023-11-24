@@ -100,6 +100,8 @@ class UniverseController
             return;
         }
 
+        $universeRepository = new UniverseRepository();
+
         $requestUri = $_SERVER['REQUEST_URI'];
 
         $segments = explode('/', $requestUri);

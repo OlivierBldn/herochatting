@@ -1,5 +1,6 @@
 <?php // path: src/Class/Builder/bldr.ChatBuilder.php
 
+require_once __DIR__ . '/../../Repository/repo.MessageRepository.php';
 class ChatBuilder {
     private $chat;
 
@@ -35,10 +36,13 @@ class ChatBuilder {
 
     // Charger les messages depuis une base de données
     public function loadMessages($chatId) {
-        $messages = Message::getMessagesByChatId($chatId);
+        $messageRepository = new MessageRepository();
+        $messages = $messageRepository->getMessagesByChatId($chatId);
+
         foreach ($messages as $message) {
             $this->chat->addMessage($message);
         }
+
         return $this;
     }
 

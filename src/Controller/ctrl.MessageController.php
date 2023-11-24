@@ -100,7 +100,7 @@ class MessageController {
             if (empty($messages)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucun univers trouvé.',
+                    'message' => 'Aucune conversation trouvée.',
                     'data' => []
                 ];
             } else {
