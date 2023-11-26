@@ -1,9 +1,20 @@
 <?php // path: src/Controller/ctrl.UniverseController.php
 
-require __DIR__ . '/../Repository/repo.UniverseRepository.php';
+require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
+require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
+require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
+require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
+require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 
 class UniverseController
 {
+    private $dbConnector;
+
+    public function __construct()
+    {
+        $this->dbConnector = DBConnectorFactory::getConnector();
+    }
+
     public function createUniverse($requestMethod)
     {
         if ($requestMethod !== 'POST') {
@@ -252,7 +263,6 @@ class UniverseController
     
             if (empty($requestData)) {
                 http_response_code(400);
-                echo json_encode(['message' => 'Aucune donnée fournie pour la mise à jour']);
                 return;
             }
     
@@ -292,19 +302,49 @@ class UniverseController
         $universeId = (int) $universeId;
 
         try {
+            $chatRepository = new ChatRepository();
+            $messageRepository = new MessageRepository();
             $universeRepository = new UniverseRepository();
+            $characterRepository = new CharacterRepository();
+
+            // Vérifier si l'univers existe
             $universe = $universeRepository->getById($universeId);
-
-            if ($universe) {
-                $universeRepository->delete($universeId);
-
-                http_response_code(200);
-                echo json_encode(['message' => 'Univers supprimé avec succès']);
-            } else {
+            if (!$universe) {
                 http_response_code(404);
                 echo json_encode(['message' => 'Univers non trouvé']);
+                return;
             }
+
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
+
+            // Supprimer les messages dans les chats de l'univers
+            $chats = $chatRepository->getByUniverseId($universeId);
+            foreach ($chats as $chat) {
+                $messages = $messageRepository->getMessagesByChatId($chat->getId());
+                foreach ($messages as $message) {
+                    $messageRepository->delete($message->getId());
+                }
+                $chatRepository->delete($chat->getId());
+            }
+
+            // Supprimer les personnages liés à l'univers
+            $characters = $characterRepository->getAllByUniverseId($universeId);
+            foreach ($characters as $character) {
+                $characterRepository->delete($character->getId());
+            }
+
+            // Supprimer l'univers
+            $universeRepository->delete($universeId);
+
+            // Valider la transaction
+            $this->dbConnector->commit();
+
+            http_response_code(200);
+            echo json_encode(['message' => 'Univers supprimé avec succès']);
         } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $this->dbConnector->rollBack();
             http_response_code(500);
             echo json_encode(['message' => 'Erreur lors de la suppression de l\'univers : ' . $e->getMessage()]);
         }

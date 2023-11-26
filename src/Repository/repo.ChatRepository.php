@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+require_once __DIR__ . '/../Class/Builder/bldr.ChatBuilder.php';
 
 class ChatRepository {
     private $dbConnector;
@@ -156,6 +157,46 @@ class ChatRepository {
             throw new Exception("Erreur lors de la récupération des conversations par personnage : " . $e->getMessage());
         }
     }
+
+    public function getByUniverseId($universeId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = "SELECT c.* FROM chat c 
+                        INNER JOIN character_chat cc ON c.id = cc.chatId
+                        INNER JOIN `character` ch ON cc.characterId = ch.id
+                        INNER JOIN universe_character uc ON ch.id = uc.characterId
+                        WHERE uc.universeId = :universeId";
+                $params = [':universeId' => $universeId];
+                break;
+            case 'pgsql':
+                $sql = "SELECT c.* FROM \"chat\" c 
+                        INNER JOIN \"character_chat\" cc ON c.id = cc.\"chatId\"
+                        INNER JOIN \"character\" ch ON cc.\"characterId\" = ch.id
+                        INNER JOIN \"universe_character\" uc ON ch.id = uc.\"characterId\"
+                        WHERE uc.\"universeId\" = $1";
+                $params = [$universeId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+    
+        try {
+            $chatsArray = $this->dbConnector->select($sql, $params);
+            $chats = [];
+            foreach ($chatsArray as $chatData) {
+                $builder = new ChatBuilder();
+                $chat = $builder->withId($chatData['id'])
+                                ->loadMessages($chatData['id'])
+                                ->build();
+                $chats[] = $chat;
+            }
+            return $chats;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des chats par univers : " . $e->getMessage());
+        }
+    }
+    
 
     // public function update($chatId, Chat $chat) {
     //     switch (__DB_INFOS__['database_type']) {

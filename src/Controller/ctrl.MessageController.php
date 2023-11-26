@@ -192,13 +192,26 @@ class MessageController {
     }
 
     public function deleteMessage($requestMethod, $messageId) {
+        
         if ($requestMethod !== 'DELETE') {
             http_response_code(405);
             echo json_encode(['message' => 'Méthode non autorisée']);
             return;
         }
 
+        $messageId = (int) $messageId;
+
         try {
+
+            // Vérifier si le message existe
+            $message = $this->messageRepository->getById($messageId);
+            
+            if (!$message) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Message non trouvée']);
+                return;
+            }
+
             if ($this->messageRepository->delete($messageId)) {
                 http_response_code(200);
                 echo json_encode(['message' => 'Message supprimé avec succès']);

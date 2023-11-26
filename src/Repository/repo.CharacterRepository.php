@@ -1,6 +1,6 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
-require __DIR__ . '/../Class/class.DBConnectorFactory.php';
+require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class CharacterRepository
@@ -253,6 +253,39 @@ class CharacterRepository
             return $character ? Character::fromMap($character[0]) : null;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération des personnages par nom et univers : " . $e->getMessage());
+        }
+    }
+
+    public function getByUserId($userId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT ch.* FROM `character` ch
+                        INNER JOIN `universe_character` uc ON ch.id = uc.characterId
+                        INNER JOIN `user_universe` uu ON uc.universeId = uu.universeId
+                        WHERE uu.userId = :userId';
+                $params = [':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT ch.* FROM "character" ch
+                        INNER JOIN "universe_character" uc ON ch.id = uc."characterId"
+                        INNER JOIN "user_universe" uu ON uc."universeId" = uu."universeId"
+                        WHERE uu."userId" = $1';
+                $params = [$userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+            $characters = [];
+            foreach ($result as $row) {
+                $characters[] = Character::fromMap($row);
+            }
+            return $characters;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des personnages par utilisateur : " . $e->getMessage());
         }
     }
 

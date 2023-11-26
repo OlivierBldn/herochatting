@@ -118,41 +118,6 @@ class MessageRepository {
         }
     }
 
-    // public function getMessagesByChatId($chatId) {
-    //     if (!$this->chatExists($chatId)) {
-    //         throw new Exception("Chat not found");
-    //     }
-    
-    //     switch (__DB_INFOS__['database_type']) {
-    //         case 'mysql':
-    //         case 'sqlite':
-    //             $sql = 'SELECT m.* FROM message m 
-    //                     INNER JOIN chat_message cm ON m.id = cm.messageId 
-    //                     WHERE cm.chatId = :chatId';
-    //             $params = [':chatId' => $chatId];
-    //             break;
-    //         case 'pgsql':
-    //             $sql = 'SELECT m.* FROM "message" m 
-    //                     INNER JOIN "chat_message" cm ON m.id = cm."messageId" 
-    //                     WHERE cm."chatId" = $1';
-    //             $params = [$chatId];
-    //             break;
-    //         default:
-    //             throw new Exception("Type de base de données non reconnu");
-    //     }
-    
-    //     try {
-    //         $result = $this->dbConnector->select($sql, $params);
-    //         $messages = [];
-    //         foreach ($result as $row) {
-    //             $messages[] = Message::fromMap($row);
-    //         }
-    //         return $messages;
-    //     } catch (Exception $e) {
-    //         throw new Exception("Erreur lors de la récupération des messages : " . $e->getMessage());
-    //     }
-    // }
-
     public function getMessagesByChatId($chatId) {
 
         if (!$this->chatExists($chatId)) {

@@ -4,9 +4,11 @@ require_once __DIR__ . '/../Class/class.Chat.php';
 require_once __DIR__ . '/../Class/Builder/bldr.ChatBuilder.php';
 
 class ChatController {
+    private $dbConnector;
     private $chatRepository;
 
     public function __construct() {
+        $this->dbConnector = DBConnectorFactory::getConnector();
         $this->chatRepository = new ChatRepository();
     }
 
@@ -71,27 +73,6 @@ class ChatController {
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(['message' => 'Erreur lors de la récupération de la conversation : ' . $e->getMessage()]);
-        }
-    }
-
-    public function deleteChat($requestMethod, $chatId) {
-        if ($requestMethod !== 'DELETE') {
-            http_response_code(405);
-            echo json_encode(['message' => 'Method Not Allowed']);
-            return;
-        }
-
-        try {
-            $success = $this->chatRepository->delete($chatId);
-            if ($success) {
-                http_response_code(200);
-                echo json_encode(['message' => 'Conversation supprimée avec succès']);
-            } else {
-                throw new Exception('La suppression a échoué');
-            }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la suppression de la conversation : ' . $e->getMessage()]);
         }
     }
 
@@ -226,4 +207,50 @@ class ChatController {
         }
     }
     
+    public function deleteChat($requestMethod, $chatId)
+    {
+        if ($requestMethod !== 'DELETE') {
+            http_response_code(405);
+            echo json_encode(['message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        $chatId = (int) $chatId;
+
+        try {
+            $messageRepository = new MessageRepository();
+
+            // Vérifier si la conversation existe
+            $chat = $this->chatRepository->getById($chatId);
+
+            if (!$chat) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Conversation non trouvée']);
+                return;
+            }
+
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
+
+            // Supprimer les messages dans les chats du personnage
+            $messages = $messageRepository->getMessagesByChatId($chatId);
+            foreach ($messages as $message) {
+                $messageRepository->delete($message->getId());
+            }
+
+            // Supprimer la conversation
+            $this->chatRepository->delete($chatId);
+
+            // Valider la transaction
+            $this->dbConnector->commit();
+
+            http_response_code(200);
+            echo json_encode(['message' => 'Conversation supprimée avec succès']);
+        } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $this->dbConnector->rollBack();
+            http_response_code(500);
+            echo json_encode(['message' => 'Erreur lors de la suppression de la conversation : ' . $e->getMessage()]);
+        }
+    }
 }

@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 class UniverseRepository
 {
     private $dbConnector;
-    // private $dbType;
 
     public function __construct()
     {

@@ -25,6 +25,13 @@ $characterRoutes = [
             'POST' => 'createCharacter',
         ],
     ],
+    '~^/users/(\d+)/characters$~' => [
+        'class' => 'Character',
+        'controller' => 'CharacterController',
+        'methods' => [
+            'GET' => 'getCharactersByUserId',
+        ],
+    ],
 ];
 
 return $characterRoutes;

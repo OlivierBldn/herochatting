@@ -1,12 +1,11 @@
 <?php // path: src/Repository/repo.UserRepository.php
 
-require __DIR__ . '/repo.UniverseRepository.php';
+require_once __DIR__ . '/repo.UniverseRepository.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class UserRepository
 {
     private $dbConnector;
-    // private $dbType;
 
     public function __construct()
     {
