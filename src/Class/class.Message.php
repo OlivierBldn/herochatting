@@ -15,7 +15,6 @@ class Message
         $this->isHuman = $isHuman;
     }
 
-    // Getters and setters for all properties
     public function getId() {
         return $this->id;
     }
@@ -50,11 +49,17 @@ class Message
 
     public static function fromMap($map): Message
     {
+        $isHuman = null;
+        if (isset($map['is_human'])) {
+            $isHumanValue = $map['is_human'];
+            $isHuman = $isHumanValue == 1 ? true : ($isHumanValue == 0 ? false : null);
+        }
+    
         return new self(
             $map['id'] ?? null,
             $map['content'] ?? null,
             $map['createdAt'] ?? null,
-            $map['isHuman'] ?? null
+            $isHuman
         );
     }
 

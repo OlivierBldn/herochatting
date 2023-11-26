@@ -118,6 +118,42 @@ class MessageRepository {
         }
     }
 
+    public function getMessagesByChatId($chatId) {
+
+        if (!$this->chatExists($chatId)) {
+            throw new Exception("Chat not found");
+        }
+
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT m.* FROM message m 
+                        INNER JOIN chat_message cm ON m.id = cm.messageId 
+                        WHERE cm.chatId = :chatId';
+                $params = [':chatId' => $chatId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT m.* FROM "message" m 
+                        INNER JOIN "chat_message" cm ON m.id = cm."messageId" 
+                        WHERE cm."chatId" = $1';
+                $params = [$chatId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+            $messages = [];
+            foreach ($result as $row) {
+                $messages[] = Message::fromMap($row);
+            }
+            return $messages;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des messages : " . $e->getMessage());
+        }
+    }
+
     public function update($messageId, $messageData) {
         $content = $messageData['content'];
 
@@ -145,40 +181,59 @@ class MessageRepository {
 
     public function delete($messageId) {
         try {
-            // Commencer une transaction
-            $this->dbConnector->beginTransaction();
-
-            // Supprimer les enregistrements liés dans chat_message
+            $count = 0;
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
-                    $sql = 'DELETE FROM `chat_message` WHERE messageId = :messageId';
-                    $params = [':messageId' => $messageId];
+                    $sqlExists = 'SELECT COUNT(*) as count FROM `message` WHERE id = :messageId';
+                    $paramsExists = [':messageId' => $messageId];
+                    $result = $this->dbConnector->select($sqlExists, $paramsExists);
+                    $count = $result[0]['count'] ?? 0;
                     break;
                 case 'pgsql':
-                    $sql = 'DELETE FROM "chat_message" WHERE "messageId" = $1';
-                    $params = [$messageId];
+                    $sqlExists = 'SELECT COUNT(*) as count FROM "message" WHERE id = $1';
+                    $paramsExists = [$messageId];
+                    $result = $this->dbConnector->select($sqlExists, $paramsExists);
+                    $count = $result[0]['count'] ?? 0;
                     break;
                 default:
                     throw new Exception("Type de base de données non reconnu");
             }
-            $this->dbConnector->execute($sql, $params);
-
+    
+            if ($count == 0) {
+                return false; // Le message n'existe pas
+            }
+    
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
+    
+            // Supprimer les enregistrements liés dans chat_message
+            switch (__DB_INFOS__['database_type']) {
+                case 'mysql':
+                case 'sqlite':
+                    $sqlChatMessage = 'DELETE FROM `chat_message` WHERE messageId = :messageId';
+                    break;
+                case 'pgsql':
+                    $sqlChatMessage = 'DELETE FROM "chat_message" WHERE "messageId" = $1';
+                    break;
+            }
+            $this->dbConnector->execute($sqlChatMessage, $paramsExists);
+    
             // Supprimer le message
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
-                    $sql = 'DELETE FROM `message` WHERE id = :messageId';
+                    $sqlMessage = 'DELETE FROM `message` WHERE id = :messageId';
                     break;
                 case 'pgsql':
-                    $sql = 'DELETE FROM "message" WHERE id = $1';
+                    $sqlMessage = 'DELETE FROM "message" WHERE id = $1';
                     break;
             }
-            $this->dbConnector->execute($sql, $params);
-
+            $this->dbConnector->execute($sqlMessage, $paramsExists);
+    
             // Valider la transaction
             $this->dbConnector->commit();
-
+    
             return true;
         } catch (Exception $e) {
             // Annuler la transaction en cas d'erreur
@@ -191,21 +246,17 @@ class MessageRepository {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
-                $sql = "SELECT COUNT(*) FROM `user_chat` uc
-                        INNER JOIN `chat_message` cm ON uc.chatId = cm.chatId
-                        WHERE uc.userId = :userId";
+                $sql = "SELECT COUNT(*) FROM `user` WHERE id = :userId";
                 $params = [':userId' => $userId];
                 break;
             case 'pgsql':
-                $sql = "SELECT COUNT(*) FROM \"user_chat\" uc
-                        INNER JOIN \"chat_message\" cm ON uc.\"chatId\" = cm.\"chatId\"
-                        WHERE uc.\"userId\" = $1";
+                $sql = "SELECT COUNT(*) FROM \"user\" WHERE id = $1";
                 $params = [$userId];
                 break;
             default:
                 throw new Exception("Type de base de données non reconnu");
         }
-
+    
         try {
             $result = $this->dbConnector->select($sql, $params);
         

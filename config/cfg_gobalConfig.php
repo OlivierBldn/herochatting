@@ -2,5 +2,5 @@
 
 const __WEBSITE_URL__ = 'apidesignpatern';
 const __UNPROTECTED_ROUTES__ = [
-    '/auth/login'
+    '/auth/login', '/register'
 ];

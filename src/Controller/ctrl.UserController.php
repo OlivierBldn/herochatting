@@ -1,9 +1,22 @@
 <?php // path: src/Controller/ctrl.UserController.php
 
+require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
 require_once __DIR__ . '/../Repository/repo.UserRepository.php';
+require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
+require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
+require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
+require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 
 class UserController
 {
+
+    private $dbConnector;
+
+    public function __construct()
+    {
+        $this->dbConnector = DBConnectorFactory::getConnector();
+    }
+
     public function createUser($requestMethod, $id)
     {
         if ($requestMethod !== 'POST') {
@@ -162,7 +175,6 @@ class UserController
         }
     }
 
-
     public function deleteUser($requestMethod, $userId)
     {
         if ($requestMethod !== 'DELETE') {
@@ -174,19 +186,48 @@ class UserController
         $userId = (int) $userId;
 
         try {
+            $chatRepository = new ChatRepository();
+            $messageRepository = new MessageRepository();
+            $universeRepository = new UniverseRepository();
             $userRepository = new UserRepository();
-            $user = $userRepository->getById($userId);
+            $characterRepository = new CharacterRepository();
 
-            if ($user) {
-                $userRepository->delete($userId);
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
 
-                http_response_code(200);
-                echo json_encode(['message' => 'Utilisateur supprimé avec succès']);
-            } else {
-                http_response_code(404);
-                echo json_encode(['message' => 'Utilisateur non trouvé']);
+            // Supprimer les messages dans les chats de l'utilisateur
+            $chats = $chatRepository->getByUserId($userId);
+            foreach ($chats as $chat) {
+                $messages = $messageRepository->getMessagesByChatId($chat->getId());
+                foreach ($messages as $message) {
+                    $messageRepository->delete($message->getId());
+                }
+                $chatRepository->delete($chat->getId());
             }
+
+            // Supprimer les personnages liés à l'utilisateur
+            $characters = $characterRepository->getByUserId($userId);
+            foreach ($characters as $character) {
+                $characterRepository->delete($character->getId());
+            }
+
+            // Supprimer les univers liés à l'utilisateur
+            $universes = $universeRepository->getAllByUserId($userId);
+            foreach ($universes as $universe) {
+                $universeRepository->delete($universe->getId());
+            }
+
+            // Supprimer l'utilisateur
+            $userRepository->delete($userId);
+
+            // Valider la transaction
+            $this->dbConnector->commit();
+
+            http_response_code(200);
+            echo json_encode(['message' => 'Utilisateur supprimé avec succès']);
         } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $this->dbConnector->rollBack();
             http_response_code(500);
             echo json_encode(['message' => 'Erreur lors de la suppression de l\'utilisateur : ' . $e->getMessage()]);
         }

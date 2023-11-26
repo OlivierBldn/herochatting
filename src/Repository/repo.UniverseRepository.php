@@ -6,7 +6,6 @@ require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 class UniverseRepository
 {
     private $dbConnector;
-    // private $dbType;
 
     public function __construct()
     {
@@ -57,9 +56,9 @@ class UniverseRepository
             if ($success) {
 
                 $universeId= $this->dbConnector->lastInsertRowID();
-                $requestUri = $_SERVER['REQUEST_URI'];
-                $segments = explode('/', $requestUri);
-                $userId = $segments[3];
+                // $requestUri = $_SERVER['REQUEST_URI'];
+                // $segments = explode('/', $requestUri);
+                // $userId = $segments[3];
 
                 $this->linkUniverseToUser($userId, $universeId);
 

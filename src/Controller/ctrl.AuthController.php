@@ -6,8 +6,6 @@ require_once __DIR__ . '/../Repository/repo.UserRepository.php';
 
 class AuthController {
 
-    // private $websiteUrl = __WEBSITE_URL__;
-
     public function authenticate($request) {
         $requestData = json_decode(file_get_contents('php://input'), true);
 

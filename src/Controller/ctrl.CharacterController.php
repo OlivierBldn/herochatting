@@ -1,9 +1,19 @@
 <?php // path: src/Controller/ctrl.CharacterController.php
 
+require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
 require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
+require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
+require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 
 class CharacterController
 {
+    private $dbConnector;
+
+    public function __construct()
+    {
+        $this->dbConnector = DBConnectorFactory::getConnector();
+    }
+
     public function createCharacter($requestMethod)
     {
         if ($requestMethod !== 'POST') {
@@ -203,6 +213,46 @@ class CharacterController
         }
     }
 
+    public function getCharactersByUserId($requestMethod) {
+        if ($requestMethod !== 'GET') {
+            http_response_code(405);
+            echo json_encode(['message' => 'Methode Non Autorisée']);
+            return;
+        }
+
+        $requestUri = $_SERVER['REQUEST_URI'];
+
+        $segments = explode('/', $requestUri);
+
+        if(!isset($segments[3])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'URL malformée']);
+            return;
+        }
+
+        $userId = (int) $segments[3];
+
+        $characterRepository = new CharacterRepository();
+
+        try {
+            $characters = $characterRepository->getByUserId($userId);
+            $characterData = array_map(function($character) {
+                return $character->toMap();
+            }, $characters);
+
+            http_response_code(200);
+            echo json_encode(['characters' => $characterData]);
+        } catch (Exception $e) {
+            if ($e->getMessage() == "User not found") {
+                http_response_code(404);
+                echo json_encode(['message' => 'Utilisateur non trouvé']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['message' => 'Erreur lors de la récupération des personnages : ' . $e->getMessage()]);
+            }
+        }
+    }
+
     public function getCharacterById($requestMethod, $characterId)
     {
         if ($requestMethod !== 'GET') {
@@ -302,19 +352,43 @@ class CharacterController
         $characterId = (int) $characterId;
 
         try {
+            $chatRepository = new ChatRepository();
+            $messageRepository = new MessageRepository();
             $characterRepository = new CharacterRepository();
+
+            // Vérifier si le personnage existe
             $character = $characterRepository->getById($characterId);
-
-            if ($character) {
-                $characterRepository->delete($characterId);
-
-                http_response_code(200);
-                echo json_encode(['message' => 'Personnage supprimé avec succès']);
-            } else {
+            
+            if (!$character) {
                 http_response_code(404);
                 echo json_encode(['message' => 'Personnage non trouvé']);
+                return;
             }
+
+            // Commencer une transaction
+            $this->dbConnector->beginTransaction();
+
+            // Supprimer les messages dans les chats du personnage
+            $chats = $chatRepository->getByCharacterId($characterId);
+            foreach ($chats as $chat) {
+                $messages = $messageRepository->getMessagesByChatId($chat->getId());
+                foreach ($messages as $message) {
+                    $messageRepository->delete($message->getId());
+                }
+                $chatRepository->delete($chat->getId());
+            }
+
+            // Supprimer le personnage
+            $characterRepository->delete($characterId);
+
+            // Valider la transaction
+            $this->dbConnector->commit();
+
+            http_response_code(200);
+            echo json_encode(['message' => 'Personnage supprimé avec succès']);
         } catch (Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $this->dbConnector->rollBack();
             http_response_code(500);
             echo json_encode(['message' => 'Erreur lors de la suppression du personnage : ' . $e->getMessage()]);
         }

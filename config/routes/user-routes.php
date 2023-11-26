@@ -1,11 +1,17 @@
 <?php  // path: config/routes/user-routes.php
 
 $userRoutes = [
-    '~^/users$~' => [
+    '~^/register$~' => [
         'class' => 'User',
         'controller' => 'UserController',
         'methods' => [
             'POST' => 'createUser',
+        ],
+    ],
+    '~^/users$~' => [
+        'class' => 'User',
+        'controller' => 'UserController',
+        'methods' => [
             'GET' => 'getAllUsers',
         ],
     ],
