@@ -5,7 +5,7 @@ $messageRoutes = [
         'class' => 'Message',
         'controller' => 'MessageController',
         'methods' => [
-            'GET' => 'getAllMessages',
+            'GET' => 'getMessagesByChatId',
             'POST' => 'createMessage',
         ],
     ],
@@ -25,13 +25,6 @@ $messageRoutes = [
             'GET' => 'getAllMessages',
         ],
     ],
-    // '~^/messages/user/(\d+)$~' => [
-    //     'class' => 'Message',
-    //     'controller' => 'MessageController',
-    //     'methods' => [
-    //         'GET' => 'getMessagesByUserId',
-    //     ],
-    // ],
 ];
 
 return $messageRoutes;

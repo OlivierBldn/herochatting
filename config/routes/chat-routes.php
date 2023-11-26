@@ -25,13 +25,6 @@ $chatRoutes = [
             'GET' => 'getChatsByUserId',
         ],
     ],
-    // '~^/users/(\d+)/chats/(\d+)/messages$~' => [
-    //     'class' => 'Chat',
-    //     'controller' => 'ChatController',
-    //     'methods' => [
-    //         'GET' => 'getMessagesByChatId',
-    //     ],
-    // ],
     '~^/characters/(\d+)/chats$~' => [
         'class' => 'Chat',
         'controller' => 'ChatController',

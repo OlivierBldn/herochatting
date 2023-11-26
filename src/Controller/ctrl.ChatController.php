@@ -196,7 +196,7 @@ class ChatController {
                 $chat = $builder->withId($chatRow['id'])
                                 ->loadMessages($chatRow['id'])
                                 ->build();
-                array_push($chatsData, $chat->toMap()); // Utiliser toMap() pour convertir l'objet Chat en tableau
+                array_push($chatsData, $chat->toMap());
             }
     
             http_response_code(200);

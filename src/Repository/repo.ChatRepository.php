@@ -227,7 +227,7 @@ class ChatRepository {
             $this->unlinkChatFromUser($chatId);
             $this->unlinkChatFromCharacter($chatId);
     
-            // Maintenant, supprimer le chat
+            // Supprimer le chat
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -394,5 +394,4 @@ class ChatRepository {
             throw new Exception("Erreur lors de la vérification de l'existence du personnage : " . $e->getMessage());
         }
     }
-    
 }

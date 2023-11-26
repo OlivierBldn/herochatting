@@ -134,7 +134,6 @@ class CharacterRepository
 
     public function getAllByUniverseId($universeId)
     {
-        // $sql = 'SELECT * FROM `character` WHERE id_universe = :id_universe';
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':

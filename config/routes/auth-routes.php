@@ -12,7 +12,7 @@ $authRoutes = [
     //     'class' => 'Auth',
     //     'controller' => 'AuthController',
     //     'methods' => [
-    //         'POST' => 'logout',  // Optionnel selon l'approche choisie
+    //         'POST' => 'logout',
     //     ],
     // ],
     // '~^/auth/refresh$~' => [
