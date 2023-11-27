@@ -14,7 +14,6 @@ $messageRoutes = [
         'controller' => 'MessageController',
         'methods' => [
             'GET' => 'getMessageById',
-            'PUT' => 'updateMessage',
             'DELETE' => 'deleteMessage',
         ],
     ],
