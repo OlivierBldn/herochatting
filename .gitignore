@@ -1,9 +1,9 @@
 ###> config ###
-cfg_apiConfig.php
-cfg_dbConfig.php
-cfg_globalConfig.php
+/config/cfg_apiConfig.php
+/config/cfg_dbConfig.php
+/config/cfg_globalConfig.php
 ###< config ###
 
 ###> vendor ###
-vendor
+/vendor
 ###< vendor ###
