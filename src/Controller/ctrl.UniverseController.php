@@ -5,6 +5,7 @@ require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
+require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
 
 class UniverseController
 {
@@ -52,21 +53,25 @@ class UniverseController
             }
 
             $existingUniverse = $universeRepository->getByName($requestData['name']);
+            $openAIService = OpenAIService::getInstance();
 
             switch($existingUniverse) {
                 case null:
                     $newUniverse = new Universe();
+                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
+                    $requestData['description'] = $openAIService->generateDescription($prompt);
                     $this->setUniverseData($newUniverse, $requestData);
                     break;
                 case true:
-                    echo json_encode(['message' => 'Un univers avec ce nom existe déjà']);
                     $newUniverse = $existingUniverse->clone();
                     $this->setUniverseData($existingUniverse, $existingUniverse->toMap());
                     break;
                 default:
                     $newUniverse = new Universe();
+                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
+                    $requestData['description'] = $openAIService->generateDescription($prompt);
                     $this->setUniverseData($newUniverse, $requestData);
-                    return;
+                    break;
             }
             
             $success = $universeRepository->create($newUniverse->toMap(), $userId);
