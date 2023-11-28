@@ -2,6 +2,7 @@
 /config/cfg_apiConfig.php
 /config/cfg_dbConfig.php
 /config/cfg_globalConfig.php
+/config/cfg_openAIConfig.php
 ###< config ###
 
 ###> vendor ###

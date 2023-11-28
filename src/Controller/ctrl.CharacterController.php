@@ -4,6 +4,8 @@ require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
 require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
+require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
+require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
 
 class CharacterController
 {
@@ -53,11 +55,16 @@ class CharacterController
     
             // Récupération d'un personnage existant ou création d'un nouveau
             $existingCharacter = $characterRepository->getByNameAndUniverseName($requestData['name'], $characterRepository->getUniverseNameById($universeId));
+            $universeRepository = new UniverseRepository();
+            $universe = $universeRepository->getById($universeId);
+            $openAIService = OpenAIService::getInstance();
 
             switch($existingCharacter) {
                 case null:
                     // Créer un nouveau personnage si aucun personnage existant n'a été trouvé
                     $newCharacter = new Character();
+                    $prompt = "Fais moi une description du personnage {$requestData['name']} issu de l'univers {$universe->getName()}. Donne moi son histoire, sa personnalité et ses spécificités.";
+                    $requestData['description'] = $openAIService->generateDescription($prompt);
                     $this->setCharacterData($newCharacter, $requestData);
                     break;
                 case true:
@@ -68,6 +75,8 @@ class CharacterController
                 default:
                     // Gérer les autres cas (si nécessaire)
                     $newCharacter = new Character();
+                    $prompt = "Fais moi une description du personnage {$requestData['name']} issu de l'univers {$universe->getName()}. Donne moi son histoire, sa personnalité et ses spécificités.";
+                    $requestData['description'] = $openAIService->generateDescription($prompt);
                     $this->setCharacterData($newCharacter, $requestData);
                     return;
             }
