@@ -8,3 +8,11 @@
 ###> vendor ###
 /vendor
 ###< vendor ###
+
+###> logs ###
+/logs
+###< logs ###
+
+###> uploads ###
+/uploads
+###< uploads ###

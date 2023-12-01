@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
+require_once __DIR__ . '/../Class/Service/srv.StableDiffusionService.php';
 
 class UniverseController
 {
@@ -45,21 +46,26 @@ class UniverseController
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
 
-            if (!isset($requestData['name'], $requestData['description'], $requestData['image']) ||
-                empty($requestData['name']) || empty($requestData['description']) || empty($requestData['image'])) {
+            if (!isset($requestData['name']) || empty($requestData['name'])) {
                 http_response_code(400);
-                echo json_encode(['message' => 'Données manquantes ou invalides']);
+                echo json_encode(['message' => 'Nom de l\'univers manquant ou invalide']);
                 return;
             }
 
             $existingUniverse = $universeRepository->getByName($requestData['name']);
             $openAIService = OpenAIService::getInstance();
+            $stableDiffusionService = StableDiffusionService::getInstance();
 
             switch($existingUniverse) {
                 case null:
                     $newUniverse = new Universe();
                     $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
+    
+                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais et ne pas dépasser 300 caractères.";
+                    $imageDescription = $openAIService->generateDescription($imagePrompt);
+                    $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
+    
                     $this->setUniverseData($newUniverse, $requestData);
                     break;
                 case true:
@@ -70,10 +76,15 @@ class UniverseController
                     $newUniverse = new Universe();
                     $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
+
+                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais et ne pas dépasser 300 caractères.";
+                    $imageDescription = $openAIService->generateDescription($imagePrompt);
+                    $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
+
                     $this->setUniverseData($newUniverse, $requestData);
                     break;
             }
-            
+
             $success = $universeRepository->create($newUniverse->toMap(), $userId);
 
             if ($success) {
