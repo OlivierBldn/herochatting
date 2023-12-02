@@ -3,8 +3,17 @@
 /config/cfg_dbConfig.php
 /config/cfg_globalConfig.php
 /config/cfg_openAIConfig.php
+/config/cfg_stableDiffusionConfig.php
 ###< config ###
 
 ###> vendor ###
 /vendor
 ###< vendor ###
+
+###> logs ###
+/logs
+###< logs ###
+
+###> uploads ###
+/uploads
+###< uploads ###
