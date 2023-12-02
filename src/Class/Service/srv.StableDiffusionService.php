@@ -21,10 +21,10 @@ class StableDiffusionService
             "prompt" => $prompt,
         );
 
-        return $this->sendRequest($request);
+        return $this->sendRequest($request, $prompt);
     }
 
-    private function sendRequest($request) {
+    private function sendRequest($request, $originalPrompt) {
         $ch = curl_init(__STABLE_DIFFUSION_API_URL__);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -44,11 +44,11 @@ class StableDiffusionService
             return 'Image non disponible #1';
         }
 
+        $responseData = json_decode($response, true);
         if (isset($responseData['status']) && $responseData['status'] === 'processing') {
-            return $this->handleProcessingImage($responseData);
+            return $this->handleProcessingImage($responseData, $originalPrompt);
         }
 
-        $responseData = json_decode($response, true);
         if (isset($responseData['error'])) {
             $this->logError("Erreur de réponse API: " . $responseData['error']['message']);
             return 'Image non disponible #2';
@@ -91,41 +91,93 @@ class StableDiffusionService
         return $imageFileName;
     }
 
-    private function handleProcessingImage($responseData) {
+    private function handleProcessingImage($responseData, $originalPrompt) {
         $fetchUrl = $responseData['fetch_result'] ?? null;
         $eta = $responseData['eta'] ?? 0;
+        
+        $maxAttempts = 5;
+        $attempt = 0;
     
-        if (!$fetchUrl) {
-            $this->logError("URL de récupération non disponible pour l'image en cours de traitement.");
-            return 'Image non disponible #8';
+        while ($attempt < $maxAttempts) {
+            if ($fetchUrl) {
+                $this->logAttempt("Tentative de récupération de l'image $attempt/$maxAttempts, URL: $fetchUrl");
+    
+                sleep($eta);
+    
+                if (in_array($attempt, [1, 3])) {
+                    $originalPrompt = $this->regeneratePrompt($originalPrompt);
+                    $newRequest = [
+                        "key" => __STABLE_DIFFUSION_API_KEY__,
+                        "prompt" => $originalPrompt
+                    ];
+                    $fetchUrl = $this->sendRequest($newRequest, $originalPrompt);
+                }
+    
+                $imageResponse = $this->fetchImage($fetchUrl);
+                if ($imageResponse !== 'Image non disponible') {
+                    return $imageResponse;
+                }
+            }
+    
+            $attempt++;
+            $eta += 5;
         }
     
-        sleep($eta);
-    
-        $ch = curl_init($fetchUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . __STABLE_DIFFUSION_API_KEY__
-        ]);
-    
-        $imageResponse = curl_exec($ch);
-        $error = curl_error($ch);
-        curl_close($ch);
-    
-        if ($imageResponse === false || $error) {
-            $this->logError("Erreur lors du téléchargement de l'image depuis l'URL : $error");
-            return 'Image non disponible #9';
-        }
-    
-        $imageData = json_decode($imageResponse, true);
-        if (isset($imageData['output']) && is_array($imageData['output']) && count($imageData['output']) > 0) {
-            return $this->downloadImage($imageData['output'][0]);
-        }
-    
-        return 'Image non disponible #10';
+        $this->logError("Image non récupérée après $maxAttempts tentatives.");
+        return 'Image non disponible';
     }
 
+    private function fetchImage($fetchUrl) {
+        $payload = ["key" => __STABLE_DIFFUSION_API_KEY__];
+    
+        $curl = curl_init($fetchUrl);
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json']
+        ]);
+    
+        $response = curl_exec($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+    
+        $this->logResponse($response);
+    
+        if ($response === false) {
+            $this->logError("Erreur cURL lors du téléchargement de l'image depuis l'URL: $fetchUrl, Erreur: $error");
+            return 'Image non disponible';
+        }
+    
+        $responseData = json_decode($response, true);
+        if (isset($responseData['output']) && is_array($responseData['output']) && count($responseData['output']) > 0) {
+            return $this->downloadImage($responseData['output'][0]);
+        }
+    
+        return 'Image non disponible';
+    }
+    
+    private function regeneratePrompt($originalPrompt) {
+    
+        $newPromptRequest = "Reformule ce prompt d'une manière différente pour que Stable Diffusion génère une nouvelle image : \"$originalPrompt\" Rappelles-toi que le prompt ne doit pas dépasser 300 caractères.";
+    
+        $openAIService = OpenAIService::getInstance();
+        $newPrompt = $openAIService->generateDescription($newPromptRequest);
+    
+        if (empty($newPrompt) || $newPrompt === 'Description non disponible') {
+            $this->logError("Erreur lors de la régénération du prompt via OpenAI.");
+            return $originalPrompt;
+        }
+    
+        return $newPrompt;
+    }    
+    
+    private function logAttempt($message) {
+        $logFile = __DIR__ . '/../../../logs/stable_diffusion.log';
+        $timestamp = date('Y-m-d H:i:s');
+        file_put_contents($logFile, "[$timestamp] Tentative: $message\n", FILE_APPEND);
+    }
+    
     private function logError($message) {
         $logFile = __DIR__ . '/../../../logs/stable_diffusion.log';
         $timestamp = date('Y-m-d H:i:s');
