@@ -223,11 +223,9 @@ class ChatRepository {
 
     public function delete($chatId) {
         try {
-            // Supprimer les liaisons avec les utilisateurs et les personnages
             $this->unlinkChatFromUser($chatId);
             $this->unlinkChatFromCharacter($chatId);
     
-            // Supprimer le chat
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -392,6 +390,37 @@ class ChatRepository {
             return $count > 0;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la vérification de l'existence du personnage : " . $e->getMessage());
+        }
+    }
+
+    public function getCharacterDetailsByChatId($chatId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT c.* FROM `character` AS c 
+                        JOIN `character_chat` AS cc ON c.id = cc.characterId 
+                        WHERE cc.chatId = :chatId';
+                $params = [':chatId' => $chatId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT c.* FROM "character" AS c 
+                        JOIN "character_chat" AS cc ON c.id = cc.characterId 
+                        WHERE cc.chatId = $1';
+                $params = [$chatId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $characterData = $this->dbConnector->select($sql, $params);
+            if (!empty($characterData)) {
+                return Character::fromMap($characterData[0]);
+            } else {
+                throw new Exception("Personnage non trouvé pour le chatId spécifié.");
+            }
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la récupération des détails du personnage : " . $e->getMessage());
         }
     }
 }

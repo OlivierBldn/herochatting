@@ -61,14 +61,10 @@ class UniverseController
                     $newUniverse = new Universe();
                     $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
-
-                    // $requestData['description'] = "Voici la description de l'\univers {$requestData['name']}.";
-
     
                     $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit décrire l'univers {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
                     $imageDescription = $openAIService->generateDescription($imagePrompt);
 
-                    // $imageDescription = "Créé moi une image qui corresponde à l\'univers {$requestData['name']}.";
                     $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
     
                     $this->setUniverseData($newUniverse, $requestData);

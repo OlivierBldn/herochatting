@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
+require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
 
 class MessageController {
     private $messageRepository;
@@ -19,72 +20,69 @@ class MessageController {
             echo json_encode(['message' => 'Méthode non autorisée']);
             return;
         }
-
+    
         $requestUri = $_SERVER['REQUEST_URI'];
         $segments = explode('/', $requestUri);
-
-        if(!isset($segments[3])) {
+    
+        if (!isset($segments[3]) || !isset($segments[5])) {
             http_response_code(400);
-            echo json_encode(['message' => 'Identifiant de l\'utilisateur manquant']);
+            echo json_encode(['message' => 'Informations manquantes dans l\'URL']);
             return;
         }
-
-        if(!isset($segments[5])) {
-            http_response_code(400);
-            echo json_encode(['message' => 'Identifiant du chat manquant']);
-            return;
-        }
-
+    
         $userId = (int) $segments[3];
         $chatId = (int) $segments[5];
-
-        if(!$this->messageRepository->userExists($userId)) {
+    
+        if (!$this->messageRepository->userExists($userId)) {
             http_response_code(404);
             echo json_encode(['message' => 'Utilisateur non trouvé']);
             return;
         }
-
-        if(!$this->messageRepository->chatExists($chatId)) {
+    
+        if (!$this->messageRepository->chatExists($chatId)) {
             http_response_code(404);
             echo json_encode(['message' => 'Chat non trouvé']);
             return;
         }
-
+    
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
-
-            if (!isset($requestData['content'], $requestData['isHuman']) ||
-                empty($requestData['content'])) {
+            if (!isset($requestData['content']) || empty($requestData['content'])) {
                 http_response_code(400);
-                echo json_encode(['message' => 'Données manquantes ou invalides']);
+                echo json_encode(['message' => 'Contenu du message manquant ou invalide']);
                 return;
             }
-
-            $message = new Message(null, $requestData['content'], new DateTime(), $requestData['isHuman'] ?? true);
-
-            $messageData = $message->toMap();
-
-            $messageId = $this->messageRepository->create($messageData, $chatId);
-
-            if ($messageId) {
-                $successResponse = [
-                    'success' => true,
-                    'message' => 'Message créé avec succès.',
-                    'messageId' => $messageId
-                ];
-                http_response_code(201);
-                echo json_encode($successResponse);
-            } else {
-                throw new Exception("Erreur lors de la création du message");
+    
+            $userMessageContent = $requestData['content'];
+            $isHuman = $requestData['isHuman'] ?? true;
+            $userMessageId = $this->messageRepository->create(['content' => $userMessageContent, 'isHuman' => $isHuman], $chatId);
+    
+            if ($isHuman) {
+                $characterResponse = $this->getCharacterResponse($chatId, $userMessageContent);
+                if ($characterResponse !== 'Description non disponible') {
+                    $this->messageRepository->create(['content' => $characterResponse, 'isHuman' => false], $chatId);
+                }
             }
+    
+            http_response_code(201);
+            echo json_encode(['success' => true, 'message' => 'Message créé avec succès.', 'messageId' => $userMessageId]);
         } catch (Exception $e) {
-            $errorResponse = [
-                'success' => false,
-                'message' => 'Erreur lors de la création du message : ' . $e->getMessage()
-            ];
             http_response_code(500);
-            echo json_encode($errorResponse);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la création du message : ' . $e->getMessage()]);
         }
+    }
+    
+
+    
+    private function getCharacterResponse($chatId, $userMessage) {
+        $characterDetails = $this->chatRepository->getCharacterDetailsByChatId($chatId);
+        if (!$characterDetails) {
+            return 'Description non disponible';
+        }
+    
+        $openAIService = OpenAIService::getInstance();
+    
+        return $openAIService->generateResponse($userMessage, $characterDetails);
     }
 
     public function getAllMessages($requestMethod)
@@ -189,14 +187,12 @@ class MessageController {
         }
 
         try {
-            // Vérifier si le chat existe
             if (!$this->chatRepository->getById($chatId)) {
                 http_response_code(404);
                 echo json_encode(['message' => 'Conversation non trouvée']);
                 return;
             }
 
-            // Récupérer les messages
             $messages = $this->messageRepository->getMessagesByChatId($chatId);
             $messageData = array_map(function($message) {
                 return $message->toMap();

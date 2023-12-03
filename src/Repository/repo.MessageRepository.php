@@ -10,11 +10,45 @@ class MessageRepository {
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
+    // public function create($messageData, $chatId) {
+    //     $content = $messageData['content'];
+    //     $createdAt = (new DateTime()->format('Y-m-d H:i:s');
+    //     $isHuman = $messageData['isHuman'];
+
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'INSERT INTO `message` (content, createdAt, is_human) VALUES (:content, :createdAt, :isHuman)';
+    //             $params = [':content' => $content, ':createdAt' => $createdAt, ':isHuman' => $isHuman];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'INSERT INTO "message" (content, "createdAt", "is_human") VALUES ($1, $2, $3)';
+    //             $params = [$content, $createdAt, $isHuman];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
+
+    //     try {
+    //         $this->dbConnector->execute($sql, $params);
+    //         $messageId = $this->dbConnector->lastInsertRowID();
+
+    //         $this->linkMessageToChat($messageId, $chatId);
+
+    //         return $messageId;
+    //     } catch (Exception $e) {
+    //         throw new Exception("Erreur lors de la création du message: " . $e->getMessage());
+    //     }
+    // }
+
+
+
     public function create($messageData, $chatId) {
         $content = $messageData['content'];
-        $createdAt = $messageData['createdAt']->format('Y-m-d H:i:s');
-        $isHuman = $messageData['isHuman'];
-
+        $createdAt = (new DateTime())->format('Y-m-d H:i:s');
+        // Assurez-vous que isHuman est un booléen et convertissez-le en entier
+        $isHuman = isset($messageData['isHuman']) && $messageData['isHuman'] ? 1 : 0;
+    
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
@@ -28,18 +62,23 @@ class MessageRepository {
             default:
                 throw new Exception("Type de base de données non reconnu");
         }
-
+    
         try {
             $this->dbConnector->execute($sql, $params);
             $messageId = $this->dbConnector->lastInsertRowID();
-
+    
             $this->linkMessageToChat($messageId, $chatId);
-
+    
             return $messageId;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la création du message: " . $e->getMessage());
         }
     }
+
+    
+
+
+    
 
     private function linkMessageToChat($messageId, $chatId) {
         switch (__DB_INFOS__['database_type']) {

@@ -6,6 +6,7 @@ require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
+require_once __DIR__ . '/../Class/Service/srv.StableDiffusionService.php';
 
 class CharacterController
 {
@@ -45,11 +46,10 @@ class CharacterController
     
         try {
             $requestData = json_decode(file_get_contents('php://input'), true);
-    
-            if (!isset($requestData['name'], $requestData['description'], $requestData['image']) ||
-                empty($requestData['name']) || empty($requestData['description']) || empty($requestData['image'])) {
+
+            if (!isset($requestData['name']) || empty($requestData['name'])) {
                 http_response_code(400);
-                echo json_encode(['message' => 'Données manquantes ou invalides']);
+                echo json_encode(['message' => 'Nom du personnage manquant ou invalide']);
                 return;
             }
     
@@ -57,28 +57,44 @@ class CharacterController
             $existingCharacter = $characterRepository->getByNameAndUniverseName($requestData['name'], $characterRepository->getUniverseNameById($universeId));
             $universeRepository = new UniverseRepository();
             $universe = $universeRepository->getById($universeId);
+
             $openAIService = OpenAIService::getInstance();
+            $stableDiffusionService = StableDiffusionService::getInstance();
 
             switch($existingCharacter) {
                 case null:
                     // Créer un nouveau personnage si aucun personnage existant n'a été trouvé
                     $newCharacter = new Character();
+
                     $prompt = "Fais moi une description du personnage {$requestData['name']} issu de l'univers {$universe->getName()}. Donne moi son histoire, sa personnalité et ses spécificités.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
+
+                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter le personnage {$requestData['name']} issu de l'univers {$universe->getName()}. Le prompt doit etre en anglais, il doit décrire le personnage {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
+                    $imageDescription = $openAIService->generateDescription($imagePrompt);
+
+                    $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
+
                     $this->setCharacterData($newCharacter, $requestData);
-                    break;
+                break;
                 case true:
                     // Cloner le personnage existant
                     $newCharacter = $existingCharacter->clone();
                     $this->setCharacterData($existingCharacter, $existingCharacter->toMap());
-                    break;
+                break;
                 default:
                     // Gérer les autres cas (si nécessaire)
                     $newCharacter = new Character();
+
                     $prompt = "Fais moi une description du personnage {$requestData['name']} issu de l'univers {$universe->getName()}. Donne moi son histoire, sa personnalité et ses spécificités.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
+
+                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter le personnage {$requestData['name']} issu de l'univers {$universe->getName()}. Le prompt doit etre en anglais, il doit décrire le personnage {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
+                    $imageDescription = $openAIService->generateDescription($imagePrompt);
+
+                    $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
+
                     $this->setCharacterData($newCharacter, $requestData);
-                    return;
+                break;
             }
             
             $success = $characterRepository->create($newCharacter->toMap(), $universeId);
