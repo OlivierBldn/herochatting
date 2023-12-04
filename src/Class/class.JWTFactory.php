@@ -21,4 +21,15 @@ class JWTFactory {
             return false;
         }
     }
+
+    public static function getAuthorizationToken() {
+        $headers = apache_request_headers();
+        if (isset($headers["Authorization"])) {
+            $matches = [];
+            if (preg_match('/Bearer\s(\S+)/', $headers["Authorization"], $matches)) {
+                return $matches[1];
+            }
+        }
+        return null;
+    }
 }

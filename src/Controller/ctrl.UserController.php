@@ -6,15 +6,16 @@ require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
+require_once __DIR__ . '/../Class/Middleware/mdw.OwnershipVerifierMiddleware.php';
 
 class UserController
 {
-
     private $dbConnector;
 
     public function __construct()
     {
         $this->dbConnector = DBConnectorFactory::getConnector();
+        $this->ownershipVerifier = new OwnershipVerifierMiddleware();
     }
 
     public function createUser($requestMethod, $id)
@@ -115,6 +116,13 @@ class UserController
         }
 
         $userId = (int) $userId;
+
+        $ownershipVerifier = new OwnershipVerifierMiddleware();
+        if (!$ownershipVerifier->handle($userId)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Accès refusé']);
+            return;
+        }
 
         try {
             $userRepository = new UserRepository();

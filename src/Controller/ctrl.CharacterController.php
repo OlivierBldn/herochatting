@@ -7,6 +7,7 @@ require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
 require_once __DIR__ . '/../Class/Service/srv.StableDiffusionService.php';
+require_once __DIR__ . '/../Class/Middleware/mdw.OwnershipVerifierMiddleware.php';
 
 class CharacterController
 {
@@ -15,6 +16,7 @@ class CharacterController
     public function __construct()
     {
         $this->dbConnector = DBConnectorFactory::getConnector();
+        $this->ownershipVerifier = new OwnershipVerifierMiddleware();
     }
 
     public function createCharacter($requestMethod)
@@ -283,6 +285,13 @@ class CharacterController
         if ($requestMethod !== 'GET') {
             http_response_code(405);
             echo json_encode(['message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        $ownershipVerifier = new OwnershipVerifierMiddleware();
+        if (!$ownershipVerifier->handle($userId, $messageId)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Accès refusé']);
             return;
         }
 

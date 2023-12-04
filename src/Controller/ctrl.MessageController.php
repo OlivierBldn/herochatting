@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
+require_once __DIR__ . '/../Class/Middleware/mdw.OwnershipVerifierMiddleware.php';
+
 
 class MessageController {
     private $messageRepository;
@@ -11,6 +13,7 @@ class MessageController {
     public function __construct() {
         $this->messageRepository = new MessageRepository();
         $this->chatRepository = new ChatRepository();
+        $this->ownershipVerifier = new OwnershipVerifierMiddleware();
     }
 
     public function createMessage($requestMethod)
@@ -134,6 +137,13 @@ class MessageController {
         if ($requestMethod !== 'GET') {
             http_response_code(405);
             echo json_encode(['message' => 'Méthode non autorisée']);
+            return;
+        }
+
+        $ownershipVerifier = new OwnershipVerifierMiddleware();
+        if (!$ownershipVerifier->handle($userId, $messageId)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Accès refusé']);
             return;
         }
 

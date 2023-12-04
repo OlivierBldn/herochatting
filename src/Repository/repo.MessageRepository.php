@@ -1,52 +1,19 @@
 <?php // path: src/Repository/repo.MessageRepository.php
 
-require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
+// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
-class MessageRepository {
-    private $dbConnector;
+class MessageRepository extends AbstractRepository
+{
+    // private $dbConnector;
 
-    public function __construct() {
-        $this->dbConnector = DBConnectorFactory::getConnector();
-    }
-
-    // public function create($messageData, $chatId) {
-    //     $content = $messageData['content'];
-    //     $createdAt = (new DateTime()->format('Y-m-d H:i:s');
-    //     $isHuman = $messageData['isHuman'];
-
-    //     switch (__DB_INFOS__['database_type']) {
-    //         case 'mysql':
-    //         case 'sqlite':
-    //             $sql = 'INSERT INTO `message` (content, createdAt, is_human) VALUES (:content, :createdAt, :isHuman)';
-    //             $params = [':content' => $content, ':createdAt' => $createdAt, ':isHuman' => $isHuman];
-    //             break;
-    //         case 'pgsql':
-    //             $sql = 'INSERT INTO "message" (content, "createdAt", "is_human") VALUES ($1, $2, $3)';
-    //             $params = [$content, $createdAt, $isHuman];
-    //             break;
-    //         default:
-    //             throw new Exception("Type de base de données non reconnu");
-    //     }
-
-    //     try {
-    //         $this->dbConnector->execute($sql, $params);
-    //         $messageId = $this->dbConnector->lastInsertRowID();
-
-    //         $this->linkMessageToChat($messageId, $chatId);
-
-    //         return $messageId;
-    //     } catch (Exception $e) {
-    //         throw new Exception("Erreur lors de la création du message: " . $e->getMessage());
-    //     }
+    // public function __construct() {
+    //     $this->dbConnector = DBConnectorFactory::getConnector();
     // }
-
-
 
     public function create($messageData, $chatId) {
         $content = $messageData['content'];
         $createdAt = (new DateTime())->format('Y-m-d H:i:s');
-        // Assurez-vous que isHuman est un booléen et convertissez-le en entier
         $isHuman = isset($messageData['isHuman']) && $messageData['isHuman'] ? 1 : 0;
     
         switch (__DB_INFOS__['database_type']) {
@@ -355,5 +322,27 @@ class MessageRepository {
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la vérification de l'existence de la conversation : " . $e->getMessage());
         }
+    }
+
+    public function isUserMessageOwner($messageId, $userId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `chat_message` AS cm
+                        JOIN `user_chat` AS uc ON cm.chatId = uc.chatId
+                        WHERE cm.messageId = :messageId AND uc.userId = :userId';
+                $params = [':messageId' => $messageId, ':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "chat_message" AS cm
+                        JOIN "user_chat" AS uc ON cm."chatId" = uc."chatId"
+                        WHERE cm."messageId" = $1 AND uc."userId" = $2';
+                $params = [$messageId, $userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        return $this->executeOwnershipQuery($sql, $params);
     }
 }

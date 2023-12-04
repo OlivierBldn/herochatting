@@ -1,16 +1,16 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
-require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
+// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
-class CharacterRepository
+class CharacterRepository extends AbstractRepository
 {
-    private $dbConnector;
+    // private $dbConnector;
 
-    public function __construct()
-    {
-        $this->dbConnector = DBConnectorFactory::getConnector();
-    }
+    // public function __construct()
+    // {
+    //     $this->dbConnector = DBConnectorFactory::getConnector();
+    // }
 
     public function create($characterData, $universeId)
     {
@@ -466,5 +466,27 @@ class CharacterRepository
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération du nom de l'univers : " . $e->getMessage());
         }
+    }
+
+    public function isUserCharacterOwner($characterId, $userId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `universe_character` AS uc
+                        JOIN `user_universe` AS uu ON uc.universeId = uu.universeId
+                        WHERE uc.characterId = :characterId AND uu.userId = :userId';
+                $params = [':characterId' => $characterId, ':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "universe_character" AS uc
+                        JOIN "user_universe" AS uu ON uc."universeId" = uu."universeId"
+                        WHERE uc."characterId" = $1 AND uu."userId" = $2';
+                $params = [$characterId, $userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        return $this->executeOwnershipQuery($sql, $params);
     }
 }

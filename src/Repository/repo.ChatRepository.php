@@ -1,15 +1,16 @@
 <?php // path: src/Repository/repo.ChatRepository.php
 
-require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
+// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../Class/Builder/bldr.ChatBuilder.php';
 
-class ChatRepository {
-    private $dbConnector;
+class ChatRepository extends AbstractRepository
+{
+    // private $dbConnector;
 
-    public function __construct() {
-        $this->dbConnector = DBConnectorFactory::getConnector();
-    }
+    // public function __construct() {
+    //     $this->dbConnector = DBConnectorFactory::getConnector();
+    // }
 
     public function create($userId, $characterId) {
         try {
@@ -422,5 +423,23 @@ class ChatRepository {
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération des détails du personnage : " . $e->getMessage());
         }
+    }
+
+    public function isUserChatOwner($chatId, $userId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `user_chat` WHERE chatId = :chatId AND userId = :userId';
+                $params = [':chatId' => $chatId, ':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "user_chat" WHERE id = $1 AND "userId" = $2';
+                $params = [$chatId, $userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+    
+        return $this->executeOwnershipQuery($sql, $params);
     }
 }

@@ -44,14 +44,28 @@ class Chat {
 
     // Méthode pour obtenir une représentation sous forme de tableau
     public function toMap() {
+
+        $participants = array_map(function($participant) {
+            return $participant->toMap();
+        }, $this->participants);
+
+        $messages = array_map(function($message) {
+            return $message->toMap();
+        }, $this->messages);
+
         return [
             'id' => $this->id,
-            'participants' => array_map(function($participant) {
-                return $participant->toMap();
-            }, $this->participants),
-            'messages' => array_map(function($message) {
-                return $message->toMap();
-            }, $this->messages)
+            'participants' => $participants,
+            'messages' => $messages
         ];
+        // return [
+        //     'id' => $this->id,
+        //     'participants' => array_map(function($participant) {
+        //         return $participant->toMap();
+        //     }, $this->participants),
+        //     'messages' => array_map(function($message) {
+        //         return $message->toMap();
+        //     }, $this->messages)
+        // ];
     }
 }

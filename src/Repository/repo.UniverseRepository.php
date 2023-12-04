@@ -1,16 +1,16 @@
 <?php // path: src/Repository/repo.UniverseRepository.php
 
-require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
+// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
-class UniverseRepository
+class UniverseRepository extends AbstractRepository
 {
-    private $dbConnector;
+    // private $dbConnector;
 
-    public function __construct()
-    {
-        $this->dbConnector = DBConnectorFactory::getConnector();
-    }
+    // public function __construct()
+    // {
+    //     $this->dbConnector = DBConnectorFactory::getConnector();
+    // }
 
     public function create($universeData, $userId)
     {
@@ -357,5 +357,23 @@ class UniverseRepository
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la vérification de l'existence de l'utilisateur : " . $e->getMessage());
         }
+    }
+
+    public function isUserUniverseOwner($universeId, $userId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `user_universe` WHERE universeId = :universeId AND userId = :userId';
+                $params = [':universeId' => $universeId, ':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "user_universe" WHERE "universeId" = $1 AND "userId" = $2';
+                $params = [$universeId, $userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        return $this->executeOwnershipQuery($sql, $params);
     }
 }

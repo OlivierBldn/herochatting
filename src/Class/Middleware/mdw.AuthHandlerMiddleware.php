@@ -1,7 +1,7 @@
 <?php // path: src/Middleware/mdw.AuthHandlerMiddleware.php
 
-require __DIR__ . '/../Interface/iface.AuthHandlerInterface.php';
-require __DIR__ . '/../class.JWTFactory.php';
+require_once __DIR__ . '/../Interface/iface.AuthHandlerInterface.php';
+require_once __DIR__ . '/../class.JWTFactory.php';
 
 class AuthHandlerMiddleware implements AuthHandlerInterface {
     private $nextHandler;

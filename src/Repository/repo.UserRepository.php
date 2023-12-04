@@ -1,16 +1,16 @@
 <?php // path: src/Repository/repo.UserRepository.php
 
-require_once __DIR__ . '/repo.UniverseRepository.php';
-require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+// require_once __DIR__ . '/repo.UniverseRepository.php';
+// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
-class UserRepository
+class UserRepository extends AbstractRepository
 {
-    private $dbConnector;
+    // private $dbConnector;
 
-    public function __construct()
-    {
-        $this->dbConnector = DBConnectorFactory::getConnector();
-    }
+    // public function __construct()
+    // {
+    //     $this->dbConnector = DBConnectorFactory::getConnector();
+    // }
 
     public function create($userData)
     {
@@ -274,5 +274,23 @@ class UserRepository
             $this->dbConnector->rollBack();
             throw new Exception("Erreur lors de la suppression de l'utilisateur et de ses univers : " . $e->getMessage());
         }
+    }
+
+    public function isUserSelfOwner($selfId, $userId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `user` WHERE id = :userId AND id = :selfId';
+                $params = [':userId' => $userId, ':selfId' => $selfId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "user" WHERE id = $1 AND id = $2';
+                $params = [$userId, $selfId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        return $this->executeOwnershipQuery($sql, $params);
     }
 }

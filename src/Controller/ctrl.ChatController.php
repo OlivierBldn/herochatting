@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Class/class.Chat.php';
 require_once __DIR__ . '/../Class/Builder/bldr.ChatBuilder.php';
+require_once __DIR__ . '/../Class/Middleware/mdw.OwnershipVerifierMiddleware.php';
 
 class ChatController {
     private $dbConnector;
@@ -10,6 +11,7 @@ class ChatController {
     public function __construct() {
         $this->dbConnector = DBConnectorFactory::getConnector();
         $this->chatRepository = new ChatRepository();
+        $this->ownershipVerifier = new OwnershipVerifierMiddleware();
     }
 
     public function createChat($requestMethod) {
@@ -55,9 +57,17 @@ class ChatController {
     }
 
     public function getChatById($requestMethod, $chatId) {
+
         if ($requestMethod !== 'GET') {
             http_response_code(405);
             echo json_encode(['message' => 'Methode non autorisée']);
+            return;
+        }
+
+        $ownershipVerifier = new OwnershipVerifierMiddleware();
+        if (!$ownershipVerifier->handle($chatId)) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Accès refusé']);
             return;
         }
 

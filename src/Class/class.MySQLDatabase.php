@@ -1,7 +1,7 @@
 <?php // path: src/Class/class.MySQLDatabase.php
 
-require_once __DIR__ . '/../../config/cfg_dbConfig.php';
-require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
+// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
+// require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
 
 class MySQLDatabase extends AbstractDatabase
 {
