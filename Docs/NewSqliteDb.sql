@@ -76,3 +76,11 @@ CREATE TABLE character_chat (
   FOREIGN KEY (characterId) REFERENCES character (id),
   FOREIGN KEY (chatId) REFERENCES chat (id)
 );
+
+-- Création de la table image_references
+CREATE TABLE `image_references` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_file_name VARCHAR(255),
+    entity_id INT,
+    entity_type VARCHAR(255)
+);

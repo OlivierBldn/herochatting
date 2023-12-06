@@ -65,4 +65,11 @@ CREATE TABLE `character_chat` (
   `chatId` int(11) NOT NULL,
   FOREIGN KEY (`characterId`) REFERENCES `character` (`id`),
   FOREIGN KEY (`chatId`) REFERENCES `chat` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+);
+
+CREATE TABLE `image_references` (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    image_file_name VARCHAR(255),
+    entity_id INT,
+    entity_type VARCHAR(255)
+);

@@ -1,17 +1,7 @@
 <?php // path: src/Repository/repo.UniverseRepository.php
 
-// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
-
 class UniverseRepository extends AbstractRepository
 {
-    // private $dbConnector;
-
-    // public function __construct()
-    // {
-    //     $this->dbConnector = DBConnectorFactory::getConnector();
-    // }
-
     public function create($universeData, $userId)
     {
         $newUniverse = Universe::fromMap($universeData);
@@ -375,5 +365,122 @@ class UniverseRepository extends AbstractRepository
         }
 
         return $this->executeOwnershipQuery($sql, $params);
+    }
+
+    public function isImageUsedByOthers($imageFileName, $entityId, $entityType) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `image_references` 
+                        WHERE image_file_name = :imageFileName 
+                        AND entity_id != :entityId 
+                        AND entity_type != :entityType';
+                $params = [
+                    ':imageFileName' => $imageFileName,
+                    ':entityId' => $entityId,
+                    ':entityType' => $entityType
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "image_references" 
+                        WHERE image_file_name = $1 
+                        AND entity_id != $2 
+                        AND entity_type != $3';
+                $params = [
+                    $imageFileName,
+                    $entityId,
+                    $entityType
+                ];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        return $this->executeImageTracking($sql, $params);
+    }
+
+    // public function addImageReference($imageFileName, $entityId, $entityType) {
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
+    //                     VALUES (:imageFileName, :entityId, :entityType)';
+    //             $parameters = [
+    //                 ':imageFileName' => $imageFileName,
+    //                 ':entityId' => $entityId,
+    //                 ':entityType' => $entityType,
+    //             ];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
+    //                     VALUES ($1, $2, $3)';
+    //             $parameters = [
+    //                 $imageFileName,
+    //                 $entityId,
+    //                 $entityType,
+    //             ];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
+
+    //     return $this->executeImageReferencing($sql, $parameters);
+    // }
+
+    // public function addImageReference($imageFileName, $entityId, $entityType) {
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
+    //                     VALUES (:fileName, :entityId, :entityType)';
+    //             $parameters = [
+    //                 ':fileName' => $imageFileName,
+    //                 ':entityId' => $entityId,
+    //                 ':entityType' => $entityType,
+    //             ];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
+    //                     VALUES ($1, $2, $3)';
+    //             $parameters = [
+    //                 $imageFileName,
+    //                 $entityId,
+    //                 $entityType,
+    //             ];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
+
+    //     return $this->executeImageReferencing($sql, $parameters);
+    // }
+
+
+    public function addImageReference($imageFileName, $entityId, $entityType) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
+                        VALUES (:imageFileName, :entityId, :entityType)';
+                $parameters = [
+                    ':fileName' => $imageFileName,
+                    ':entityId' => $entityId,
+                    ':entityType' => $entityType,
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
+                        VALUES (:imageFileName, :entityId, :entityType)';
+                $parameters = [
+                    ':fileName' => $imageFileName,
+                    ':entityId' => $entityId,
+                    ':entityType' => $entityType,
+                ];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+    
+        return $this->executeImageReferencing($sql, $parameters);
     }
 }

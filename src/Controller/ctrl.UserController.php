@@ -7,6 +7,7 @@ require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
 require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 require_once __DIR__ . '/../Class/Middleware/mdw.OwnershipVerifierMiddleware.php';
+require_once __DIR__ . '/../Class/Service/srv.StableDiffusionService.php';
 
 class UserController
 {
@@ -213,15 +214,24 @@ class UserController
                 $chatRepository->delete($chat->getId());
             }
 
+            
+            $stableDiffusionService = StableDiffusionService::getInstance();
+            
             // Supprimer les personnages liés à l'utilisateur
             $characters = $characterRepository->getByUserId($userId);
             foreach ($characters as $character) {
+                $characterId = $character->getId();
+                $characterImage = $character->getImage();
+                $stableDiffusionService->deleteImageIfUnused($characterImage, $characterId, 'character');
                 $characterRepository->delete($character->getId());
             }
 
             // Supprimer les univers liés à l'utilisateur
             $universes = $universeRepository->getAllByUserId($userId);
             foreach ($universes as $universe) {
+                $universeId = $universe->getId();
+                $universeImage = $universe->getImage();
+                $stableDiffusionService->deleteImageIfUnused($universeImage, $universed, 'universe');
                 $universeRepository->delete($universe->getId());
             }
 

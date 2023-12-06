@@ -76,3 +76,10 @@ CREATE TABLE "character_chat" (
   FOREIGN KEY ("characterId") REFERENCES "character" ("id"),
   FOREIGN KEY ("chatId") REFERENCES "chat" ("id")
 );
+
+CREATE TABLE "image_references" (
+    id SERIAL PRIMARY KEY,
+    image_file_name VARCHAR(255),
+    entity_id INTEGER,
+    entity_type VARCHAR(255)
+);

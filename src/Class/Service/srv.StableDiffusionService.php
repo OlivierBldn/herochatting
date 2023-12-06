@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../config/cfg_stableDiffusionConfig.php';
 
-class StableDiffusionService
+class StableDiffusionService extends AbstractRepository
 {
     private static ?StableDiffusionService $instance = null;
 
@@ -196,7 +196,24 @@ class StableDiffusionService
     
         return 'Image non disponible';
     }
+
+    // public function deleteImageIfUnused($imageFileName, $entityId, $entityType) {
+    //     if ($this->isImageUsedByOthers($imageFileName, $entityId, $entityType)) {
+    //         $this->removeImageReference($imageFileName, $entityId, $entityType);
+    //     } else {
+    //         $this->deleteImage($imageFileName);
+    //     }
+    // }
+
+    public function deleteImage($imageFileName) {
+        $uploadPath = __DIR__ . '/../../../uploads/';
+        $imageFullPath = $uploadPath . $imageFileName;
     
+        if (file_exists($imageFullPath)) {
+            unlink($imageFullPath);
+        }
+    }
+
     private function regeneratePrompt($originalPrompt) {
     
         $newPromptRequest = "Reformule ce prompt d'une manière différente pour que Stable Diffusion génère une nouvelle image : \"$originalPrompt\" Rappelles-toi que le prompt ne doit pas dépasser 300 caractères.";

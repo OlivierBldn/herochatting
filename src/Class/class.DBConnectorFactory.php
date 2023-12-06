@@ -1,6 +1,5 @@
 <?php // path: src/Class/class.DBConnectorFactory.php
 
-// require __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 
 class DBConnectorFactory

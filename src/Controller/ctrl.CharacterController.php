@@ -402,6 +402,11 @@ class CharacterController
             // Commencer une transaction
             $this->dbConnector->beginTransaction();
 
+            // Supprimer l'image du personnage
+            $characterImage = $character->getImage();
+            $stableDiffusionService = StableDiffusionService::getInstance();
+            $stableDiffusionService->deleteImageIfUnused($characterImage, $characterId, 'character');
+
             // Supprimer les messages dans les chats du personnage
             $chats = $chatRepository->getByCharacterId($characterId);
             foreach ($chats as $chat) {

@@ -61,19 +61,24 @@ class UniverseController
             switch($existingUniverse) {
                 case null:
                     $newUniverse = new Universe();
-                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
-                    $requestData['description'] = $openAIService->generateDescription($prompt);
+                    // $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
+                    // $requestData['description'] = $openAIService->generateDescription($prompt);
     
-                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit décrire l'univers {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
-                    $imageDescription = $openAIService->generateDescription($imagePrompt);
+                    // $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit décrire l'univers {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
+                    // $imageDescription = $openAIService->generateDescription($imagePrompt);
 
-                    $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
+                    // $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
+
+                    $requestData['description'] = "Ceci est un test";
+
+                    $requestData['image'] = "testfilename.png";
     
                     $this->setUniverseData($newUniverse, $requestData);
                     break;
                 case true:
                     $newUniverse = $existingUniverse->clone();
                     $this->setUniverseData($existingUniverse, $existingUniverse->toMap());
+                    $requestData['image'] = $existingUniverse->getImage();
                     break;
                 default:
                     $newUniverse = new Universe();
@@ -91,9 +96,18 @@ class UniverseController
             $success = $universeRepository->create($newUniverse->toMap(), $userId);
 
             if ($success) {
+                $universeId = $success;
+                $imageFileName = $requestData['image'];
+
+                if (!empty($imageFileName)) {
+                    $universeRepository->addImageReference($imageFileName, $universeId, 'universe');
+                }
+
                 $successResponse = [
                     'success' => true,
-                    'message' => 'Univers créé avec succès.'
+                    'message' => 'Univers créé avec succès.',
+                    'universeId' => $universeId,
+                    'imageFileName' => $imageFileName,
                 ];
                 http_response_code(201);
                 echo json_encode($successResponse);
@@ -343,6 +357,13 @@ class UniverseController
 
             // Commencer une transaction
             $this->dbConnector->beginTransaction();
+
+
+            // Supprimer l'image de l'univers
+            $universeImage = $universe->getImage();
+            $stableDiffusionService = StableDiffusionService::getInstance();
+            $stableDiffusionService->deleteImageIfUnused($universeImage, $universeId, 'universe');
+            
 
             // Supprimer les messages dans les chats de l'univers
             $chats = $chatRepository->getByUniverseId($universeId);
