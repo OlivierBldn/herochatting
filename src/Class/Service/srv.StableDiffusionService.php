@@ -197,13 +197,30 @@ class StableDiffusionService extends AbstractRepository
         return 'Image non disponible';
     }
 
-    // public function deleteImageIfUnused($imageFileName, $entityId, $entityType) {
-    //     if ($this->isImageUsedByOthers($imageFileName, $entityId, $entityType)) {
-    //         $this->removeImageReference($imageFileName, $entityId, $entityType);
-    //     } else {
-    //         $this->deleteImage($imageFileName);
-    //     }
-    // }
+    public function deleteImageIfUnused($imageFileName, $entityId, $entityType) {
+        switch ($entityType) {
+            case 'universe':
+                $universeRepository = new UniverseRepository();
+                if ($universeRepository->isImageUsedByOthers($imageFileName, $entityId, $entityType)) {
+                    $this->logError("L'univers $entityId utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+                } else {
+                    $this->deleteImage($imageFileName);
+                }
+            break;
+            case 'character':
+                $characterRepository = new CharacterRepository();
+                if ($characterRepository->isImageUsedByOthers($imageFileName, $entityId, $entityType)) {
+                    $this->logError("Le personnage $entityId utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+                } else {
+                    $this->deleteImage($imageFileName);
+                }
+                $this->logError("L'utilisateur $entityId utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+            break;
+            default:
+                $this->logError("L'entité $entityId de type $entityType utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+            break;
+        }
+    }
 
     public function deleteImage($imageFileName) {
         $uploadPath = __DIR__ . '/../../../uploads/';

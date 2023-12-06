@@ -33,7 +33,7 @@ abstract class AbstractRepository {
     }
 
 
-    protected function executeImageReferencing($sql, $params) {
+    protected function executeImageReferencing($sql, $parameters) {
         try {
             $success = $this->dbConnector->execute($sql, $parameters);
             return $success;

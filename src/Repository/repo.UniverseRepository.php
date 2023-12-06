@@ -44,11 +44,7 @@ class UniverseRepository extends AbstractRepository
             $success = $this->dbConnector->execute($sql, $parameters);
 
             if ($success) {
-
                 $universeId= $this->dbConnector->lastInsertRowID();
-                // $requestUri = $_SERVER['REQUEST_URI'];
-                // $segments = explode('/', $requestUri);
-                // $userId = $segments[3];
 
                 $this->linkUniverseToUser($userId, $universeId);
 
@@ -209,7 +205,6 @@ class UniverseRepository extends AbstractRepository
         try {
             $universe = $this->dbConnector->select($sql, $params);
 
-            // Convertir le résultat en objet Universe si un univers est trouvé
             return $universe ? Universe::fromMap($universe[0]) : null;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération des univers par nom : " . $e->getMessage());
@@ -267,7 +262,7 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
-    public function delete($universeId) {
+    public function delete($universeId, $entityType = 'universe') {
         try {
             // Commencer une transaction
             $this->dbConnector->beginTransaction();
@@ -288,15 +283,45 @@ class UniverseRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
 
+            // Supprimer les enregistrements liés dans image_references
+            switch (__DB_INFOS__['database_type']) {
+                case 'mysql':
+                case 'sqlite':
+                    $sql = 'DELETE FROM `image_references`
+                            WHERE entity_id = :universeId
+                            AND entity_type = :entityType';
+                    $params = [
+                        ':universeId' => $universeId,
+                        ':entityType' => $entityType,
+                    ];
+                    break;
+                case 'pgsql':
+                    $sql = 'DELETE FROM "image_references"
+                            WHERE entity_id = $1
+                            AND entity_type = $2';
+                    $params = [
+                        $universeId,
+                        $entityType,
+                    ];
+                    break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+            $this->dbConnector->execute($sql, $params);
+
             // Supprimer l'univers
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'DELETE FROM `universe` WHERE id = :universeId';
+                    $params = [':universeId' => $universeId];
                     break;
                 case 'pgsql':
                     $sql = 'DELETE FROM "universe" WHERE id = $1';
+                    $params = [$universeId];
                     break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
 
@@ -373,8 +398,8 @@ class UniverseRepository extends AbstractRepository
             case 'sqlite':
                 $sql = 'SELECT COUNT(*) FROM `image_references` 
                         WHERE image_file_name = :imageFileName 
-                        AND entity_id != :entityId 
-                        AND entity_type != :entityType';
+                        AND entity_id != :entityId
+                        AND entity_type = :entityType';
                 $params = [
                     ':imageFileName' => $imageFileName,
                     ':entityId' => $entityId,
@@ -385,7 +410,7 @@ class UniverseRepository extends AbstractRepository
                 $sql = 'SELECT COUNT(*) FROM "image_references" 
                         WHERE image_file_name = $1 
                         AND entity_id != $2 
-                        AND entity_type != $3';
+                        AND entity_type = $3';
                 $params = [
                     $imageFileName,
                     $entityId,
@@ -399,63 +424,6 @@ class UniverseRepository extends AbstractRepository
         return $this->executeImageTracking($sql, $params);
     }
 
-    // public function addImageReference($imageFileName, $entityId, $entityType) {
-    //     switch (__DB_INFOS__['database_type']) {
-    //         case 'mysql':
-    //         case 'sqlite':
-    //             $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
-    //                     VALUES (:imageFileName, :entityId, :entityType)';
-    //             $parameters = [
-    //                 ':imageFileName' => $imageFileName,
-    //                 ':entityId' => $entityId,
-    //                 ':entityType' => $entityType,
-    //             ];
-    //             break;
-    //         case 'pgsql':
-    //             $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
-    //                     VALUES ($1, $2, $3)';
-    //             $parameters = [
-    //                 $imageFileName,
-    //                 $entityId,
-    //                 $entityType,
-    //             ];
-    //             break;
-    //         default:
-    //             throw new Exception("Type de base de données non reconnu");
-    //     }
-
-    //     return $this->executeImageReferencing($sql, $parameters);
-    // }
-
-    // public function addImageReference($imageFileName, $entityId, $entityType) {
-    //     switch (__DB_INFOS__['database_type']) {
-    //         case 'mysql':
-    //         case 'sqlite':
-    //             $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
-    //                     VALUES (:fileName, :entityId, :entityType)';
-    //             $parameters = [
-    //                 ':fileName' => $imageFileName,
-    //                 ':entityId' => $entityId,
-    //                 ':entityType' => $entityType,
-    //             ];
-    //             break;
-    //         case 'pgsql':
-    //             $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
-    //                     VALUES ($1, $2, $3)';
-    //             $parameters = [
-    //                 $imageFileName,
-    //                 $entityId,
-    //                 $entityType,
-    //             ];
-    //             break;
-    //         default:
-    //             throw new Exception("Type de base de données non reconnu");
-    //     }
-
-    //     return $this->executeImageReferencing($sql, $parameters);
-    // }
-
-
     public function addImageReference($imageFileName, $entityId, $entityType) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -463,7 +431,7 @@ class UniverseRepository extends AbstractRepository
                 $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
                         VALUES (:imageFileName, :entityId, :entityType)';
                 $parameters = [
-                    ':fileName' => $imageFileName,
+                    ':imageFileName' => $imageFileName,
                     ':entityId' => $entityId,
                     ':entityType' => $entityType,
                 ];
@@ -472,7 +440,7 @@ class UniverseRepository extends AbstractRepository
                 $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
                         VALUES (:imageFileName, :entityId, :entityType)';
                 $parameters = [
-                    ':fileName' => $imageFileName,
+                    ':imageFileName' => $imageFileName,
                     ':entityId' => $entityId,
                     ':entityType' => $entityType,
                 ];

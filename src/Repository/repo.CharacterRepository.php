@@ -1,17 +1,7 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
-// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
-
 class CharacterRepository extends AbstractRepository
 {
-    // private $dbConnector;
-
-    // public function __construct()
-    // {
-    //     $this->dbConnector = DBConnectorFactory::getConnector();
-    // }
-
     public function create($characterData, $universeId)
     {
         $newCharacter = Character::fromMap($characterData);
@@ -334,7 +324,7 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
-    public function delete($characterId) {
+    public function delete($characterId, $entityType = 'character') {
         try {
             // Commencer une transaction
             $this->dbConnector->beginTransaction();
@@ -354,16 +344,46 @@ class CharacterRepository extends AbstractRepository
                     throw new Exception("Type de base de données non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
-    
+
+            // Supprimer les enregistrements liés dans image_references
+            switch (__DB_INFOS__['database_type']) {
+                case 'mysql':
+                case 'sqlite':
+                    $sql = 'DELETE FROM `image_references`
+                            WHERE entity_id = :characterId
+                            AND entity_type = :entityType';
+                    $params = [
+                        ':characterId' => $characterId,
+                        ':entityType' => $entityType,
+                    ];
+                    break;
+                case 'pgsql':
+                    $sql = 'DELETE FROM "image_references"
+                            WHERE entity_id = $1
+                            AND entity_type = $2';   
+                    $params = [
+                        $characterId,
+                        $entityType,
+                    ];
+                    break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
+            }
+            $this->dbConnector->execute($sql, $params);
+
             // Supprimer le personnage
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
                     $sql = 'DELETE FROM `character` WHERE id = :characterId';
+                    $params = [':characterId' => $characterId];
                     break;
                 case 'pgsql':
                     $sql = 'DELETE FROM "character" WHERE id = $1';
+                    $params = [$characterId];
                     break;
+                default:
+                    throw new Exception("Type de base de données non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
     
@@ -488,5 +508,65 @@ class CharacterRepository extends AbstractRepository
         }
 
         return $this->executeOwnershipQuery($sql, $params);
+    }
+
+    public function isImageUsedByOthers($imageFileName, $entityId, $entityType) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `image_references` 
+                        WHERE image_file_name = :imageFileName 
+                        AND entity_id != :entityId
+                        AND entity_type = :entityType';
+                $params = [
+                    ':imageFileName' => $imageFileName,
+                    ':entityId' => $entityId,
+                    ':entityType' => $entityType
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "image_references" 
+                        WHERE image_file_name = $1 
+                        AND entity_id != $2 
+                        AND entity_type = $3';
+                $params = [
+                    $imageFileName,
+                    $entityId,
+                    $entityType
+                ];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        return $this->executeImageTracking($sql, $params);
+    }
+
+    public function addImageReference($imageFileName, $entityId, $entityType) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'INSERT INTO `image_references` (image_file_name, entity_id, entity_type) 
+                        VALUES (:imageFileName, :entityId, :entityType)';
+                $parameters = [
+                    ':imageFileName' => $imageFileName,
+                    ':entityId' => $entityId,
+                    ':entityType' => $entityType,
+                ];
+                break;
+            case 'pgsql':
+                $sql = 'INSERT INTO "image_references" (image_file_name, entity_id, entity_type) 
+                        VALUES (:imageFileName, :entityId, :entityType)';
+                $parameters = [
+                    ':imageFileName' => $imageFileName,
+                    ':entityId' => $entityId,
+                    ':entityType' => $entityType,
+                ];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+    
+        return $this->executeImageReferencing($sql, $parameters);
     }
 }

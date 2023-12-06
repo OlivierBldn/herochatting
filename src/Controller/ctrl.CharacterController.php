@@ -82,6 +82,7 @@ class CharacterController
                     // Cloner le personnage existant
                     $newCharacter = $existingCharacter->clone();
                     $this->setCharacterData($existingCharacter, $existingCharacter->toMap());
+                    $requestData['image'] = $existingCharacter->getImage();
                 break;
                 default:
                     // Gérer les autres cas (si nécessaire)
@@ -102,10 +103,18 @@ class CharacterController
             $success = $characterRepository->create($newCharacter->toMap(), $universeId);
     
             if ($success) {
+                $characterId = $success;
+                $imageFileName = $requestData['image'];
+
+                if (!empty($imageFileName)) {
+                    $characterRepository->addImageReference($imageFileName, $characterId, 'character');
+                }
 
                 $successResponse = [
                     'success' => true,
-                    'message' => 'Personnage créé avec succès.'
+                    'message' => 'Personnage créé avec succès.',
+                    'characterId' => $characterId,
+                    'imageFileName' => $imageFileName,
                 ];
                 http_response_code(201);
                 echo json_encode($successResponse);
