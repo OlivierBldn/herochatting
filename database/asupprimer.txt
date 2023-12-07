@@ -1,0 +1,25 @@
+1 - Cloner le repo :
+
+git clone https://github.com/OlivierBldn/herochatting.git
+
+Optionnel pour copier le projet sur votre github et le modifier à votre guise :
+
+1 - Créer un nouveau repository github
+2 – Ouvrir un terminal dans le dossier du projet que vous venez de cloner (qui porte le nom herochatting si vous ne l’avez pas modifié)
+3 – Changer l’url du repository pour celle du repository que vous venez de créer :
+git remote set-url origin https://github.com/username/example.git
+4 – Envoyer les éléments du projet sur votre repo git :
+git push -u origin main
+
+
+2 - Décommenter  tous les path commentés dans le fichier .gitignore et sauvegarder les modifications (cela vous évitera de push accidentellement vos clés api)
+
+3 - Installer les dépendances :
+
+composer install
+
+4 - Créer une base de données pour le projet. Vous avez le choix entre mysql, postgresql et sqlite.
+
+Selon le type de bdd, créez toutes les tables en collant le contenu du fichier correspondant au type de bdd
+
+Par exemple si vous venez de créer une bdd mysql, copiez le contenu du fichier NewMysqlDb.sql et collez le fichier
