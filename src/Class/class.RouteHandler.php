@@ -2,6 +2,13 @@
 
 require __DIR__ . '/Middleware/mdw.AuthHandlerMiddleware.php';
 
+/**
+ * Class RouteHandler
+ * 
+ * This class is the route handler.
+ * It is used to route the requests to the right controller and method.
+ * 
+ */
 class RouteHandler
 {
     private $authMiddleware;
@@ -11,7 +18,14 @@ class RouteHandler
         $this->authMiddleware = new AuthHandlerMiddleware();
     }
 
-    // Fonction de routage
+    /**
+     * Function to route the request to the right controller and method
+     *
+     * @param string $uri
+     * @param array $routes
+     * @param string $requestMethod
+     * @return void
+     */
     function routeRequest($uri, $routes, $requestMethod)
     {
         // Validation de la méthode de requête HTTP
@@ -22,14 +36,16 @@ class RouteHandler
             return;
         }
 
-        // Parcourir les routes pour trouver une correspondance
+        // Loop through the routes and find a match for the requested URI
         foreach ($routes as $pattern => $route) {
 
+            // If the route pattern matches the requested URI create the controller and call the method
             if (preg_match($pattern, $uri, $matches)) {
                 $className = $route['class'];
                 $controllerName = $route['controller'];
                 $methodName = $route['methods'][$requestMethod];
 
+                // If the route is protected by the auth middleware, call the middleware
                 if (!in_array($uri, __UNPROTECTED_ROUTES__)) {
                     $response = $this->authMiddleware->handle($requestMethod);
                     if ($response === null) {
@@ -37,41 +53,40 @@ class RouteHandler
                     }
                 }
 
+                // If the class does not exist return a 404 response
                 if (!class_exists($className)) {
-                    // Classe non trouvée
                     http_response_code(404);
                     echo json_encode(['message' => 'Classe non trouvée']);
                     return;
                 }
                 $controller = new $controllerName();
 
+                // If the method does not exist return a 404 response
                 if (!method_exists($controller, $methodName)) {
-                    // Méthode non trouvée
                     http_response_code(404);
                     echo json_encode(['message' => 'Méthode non trouvée']);
                     return;
                 }
 
-                // Récupation les segments de l'URI
+                // Get the URI segments
                 $uriSegments = explode('/', $uri);
                 
-                // Suppression des segments vides
+                // Remove empty segments
                 $uriSegments = array_filter($uriSegments);
 
-                // Suppression du premier segment (nom de la classe)
+                // Delete the first segment (the base URI)
                 array_shift($uriSegments);
 
-                // L'ID est le dernier segment de l'URI
+                // The last segment is the entity ID
                 $entityId = (int) end($uriSegments);
 
-                // Appel de la méthode du contrôleur avec l'ID
+                // Call the method with the entity ID
                 $controller->$methodName($requestMethod, $entityId);
 
                 return;
             }
         }
 
-        // Si aucune correspondance n'a été trouvée, renvoyer une réponse 404
         http_response_code(404);
         echo json_encode(['message' => 'Route non trouvée']);
     }

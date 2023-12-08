@@ -8,7 +8,12 @@ require_once __DIR__ . '/../../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../../Repository/repo.CharacterRepository.php';
 require_once __DIR__ . '/../../Repository/repo.UserRepository.php';
 
-
+/**
+ * OwnershipVerifierMiddleware
+ * Class to handle the ownership verification
+ * Implements the AuthHandlerInterface
+ * Used to check if the user is the owner of the requested resource
+ */
 class OwnershipVerifierMiddleware implements AuthHandlerInterface
 {
     private $nextHandler;
@@ -18,11 +23,23 @@ class OwnershipVerifierMiddleware implements AuthHandlerInterface
         $this->dbConnector = DBConnectorFactory::getConnector();
     }
 
+    /**
+     * Function to set the next handler in the chain
+     *
+     * @param AuthHandlerInterface $handler
+     * @return AuthHandlerInterface
+     */
     public function setNext(AuthHandlerInterface $handler): AuthHandlerInterface {
         $this->nextHandler = $handler;
         return $handler;
     }
 
+    /**
+     * Function to handle the request submitted to the handler using the JWTFactory
+     *
+     * @param Request $request
+     * @return mixed
+     */
     public function handle($request) {
         $token = JWTFactory::getAuthorizationToken();
         $decodedToken = JWTFactory::validateToken($token);
@@ -32,6 +49,7 @@ class OwnershipVerifierMiddleware implements AuthHandlerInterface
             return null;
         }
 
+        // Use the token payload to get the user ID and the uri to get the entity type and ID
         $userId = $decodedToken->id;
 
         $requestUri = $_SERVER['REQUEST_URI'];
@@ -40,6 +58,7 @@ class OwnershipVerifierMiddleware implements AuthHandlerInterface
         $entityType = $segments[2];
         $entityId = $segments[3];
 
+        // Depending on the entity type and id, check if the user is the owner of the requested resource using the corresponding repository
         switch ($entityType) {
             case 'chats':
                 $repository = new ChatRepository($this->dbConnector);

@@ -1,16 +1,21 @@
 <?php // path: src/Repository/repo.MessageRepository.php
 
-// require_once __DIR__ . '/../Class/class.DBConnectorFactory.php';
-// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
-
+/**
+ * Class MessageRepository
+ * 
+ * This class is the repository for the Message class.
+ * It contains all the queries to the database regarding the Message class.
+ * 
+ */
 class MessageRepository extends AbstractRepository
 {
-    // private $dbConnector;
-
-    // public function __construct() {
-    //     $this->dbConnector = DBConnectorFactory::getConnector();
-    // }
-
+    /**
+     * Function to create a message
+     *
+     * @param array $messageData
+     * @param int $chatId
+     * @return int
+     */
     public function create($messageData, $chatId) {
         $content = $messageData['content'];
         $createdAt = (new DateTime())->format('Y-m-d H:i:s');
@@ -42,11 +47,13 @@ class MessageRepository extends AbstractRepository
         }
     }
 
-    
-
-
-    
-
+    /**
+     * Function to link a Message to a Chat
+     *
+     * @param int $messageId
+     * @param int $chatId
+     * @return void
+     */
     private function linkMessageToChat($messageId, $chatId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -69,6 +76,11 @@ class MessageRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get all the messages
+     *
+     * @return array
+     */
     public function getAll() {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -97,6 +109,12 @@ class MessageRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a message by its id
+     *
+     * @param int $messageId
+     * @return Message|null
+     */
     public function getById($messageId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -124,6 +142,12 @@ class MessageRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get all the messages by a Chat id
+     *
+     * @param int $chatId
+     * @return array
+     */
     public function getMessagesByChatId($chatId) {
 
         if (!$this->chatExists($chatId)) {
@@ -160,31 +184,45 @@ class MessageRepository extends AbstractRepository
         }
     }
 
-    public function update($messageId, $messageData) {
-        $content = $messageData['content'];
+    // /**
+    //  * Function to update a Message
+    //  * 
+    //  * @param int $messageId
+    //  * @param array $messageData
+    //  * 
+    //  * @return bool
+    //  */
+    // public function update($messageId, $messageData) {
+    //     $content = $messageData['content'];
 
-        switch (__DB_INFOS__['database_type']) {
-            case 'mysql':
-            case 'sqlite':
-                $sql = 'UPDATE `message` SET content = :content WHERE id = :messageId';
-                $params = [':content' => $content, ':messageId' => $messageId];
-                break;
-            case 'pgsql':
-                $sql = 'UPDATE "message" SET content = $1 WHERE id = $2';
-                $params = [$content, $messageId];
-                break;
-            default:
-                throw new Exception("Type de base de données non reconnu");
-        }
+    //     switch (__DB_INFOS__['database_type']) {
+    //         case 'mysql':
+    //         case 'sqlite':
+    //             $sql = 'UPDATE `message` SET content = :content WHERE id = :messageId';
+    //             $params = [':content' => $content, ':messageId' => $messageId];
+    //             break;
+    //         case 'pgsql':
+    //             $sql = 'UPDATE "message" SET content = $1 WHERE id = $2';
+    //             $params = [$content, $messageId];
+    //             break;
+    //         default:
+    //             throw new Exception("Type de base de données non reconnu");
+    //     }
 
-        try {
-            $success = $this->dbConnector->execute($sql, $params);
-            return $success;
-        } catch (Exception $e) {
-            throw new Exception("Erreur lors de la mise à jour du message: " . $e->getMessage());
-        }
-    }
+    //     try {
+    //         $success = $this->dbConnector->execute($sql, $params);
+    //         return $success;
+    //     } catch (Exception $e) {
+    //         throw new Exception("Erreur lors de la mise à jour du message: " . $e->getMessage());
+    //     }
+    // }
 
+    /**
+     * Function to delete a Message
+     *
+     * @param int $messageId
+     * @return bool
+     */
     public function delete($messageId) {
         try {
             $count = 0;
@@ -207,13 +245,13 @@ class MessageRepository extends AbstractRepository
             }
     
             if ($count == 0) {
-                return false; // Le message n'existe pas
+                return false;
             }
     
-            // Commencer une transaction
+            // Begin transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
     
-            // Supprimer les enregistrements liés dans chat_message
+            // Delete the references to the message in the relation table chat_message
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -225,7 +263,7 @@ class MessageRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sqlChatMessage, $paramsExists);
     
-            // Supprimer le message
+            // Delete the message
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -237,17 +275,23 @@ class MessageRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sqlMessage, $paramsExists);
     
-            // Valider la transaction
+            // Commit the transaction
             $this->dbConnector->commit();
     
             return true;
         } catch (Exception $e) {
-            // Annuler la transaction en cas d'erreur
+            // Cancel the transaction if an error occurs
             $this->dbConnector->rollBack();
             throw new Exception("Erreur lors de la suppression du message : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to check if a User exists
+     *
+     * @param int $userId
+     * @return bool
+     */
     public function userExists($userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -286,6 +330,12 @@ class MessageRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to check if a Chat exists
+     *
+     * @param int $chatId
+     * @return bool
+     */
     public function chatExists($chatId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -324,6 +374,14 @@ class MessageRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to check if a User is the owner of a Message
+     * 
+     * @param int $messageId
+     * @param int $userId
+     * 
+     * @return bool
+     */
     public function isUserMessageOwner($messageId, $userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':

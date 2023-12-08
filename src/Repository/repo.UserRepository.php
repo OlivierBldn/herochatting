@@ -1,20 +1,23 @@
 <?php // path: src/Repository/repo.UserRepository.php
 
-// require_once __DIR__ . '/repo.UniverseRepository.php';
-// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
-
+/**
+ * Class UserRepository
+ * 
+ * This class is the repository for the User class.
+ * It contains all the queries to the database regarding the User class.
+ * 
+ */
 class UserRepository extends AbstractRepository
 {
-    // private $dbConnector;
-
-    // public function __construct()
-    // {
-    //     $this->dbConnector = DBConnectorFactory::getConnector();
-    // }
-
+    /**
+     * Function to create a new user
+     *
+     * @param array $userData
+     * @return int
+     */
     public function create($userData)
     {
-
+        // Ensure that the password is hashed
         if (isset($userData['password'])) {
             $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
         }
@@ -76,6 +79,11 @@ class UserRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get all the users
+     *
+     * @return array
+     */
     public function getAll()
     {
         switch (__DB_INFOS__['database_type']) {
@@ -105,6 +113,12 @@ class UserRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a User by its id
+     *
+     * @param int $id
+     * @return User|null
+     */
     public function getById($id)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -136,6 +150,12 @@ class UserRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a User by its email
+     *
+     * @param string $email
+     * @return User|null
+     */
     public function getByEmail($email)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -167,6 +187,14 @@ class UserRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to update a User
+     * 
+     * @param int $userId
+     * @param array $userData
+     * 
+     * @return bool
+     */
     public function update($userId, $userData)
     {
         $existingUser = $this->getById($userId);
@@ -175,16 +203,10 @@ class UserRepository extends AbstractRepository
             throw new Exception("Utilisateur non trouvé");
         }
     
-        // Utiliser les setters pour assurer un traitement correct des données
         $existingUser->setEmail($userData['email'] ?? $existingUser->getEmail());
         $existingUser->setUsername($userData['username'] ?? $existingUser->getUsername());
         $existingUser->setFirstName($userData['firstName'] ?? $existingUser->getFirstName());
         $existingUser->setLastName($userData['lastName'] ?? $existingUser->getLastName());
-
-        // Hacher le mot de passe s'il est présent dans $userData
-        // if (isset($userData['password']) && !empty($userData['password'])) {
-        //     $existingUser->setPassword($userData['password']);
-        // }
 
         if (isset($userData['password']) && !empty($userData['password'])) {
             $userData['password'] = password_hash($userData['password'], PASSWORD_DEFAULT);
@@ -235,21 +257,29 @@ class UserRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to delete a User
+     * 
+     * @param int $id
+     * 
+     * @return bool
+     */
     public function delete($id)
     {
         try {
-            // Commencer une transaction
+            // Begin transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
 
             $universeRepository = new UniverseRepository();
 
             $universesToDelete = $universeRepository->getAllByUserId($id);
 
+            // Delete all the universes of the user
             foreach ($universesToDelete as $universe) {
                 $universeRepository->delete($universe->getId());
             }
 
-            // Supprimer l'utilisateur
+            // Delete the user
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -262,20 +292,28 @@ class UserRepository extends AbstractRepository
                     throw new Exception("Type de base de données non reconnu");
             }
 
-            // Exécuter la requête de suppression de l'utilisateur
+            // Execute the query to delete the user regarding the database type
             $this->dbConnector->execute($sqlDeleteUser, __DB_INFOS__['database_type'] === 'pgsql' ? [$id] : [':id' => $id]);
 
-            // Valider la transaction
+            // Commit the transaction
             $this->dbConnector->commit();
 
             return true;
         } catch (Exception $e) {
-            // Annuler la transaction en cas d'erreur
+            // Cancel the transaction if an error occurs
             $this->dbConnector->rollBack();
             throw new Exception("Erreur lors de la suppression de l'utilisateur et de ses univers : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to check if a User is the owner of the requested User entity
+     * 
+     * @param int $selfId
+     * @param int $userId
+     * 
+     * @return bool
+     */
     public function isUserSelfOwner($selfId, $userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':

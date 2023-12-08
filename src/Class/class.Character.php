@@ -2,6 +2,13 @@
 
 require __DIR__ . '/Interface/iface.CharacterPrototypeInterface.php';
 
+/**
+ * Class Character
+ * 
+ * This class is the Character class.
+ * Implements the interface CharacterPrototypeInterface.
+ * 
+ */
 class Character implements CharacterPrototype
 {
     private $id;
@@ -17,6 +24,12 @@ class Character implements CharacterPrototype
         $this->image = $image ?? "placeholder.png";
     }
 
+    /**
+     * Function to clone a Character
+     * Used to optimize the token usage
+     *
+     * @return CharacterPrototype
+     */
     public function clone(): CharacterPrototype
     {
         $characterClone = new Character();
@@ -27,54 +40,61 @@ class Character implements CharacterPrototype
         return $characterClone;
     }
 
-    // Getter pour l'ID du personnage
+    // Getter for the Character ID
     public function getId()
     {
         return $this->id;
     }
 
-    // Setter pour l'ID du personnage
+    // Setter for the Character ID
     public function setId($id)
     {
         $this->id = $id;
     }
 
-    // Getter pour le nom du personnage
+    // Getter for the Character name
     public function getName()
     {
         return $this->name;
     }
 
-    // Setter pour le nom du personnage
+    // Setter for the Character name
     public function setName($name)
     {
         $this->name = $name;
     }
 
-    // Getter pour la description du personnage
+    // Getter for the Character description
     public function getDescription()
     {
         return $this->description;
     }
 
-    // Setter pour la description du personnage
+    // Setter for the Character description
     public function setDescription($description)
     {
         $this->description = $description;
     }
 
-    // Getter pour l'image du personnage
+    // Getter for the Character image
     public function getImage()
     {
         return $this->image;
     }
 
-    // Setter pour l'image du personnage
+    // Setter for the Character image
     public function setImage($image)
     {
         $this->image = $image;
     }
 
+    /**
+     * Function to convert a map to a Character
+     *
+     * @param array $map
+     * 
+     * @return Character
+     */
     public static function fromMap($map): Character
     {
         $character = new Character();
@@ -85,6 +105,11 @@ class Character implements CharacterPrototype
         return $character;
     }
 
+    /**
+     * Function to convert a Character to a map
+     *
+     * @return array
+     */
     public function toMap(): array
     {
         return [

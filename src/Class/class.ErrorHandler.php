@@ -1,5 +1,11 @@
 <?php // path: src/Class/class.ErrorHandler.php
 
+/**
+ * Class ErrorHandler
+ * 
+ * This class is the error handler class.
+ * 
+ */
 class ErrorHandler {
 
     public static function handleException($exception) {

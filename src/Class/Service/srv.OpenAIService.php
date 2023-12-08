@@ -2,12 +2,24 @@
 
 require_once __DIR__ . '/../../../config/cfg_openAIConfig.php';
 
+/**
+ * OpenAIService
+ * Class to handle the requests to the OpenAI API
+ * Allows to generate a description from a prompt
+ * Allows to generate a prompt used in the StableDiffusionService
+ * Implements the Singleton pattern
+ */
 class OpenAIService
 {
     private static ?OpenAIService $instance = null;
 
     private function __construct() {}
 
+    /**
+     * Function to get the instance of the OpenAIService
+     *
+     * @return OpenAIService
+     */
     public static function getInstance() {
         if (self::$instance === null) {
             self::$instance = new OpenAIService();
@@ -15,6 +27,14 @@ class OpenAIService
         return self::$instance;
     }
 
+    /**
+     * Function to generate a description for an object
+     * The configuration is defined in the config file
+    * Tou can find more about the configuration of the OpenAI api request here: https://platform.openai.com/docs/api-reference
+     *
+     * @param string $prompt
+     * @return string
+     */
     public function generateDescription($prompt) {
 
         $request = array(
@@ -31,6 +51,13 @@ class OpenAIService
         return $this->sendRequest($request);
     }
 
+    /**
+     * Function to send the request to the OpenAI API using parameters from the config file
+     * You can find more about the configuration of the OpenAI api request here: https://platform.openai.com/docs/api-reference
+     *
+     * @param string $request
+     * @return string
+     */
     private function sendRequest($request) {
         $ch = curl_init(__OPEN_AI_API_URL__);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -60,13 +87,26 @@ class OpenAIService
         return $responseData['choices'][0]['text'] ?? 'Description non disponible';
     }
     
-
+    /**
+     * Function to generate a prompt for OpenAI to answer to a message sent by a user
+     *
+     * @param string $userMessage
+     * @param Character $character
+     * @return string
+     */
     public function generateResponse($userMessage, Character $character) {
         $formattedPrompt = $this->formatPrompt($userMessage, $character);
 
         return $this->generateDescription($formattedPrompt) ?? 'Description non disponible';
     }
 
+    /**
+     * Function to format the prompt for OpenAI
+     *
+     * @param string $userMessage
+     * @param Character $character
+     * @return string
+     */
     private function formatPrompt($userMessage, Character $character) {
         $characterName = $character->getName();
         $characterDescription = $character->getDescription();
@@ -81,12 +121,24 @@ class OpenAIService
     //     file_put_contents($logFile, "[$timestamp] Tentative: $message\n", FILE_APPEND);
     // }
     
+    /** 
+     * Function to log an error into the log file
+     * 
+     * @param string $message
+     * @return void
+     */
     private function logError($message) {
         $logFile = __DIR__ . '/../../../logs/open_ai.log';
         $timestamp = date('Y-m-d H:i:s');
         file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
     }
 
+    /**
+     * Function to log the response from the OpenAI API into the log file
+     *
+     * @param string $response
+     * @return void
+     */
     private function logResponse($response) {
         $logFile = __DIR__ . '/../../../logs/open_ai.log';
         $timestamp = date('Y-m-d H:i:s');

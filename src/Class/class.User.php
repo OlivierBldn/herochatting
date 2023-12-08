@@ -1,5 +1,11 @@
 <?php // path: src/Class/class.User.php
 
+/**
+ * Class User
+ * 
+ * This class is the User class.
+ * 
+ */
 class User
 {
     private $id;
@@ -19,86 +25,99 @@ class User
         $this->lastName = $lastName;
     }
 
-    // Getter pour l'ID de l'utilisateur
+    // Getter for the User ID
     public function getId()
     {
         return $this->id;
     }
 
-    // Setter pour l'ID de l'utilisateur
+    // Setter for the User ID
     public function setId($id)
     {
         $this->id = $id;
     }
 
-    // Getter pour l'e-mail de l'utilisateur
+    // Getter for the User e-mail
     public function getEmail()
     {
         return $this->email;
     }
 
-    // Setter pour l'e-mail de l'utilisateur
+    // Setter for the User e-mail
     public function setEmail($email)
     {
         $this->email = $email;
     }
 
-    // Getter pour le mot de passe de l'utilisateur
+    // Getter for the User password
     public function getPassword()
     {
         return $this->password;
     }
 
-    // Setter pour le mot de passe de l'utilisateur
+    // Setter for the User password
     public function setPassword($password)
     {
-        // Hasher le mot de passe avant de le stocker
+        // Hash password before storing it
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $this->password = $hashedPassword;
     }
 
-    // Getter pour le nom d'utilisateur de l'utilisateur
+    // Getter for the User username
     public function getUsername()
     {
         return $this->username;
     }
 
-    // Setter pour le nom d'utilisateur de l'utilisateur
+    // Setter for the User username
     public function setUsername($username)
     {
         $this->username = $username;
     }
 
-    // Getter pour le prénom de l'utilisateur
+    // Getter for the User first name
     public function getFirstName()
     {
         return $this->firstName;
     }
 
-    // Setter pour le prénom de l'utilisateur
+    // Setter for the User first name
     public function setFirstName($firstName)
     {
         $this->firstName = $firstName;
     }
 
-    // Getter pour le nom de famille de l'utilisateur
+    // Getter for the User last name
     public function getLastName()
     {
         return $this->lastName;
     }
 
-    // Setter pour le nom de famille de l'utilisateur
+    // Setter for the User last name
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
     }
 
+    /**
+     * Function to check if the password is valid
+     * 
+     * @param string $password
+     * 
+     * @return bool
+     */
     public function validatePassword($password)
     {
-        // Vérification du mot de passe haché
         return password_verify($password, $this->password);
     }
 
+    /**
+     * Function to convert a map to a User
+     *
+     * @param array $map
+     * 
+     * @return User
+     */
     public static function fromMap($map): ?User
     {
         if (!$map) {
@@ -117,6 +136,11 @@ class User
         return $user;
     }
 
+    /**
+     * Function to convert a User to a map
+     *
+     * @return array
+     */
     public function toMap(): array
     {
         return [

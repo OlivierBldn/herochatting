@@ -1,5 +1,11 @@
 <?php // path: src/Class/class.Chat.php
 
+/**
+ * Class Chat
+ * 
+ * This class is the Chat class.
+ * 
+ */
 class Chat {
     private $id;
     private $participants;
@@ -10,39 +16,40 @@ class Chat {
         $this->messages = [];
     }
 
-    // Getter et Setter pour l'ID
+    // Getter for the Chat ID
     public function getId() {
         return $this->id;
     }
 
+    // Setter for the Chat ID
     public function setId($id) {
         $this->id = $id;
         return $this;
     }
 
-    // Ajouter un participant
+    // Function to add a participant to a Chat
     public function addParticipant($participant) {
         $this->participants[] = $participant;
         return $this;
     }
 
-    // Obtenir tous les participants
+    // Getter for all the participants of a Chat
     public function getParticipants() {
         return $this->participants;
     }
 
-    // Ajouter un message
+    // Function to add a message to a Chat
     public function addMessage($message) {
         $this->messages[] = $message;
         return $this;
     }
 
-    // Obtenir tous les messages
+    // Getter for all the messages of a Chat
     public function getMessages() {
         return $this->messages;
     }
 
-    // Méthode pour obtenir une représentation sous forme de tableau
+    // Function to convert a Chat to a map
     public function toMap() {
 
         $participants = array_map(function($participant) {
@@ -58,14 +65,5 @@ class Chat {
             'participants' => $participants,
             'messages' => $messages
         ];
-        // return [
-        //     'id' => $this->id,
-        //     'participants' => array_map(function($participant) {
-        //         return $participant->toMap();
-        //     }, $this->participants),
-        //     'messages' => array_map(function($message) {
-        //         return $message->toMap();
-        //     }, $this->messages)
-        // ];
     }
 }

@@ -2,6 +2,13 @@
 
 require __DIR__ . '/Interface/iface.UniversePrototypeInterface.php';
 
+/**
+ * Class Universe
+ * 
+ * This class is the Universe class.
+ * Implements the interface UniversePrototypeInterface.
+ * 
+ */
 class Universe implements UniversePrototype {
     private $id;
     private $name;
@@ -15,6 +22,12 @@ class Universe implements UniversePrototype {
         $this->image = $image ?? "placeholder.png";
     }
 
+    /**
+     * Function to clone a Universe
+     * Used to optimize the token usage
+     *
+     * @return UniversePrototype
+     */
     public function clone(): UniversePrototype
     {
         $universeClone = new Universe();
@@ -25,54 +38,59 @@ class Universe implements UniversePrototype {
         return $universeClone;
     }
 
-    // Getter pour l'ID de l'univers
+    // Getter for the Universe ID
     public function getId()
     {
         return $this->id;
     }
 
-    // Setter pour l'ID de l'univers
+    // Setter for the Universe ID
     public function setId($id)
     {
         $this->id = $id;
     }
 
-    // Getter pour le nom de l'univers
+    // Getter for the Universe name
     public function getName()
     {
         return $this->name;
     }
 
-    // Setter pour le nom de l'univers
+    // Setter for the Universe name
     public function setName($name)
     {
         $this->name = $name;
     }
 
-    // Getter pour la description de l'univers
+    // Getter for the Universe description
     public function getDescription()
     {
         return $this->description;
     }
 
-    // Setter pour la description de l'univers
+    // Setter for the Universe description
     public function setDescription($description)
     {
         $this->description = $description;
     }
 
-    // Getter pour l'image de l'univers
+    // Getter for the Universe image
     public function getImage()
     {
         return $this->image;
     }
 
-    // Setter pour l'image de l'univers
+    // Setter for the Universe image
     public function setImage($image)
     {
         $this->image = $image;
     }
 
+    /**
+     * Function to convert a map to a Universe
+     *
+     * @return array
+     */
     public static function fromMap($map): Universe {
         $universe = new Universe();
         $universe->setId($map['id'] ?? null);
@@ -82,6 +100,11 @@ class Universe implements UniversePrototype {
         return $universe;
     }
 
+    /**
+     * Function to convert a Universe to a map
+     *
+     * @return array
+     */
     public function toMap(): array {
         return [
             'id' => $this->id,

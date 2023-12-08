@@ -1,72 +1,73 @@
-# apidesignpatern
+# HeroChatting
+
+# Requirements :
+
+  - Apache 2.4.56
+  - MariaDB 10.4.28
+  - PHP 8.2.4
+  - Composer 2.6.5
 
 # Step 1
 
-Clone the project.
+Clone the project:
 
 ```bash
-git clone https://github.com/OlivierBldn/apidesignpatern.git
+git clone https://github.com/OlivierBldn/herochatting.git
 ```
 
 If you are using xampp, clone it into the htdocs directory.
 
+# Optionnel
+
+Make a copy of the project on your GitHub to be able to modify it as you wish :
+
+## 1 - Create a new Guthub Repository
+
+## 2 – Open a terminal in the project folder you just cloned (named herochatting unless you changed it).
+
+## 3 – Change the repository URL to that of the new repository you created:
+
+```bash
+git remote set-url origin https://github.com/username/example.git
+```
+
+## 4 – Push the project files to your Git repo:
+
+```bash
+git push -u origin main
+```
+
 # Step 2
+
+Uncomment all the commented paths in the .gitignore file and save the changes (this will prevent you from accidentally pushing your API keys).
+
+# Step 3
+
+Install the dependencies:
+
+Open a teminal in the project's folder and run the command :
+
+```bash
+composer install
+```
+
+# Step 4
 
 Create your database using mysql, postgresql or sqlite.
 
-## For Mysql :
+## Option 1 :
 
-Create a new database, then import the apidesignpater.sql file available at the root of the project.
+Create a new database, then create the tables by copying and pasting the queries written in the corresponding file of your Database type from the TablesCreationRequests directory.
+If you do so, please paste all at once or proceed in order from the top of the file to the bottom.
 
-## For SQLite :
+## Option 2 :
 
-You can either use the existing database names apidesignpatern.db available in the database folder.
+create a new database, then import the file corresponding to your
+Database type from the EmptyDatabases directory.
 
-You can also create your own SQLite database into the database directory and create the tables using the following code.
+## If you choose to create a sqlite database, put the file in the database folder.
 
-```sql
-CREATE TABLE 'user' (
-  'id' INTEGER PRIMARY KEY,
-  'firstName' TEXT NOT NULL,
-  'lastName' TEXT NOT NULL,
-  'username' TEXT NOT NULL,
-  'password' TEXT NOT NULL,
-  'email' TEXT NOT NULL
-);
-
-CREATE TABLE 'character' (
-  'id' INTEGER PRIMARY KEY,
-  'name' TEXT NOT NULL,
-  'description' TEXT NOT NULL,
-  'image' TEXT NOT NULL,
-  'id_universe' INTEGER NOT NULL,
-  FOREIGN KEY ('id_universe') REFERENCES 'universe' ('id') ON DELETE CASCADE
-);
-
-CREATE TABLE 'message' (
-  'id' INTEGER PRIMARY KEY,
-  'description' TEXT,
-  'dateMessage' DATE,
-  'is_human' INTEGER,
-  'id_user' INTEGER,
-  'id_character' INTEGER,
-  'id_universe' INTEGER,
-  FOREIGN KEY ('id_user') REFERENCES 'user' ('id') ON DELETE CASCADE,
-  FOREIGN KEY ('id_character') REFERENCES 'character' ('id') ON DELETE CASCADE,
-  FOREIGN KEY ('id_universe') REFERENCES 'universe' ('id') ON DELETE CASCADE
-);
-
-CREATE TABLE 'universe' (
-  'id' INTEGER PRIMARY KEY,
-  'name' TEXT NOT NULL,
-  'description' TEXT NOT NULL,
-  'image' TEXT NOT NULL,
-  'id_user' INTEGER NOT NULL,
-  FOREIGN KEY ('id_user') REFERENCES 'user' ('id') ON DELETE CASCADE
-);
-```
-
-To create dummy data, you can use the api queries via POST method (suggested) or do it manually (not recommended).
+To create dummy data, you can use the api queries via POST method (suggested) or do it manually (not recommended) By inserting data directly into the database.
 
 Example - Inserting a new user in the database manually using sql:
 
@@ -74,60 +75,161 @@ Example - Inserting a new user in the database manually using sql:
 INSERT INTO user (id, firstName, lastName, username, password, email) VALUES (1, 'John', 'Doe', 'JonyDoe', '123456', 'john@example.com');
 ```
 
-# Step 3
+# Step 5
 
-In the /config directory, create api_config.php file.
+Get yourself an OpenAi API Key , you can find more information at https://platform.openai.com/docs/tutorials
 
-Paste the following code snippet and replace with you own value.
+Once you registered, log in.
+Once you are logged in, on the left of your screen there will be a menu.
+Click on "API Key", and then create a new key.
+Then go to Settings->Billing, and add credits to your account.
 
-```php
-const __WEBSITE_URL__ = 'your_website_url';
+
+You will also need a Stable Diffusion API Key, you can find more informations at https://stablediffusionapi.com/docs/
+Once you registered, log in, click on your avatar.
+On the left of your screen there will be a menu.
+Click on "API Settings", and then create a new key.
+You will have free credits for about 10 requests.
+Then you will have to subscribe.
+
+# Step 6
+
+Go to the /config directory.
+
+In the cfg_apiConfig.php file, replace Your_Secret_Key by a radom chain of characters.
+
+In the cfg_dbConfig.php file, replace the dummy values by those of your database.
+
+In the cfg_globalConfig.php file, replace Your_Website_URL by the url of your project. If you are using xampp it is the name of your folder, which means herochatting if you did not change it.
+
+In the cfg_openAIConfig.php file, replace Your_OPEN_AI_API_Key by your actual OpenAi key.
+
+In the cfg_stableDiffusionConfig.php file, replace Your_STABLE_DIFFUSION_API_Key by your actual Stable Diffusion key.
+
+# Step 7
+
+You are now all setted up to try the requests !
+
+Start by creating a user :
+
+## CreateUser
+
+#### Method = POST
+
+your_host/your_website_url/register
+
+###### Auth = No auth
+
+###### Body = JSON raw -> All data are required
+
+```json
+{
+    "firstName" : "your_user_firstname",
+    "lastName" : "your_user_lastname",
+    "username" : "your_user_username",
+    "password" : "your_user_password",
+    "email" : "your_user_email"
+}
 ```
 
-If you are using xampp, the value is the name of the directory in htdocs.
+Then generate a Token for your User :
 
-For example, if you did not rename the project after cloning, the value will be :
+## CreateToken
 
-```php
-const __WEBSITE_URL__ = 'apidesignpatern';
+#### Method = POST
+
+your_host/your_website_url/auth/login
+
+###### Auth = No auth
+
+###### Body = JSON raw -> All data are required
+
+```json
+{
+    "email" : "your_user_email",
+    "password" : "your_user_password",
+}
 ```
 
-# Step 3
+Then copy your token and create a Universe !
 
-Create db_config.php file in config directory.
+## CreateUniverse
 
-Paste the following code snippet and replace the examples values with you own values.
+#### Method = POST
 
-database_type takes values 'mysql', 'sqlite' or 'postgresql'.
+your_host/your_website_url/users/{your_user_id}/universes
 
-Insert the value of the type of database you want to use.
+###### Auth = Bearer Token -> paste your token if you did not change the variable !
 
-```php
-$GLOBALS['dbinfos'] = [
-    'database_type' => 'mysql',
-    'mysql' => [
-        'host' => 'localhost',
-        'dbname' => 'your_mysql_db_name',
-        'username' => 'your_mysql_username',
-        'password' => 'your_mysql_password',
-    ],
-    'sqlite' => [
-        'database_file' => 'database_file_name',
-    ],
-    'postgresql' => [
-        'host' => 'localhost',
-        'dbname' => 'your_postgresql_db_name',
-        'username' => 'your_postgresql_username',
-        'password' => 'your_postgresql_password',
-    ],
-];
+###### Body = JSON raw -> The name is required
 
-return $GLOBALS['dbinfos'];
+```json
+{
+    "name" : "Harry Potter"
+}
 ```
 
-# Step 4
+You can now create a Character !
 
-Test the requests (Don't Forget to create dummy data).
+## CreateCharacter
+
+#### Method = POST
+
+your_host/your_website_url/universes/{your_universe_id}/characters
+
+###### Auth = Bearer Token -> paste your token if you did not change the variable !
+
+###### Body = JSON raw -> The name is required
+
+```json
+{
+    "name" : "Harry"
+}
+```
+Your are ready to create a Chat !
+
+# CreateChat
+
+#### Method = POST
+
+your_host/your_website_url/chats
+
+###### Auth = Bearer Token -> paste your token if you did not change the variable !
+
+###### Body = JSON raw -> The fields are all required
+
+```json
+{
+    "userId" : 28,
+    "characterId" : 50
+}
+```
+
+And now have fun chatting with you Character !
+
+# CreateMessage
+
+#### Method = POST
+
+your_host/your_website_url/users/{your_user_id}/chats/{your_user_chat_id}/messages
+
+###### Auth = Bearer Token -> paste your token if you did not change the variable !
+
+###### Body = JSON raw -> The fields are all required
+
+```json
+{
+    "content" : "Do you know the secret of my scar ?",
+    "isHuman" : 1
+}
+```
+
+You can upload my Postman collection if you want.
+
+If you do so, feel free to update the project's variables with your own values !
+
+
+## Other routes examples
 
 ## GetAllusers
 
@@ -135,7 +237,7 @@ Test the requests (Don't Forget to create dummy data).
 
 your_host/your_website_url/users
 
-## GetUser
+## GetUserById
 
 #### Method = GET
 
@@ -159,26 +261,11 @@ your_host/your_website_url/users/{id}
 }
 ```
 
-## CreateUser
-
-#### Method = POST
-
-your_host/your_website_url/users
-
-###### Body = JSON raw -> All data are required
-
-```json
-{
-    "firstName" : "your_user_firstname",
-    "lastName" : "your_user_lastname",
-    "username" : "your_user_username",
-    "password" : "your_user_password",
-    "email" : "your_user_email"
-}
-```
-
 ## DeleteUser
 
 #### Method = DELETE
 
 your_host/your_website_url/users/{id}
+
+
+## If you have any problem with the api, feel free to have a look at the logs files or contact me !

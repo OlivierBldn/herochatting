@@ -1,7 +1,21 @@
 <?php // path: src/Repository/repo.UniverseRepository.php
 
+/**
+ * Class UniverseRepository
+ * 
+ * This class is the repository for the Universe class.
+ * It contains all the queries to the database regarding the Universe class.
+ * 
+ */
 class UniverseRepository extends AbstractRepository
 {
+    /**
+     * Function to create a new Universe
+     * 
+     * @param array $universeData
+     * @param int $userId
+     * @return int
+     */
     public function create($universeData, $userId)
     {
         $newUniverse = Universe::fromMap($universeData);
@@ -57,6 +71,13 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to link a Universe to a User
+     * 
+     * @param int $userId
+     * @param int $universeId
+     * @return bool
+     */
     public function linkUniverseToUser($userId, $universeId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -93,6 +114,11 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get all the Universes
+     * 
+     * @return array
+     */
     public function getAll()
     {
         switch (__DB_INFOS__['database_type']) {
@@ -122,6 +148,12 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get all the Universes of a User
+     * 
+     * @param int $userId
+     * @return array
+     */
     public function getAllByUserId($userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -155,6 +187,12 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Universe by its id
+     * 
+     * @param int $id
+     * @return Universe|null
+     */
     public function getById($id)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -186,6 +224,12 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Universe by its name
+     * 
+     * @param string $name
+     * @return Universe|null
+     */
     public function getByName($name)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -211,6 +255,13 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to update a Universe
+     * 
+     * @param int $universeId
+     * @param array $universeData
+     * @return bool
+     */
     public function update($universeId, $universeData)
     {
         $existingUniverse = $this->getById($universeId);
@@ -262,12 +313,19 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to delete a Universe
+     * 
+     * @param int $universeId
+     * @param string $entityType
+     * @return bool
+     */
     public function delete($universeId, $entityType = 'universe') {
         try {
-            // Commencer une transaction
+            // Begin transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
 
-            // Supprimer les enregistrements liés dans user_universe
+            // Delete all the references to the universe in the user_universe table
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -283,7 +341,7 @@ class UniverseRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
 
-            // Supprimer les enregistrements liés dans image_references
+            // Delete all the references to the universe in the image_references table
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -309,7 +367,7 @@ class UniverseRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
 
-            // Supprimer l'univers
+            // Delete the universe
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -325,17 +383,23 @@ class UniverseRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
 
-            // Valider la transaction
+            // Commit the transaction
             $this->dbConnector->commit();
 
             return true;
         } catch (Exception $e) {
-            // Annuler la transaction en cas d'erreur
+            // Cancel the transaction if an error occurs
             $this->dbConnector->rollBack();
             throw new Exception("Erreur lors de la suppression de l'univers : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to check if a User exists
+     * 
+     * @param int $userId
+     * @return bool
+     */
     public function userExists($userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -374,6 +438,14 @@ class UniverseRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to check if a User is the owner of a Universe
+     * 
+     * @param int $universeId
+     * @param int $userId
+     * 
+     * @return bool
+     */
     public function isUserUniverseOwner($universeId, $userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -392,6 +464,15 @@ class UniverseRepository extends AbstractRepository
         return $this->executeOwnershipQuery($sql, $params);
     }
 
+    /**
+     * Function to check if an image is used by other entities
+     * 
+     * @param string $imageFileName
+     * @param int $entityId
+     * @param string $entityType
+     * 
+     * @return bool
+     */
     public function isImageUsedByOthers($imageFileName, $entityId, $entityType) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -424,6 +505,15 @@ class UniverseRepository extends AbstractRepository
         return $this->executeImageTracking($sql, $params);
     }
 
+    /**
+     * Function to add an image reference to the database for a specific entity
+     * 
+     * @param string $imageFileName
+     * @param int $entityId
+     * @param string $entityType
+     * 
+     * @return bool
+     */
     public function addImageReference($imageFileName, $entityId, $entityType) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':

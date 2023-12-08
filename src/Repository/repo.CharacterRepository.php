@@ -1,7 +1,22 @@
 <?php // path: src/Repository/repo.CharacterRepository.php
 
+/**
+ * Class CharacterRepository
+ * 
+ * This class is the repository for the Character class.
+ * It contains all the queries to the database regarding the Character class.
+ * 
+ */
 class CharacterRepository extends AbstractRepository
 {
+    /**
+     * Function to create a Character in the database
+     * 
+     * @param array $characterData
+     * @param int $universeId
+     * 
+     * @return int
+     */
     public function create($characterData, $universeId)
     {
         $newCharacter = Character::fromMap($characterData);
@@ -43,9 +58,11 @@ class CharacterRepository extends AbstractRepository
         try {
             $success = $this->dbConnector->execute($sql, $parameters);
 
+            // Get the ID of the newly created Character
             if ($success) {
                 $characterId = $this->dbConnector->lastInsertRowID();
 
+                // Link the Character to the Universe if the Character was created successfully
                 $this->linkCharacterToUniverse($universeId, $characterId);
 
                 return $characterId;
@@ -57,6 +74,14 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to link a character to an Universe
+     * 
+     * @param int $universeId
+     * @param int $characterId
+     * 
+     * @return bool
+     */
     public function linkCharacterToUniverse($universeId, $characterId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -93,6 +118,11 @@ class CharacterRepository extends AbstractRepository
         }
     }
     
+    /**
+     * Function to get all the Characters from the database
+     * 
+     * @return array
+     */
     public function getAll()
     {
         switch (__DB_INFOS__['database_type']) {
@@ -112,6 +142,7 @@ class CharacterRepository extends AbstractRepository
 
             $allCharactersArrayObject = [];
 
+            // Convert the result into an array of Character objects if Characters are found
             foreach ($allCharactersArraySql as $key => $character) {
                 $allCharactersArrayObject[] = Character::fromMap($character);
             }
@@ -122,6 +153,13 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get all the Characters from a specific Universe
+     * 
+     * @param int $universeId
+     * 
+     * @return array
+     */
     public function getAllByUniverseId($universeId)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -142,11 +180,11 @@ class CharacterRepository extends AbstractRepository
                 throw new Exception("Type de base de données non reconnu");
         }
 
-
         try {
             $characters = $this->dbConnector->select($sql, $parameters);
             $characterObjects = [];
 
+            // Convert the result into an array of Character objects if characters are found
             foreach ($characters as $character) {
                 $characterObjects[] = Character::fromMap($character);
             }
@@ -157,6 +195,13 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Character by its ID
+     * 
+     * @param int $id
+     * 
+     * @return Character|null
+     */
     public function getById($id)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -178,6 +223,7 @@ class CharacterRepository extends AbstractRepository
         try {
             $characterMap = $this->dbConnector->select($sql, $params);
     
+            // Convert the result into a Character object if a Character is found
             if (count($characterMap) === 1) {
                 return Character::fromMap($characterMap[0]);
             } else {
@@ -188,6 +234,13 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Character by its name
+     * 
+     * @param string $name
+     * 
+     * @return Character|null
+     */
     public function getByName($name)
     {
         switch (__DB_INFOS__['database_type']) {
@@ -207,13 +260,21 @@ class CharacterRepository extends AbstractRepository
         try {
             $character = $this->dbConnector->select($sql, $params);
 
-            // Convertir le résultat en objet Character si un personnage est trouvé
+            // Convert the result into a Character object if a Character is found
             return $character ? Character::fromMap($character[0]) : null;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération des personnages par nom : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to get a Character by its name and its Universe name
+     * 
+     * @param string $characterName
+     * @param string $universeName
+     * 
+     * @return Character|null
+     */
     public function getByNameAndUniverseName($characterName, $universeName) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -238,13 +299,20 @@ class CharacterRepository extends AbstractRepository
         try {
             $character = $this->dbConnector->select($sql, $params);
 
-            // Convertir le résultat en objet Character si un personnage est trouvé
+            // Convert the result into a Character object if a Character is found
             return $character ? Character::fromMap($character[0]) : null;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération des personnages par nom et univers : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to get all the Characters by their User ID
+     * 
+     * @param int $userId
+     * 
+     * @return array
+     */
     public function getByUserId($userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -269,6 +337,8 @@ class CharacterRepository extends AbstractRepository
         try {
             $result = $this->dbConnector->select($sql, $params);
             $characters = [];
+
+            // Convert the result into an array of Character objects if Characters are found
             foreach ($result as $row) {
                 $characters[] = Character::fromMap($row);
             }
@@ -278,6 +348,14 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /** 
+     * Function to update a Character in the database
+     * 
+     * @param int $characterId
+     * @param array $characterData
+     * 
+     * @return bool
+     */
     public function update($characterId, $characterData)
     {
         $existingCharacter = $this->getById($characterId);
@@ -324,12 +402,20 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to delete a Character from the database
+     * 
+     * @param int $characterId
+     * @param string $entityType
+     * 
+     * @return bool
+     */
     public function delete($characterId, $entityType = 'character') {
         try {
-            // Commencer une transaction
+            // Begin a transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
     
-            // Supprimer les enregistrements liés dans universe_character (si applicable)
+            // Delete the links between the Character and the Universe
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -345,7 +431,7 @@ class CharacterRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
 
-            // Supprimer les enregistrements liés dans image_references
+            // Delete the links between the Character and its image
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -371,7 +457,7 @@ class CharacterRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
 
-            // Supprimer le personnage
+            // Delete the Character
             switch (__DB_INFOS__['database_type']) {
                 case 'mysql':
                 case 'sqlite':
@@ -387,19 +473,25 @@ class CharacterRepository extends AbstractRepository
             }
             $this->dbConnector->execute($sql, $params);
     
-            // Valider la transaction
+            // Commit the transaction
             $this->dbConnector->commit();
     
             return true;
         } catch (Exception $e) {
-            // Annuler la transaction en cas d'erreur
+            // Cancel the transaction if an error occurs
             $this->dbConnector->rollBack();
             throw new Exception("Erreur lors de la suppression du personnage : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to check if a Universe exists in the database
+     * 
+     * @param int $universeId
+     * 
+     * @return bool
+     */
     public function universeExists($universeId) {
-        // La requête SQL varie en fonction du type de la base de données
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
@@ -437,6 +529,13 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get the ID of the Universe associated to a Character
+     * 
+     * @param int $characterId
+     * 
+     * @return int|null
+     */
     public function getAssociatedUniverseId($characterId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -462,6 +561,13 @@ class CharacterRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get the name of the Universe by its id
+     * 
+     * @param int $universeId
+     * 
+     * @return string|null
+     */
     public function getUniverseNameById($universeId)
     {
         try {
@@ -481,13 +587,21 @@ class CharacterRepository extends AbstractRepository
 
             $result = $this->dbConnector->select($sql, $params);
 
-            // Vérifier si un enregistrement est retourné et renvoyer le nom de l'univers
+            // Check if a record is returned and return the name of the universe
             return $result ? $result[0]['name'] : null;
         } catch (Exception $e) {
             throw new Exception("Erreur lors de la récupération du nom de l'univers : " . $e->getMessage());
         }
     }
 
+    /**
+     * Function to check if a User is the owner of a Character
+     * 
+     * @param int $characterId
+     * @param int $userId
+     *
+     * @return bool
+     */
     public function isUserCharacterOwner($characterId, $userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -510,6 +624,15 @@ class CharacterRepository extends AbstractRepository
         return $this->executeOwnershipQuery($sql, $params);
     }
 
+    /**
+     * Function to check if the Character's image is used by other entities
+     * 
+     * @param string $imageFileName
+     * @param int $entityId
+     * @param string $entityType
+     * 
+     * @return bool
+     */
     public function isImageUsedByOthers($imageFileName, $entityId, $entityType) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -542,6 +665,15 @@ class CharacterRepository extends AbstractRepository
         return $this->executeImageTracking($sql, $params);
     }
 
+    /**
+     * Function to add an image reference to link it to the Character in the database
+     * 
+     * @param string $imageFileName
+     * @param int $entityId
+     * @param string $entityType
+     * 
+     * @return bool
+     */
     public function addImageReference($imageFileName, $entityId, $entityType) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':

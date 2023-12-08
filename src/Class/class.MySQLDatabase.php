@@ -1,10 +1,20 @@
 <?php // path: src/Class/class.MySQLDatabase.php
 
-// require_once __DIR__ . '/../../config/cfg_dbConfig.php';
-// require __DIR__ . '/Interface/iface.DBConnectorInterface.php';
-
+/**
+ * Class MySQLDatabase
+ * 
+ * This class is the MySQL database class.
+ * It represents the database connection to a MySQL database and contains the functions to interact with it.
+ * 
+ */
 class MySQLDatabase extends AbstractDatabase
 {
+    /**
+     * 
+     * MySQLDatabase constructor.
+     * This constructor creates the connection to the MySQL database using PDO.
+     * 
+     */
     public function __construct()
     {
         $mysqlConfig = __DB_INFOS__['mysql'];
@@ -22,6 +32,14 @@ class MySQLDatabase extends AbstractDatabase
         }
     }
 
+    /**
+     * Function to select data from the database
+     * 
+     * @param string $query
+     * @param array $params
+     * 
+     * @return array
+     */
     public function select($query, $params = []): array
     {
         try {
@@ -33,6 +51,14 @@ class MySQLDatabase extends AbstractDatabase
         }
     }
 
+    /**
+     * Function to execute a query on the database
+     * 
+     * @param string $query
+     * @param array $params
+     * 
+     * @return bool
+     */
     public function execute($query, $params = []): bool
     {
         try {
@@ -44,19 +70,33 @@ class MySQLDatabase extends AbstractDatabase
     }
 
 
+    /**
+     * Function to get the last inserted row ID
+     * 
+     * @return int
+     */
     public function lastInsertRowID(): int
     {
         return $this->connection->lastInsertID();
     }
 
+    /**
+     * Function to begin a transaction and execute multiple queries
+     */
     public function beginTransaction() {
         $this->connection->beginTransaction();
     }
 
+    /**
+     * Function to commit the transaction
+     */
     public function commit() {
         $this->connection->commit();
     }
 
+    /**
+     * Function to rollback the transaction and cancel the queries
+     */
     public function rollBack() {
         $this->connection->rollBack();
     }

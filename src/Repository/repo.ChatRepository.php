@@ -4,14 +4,23 @@
 // require_once __DIR__ . '/../../config/cfg_dbConfig.php';
 require_once __DIR__ . '/../Class/Builder/bldr.ChatBuilder.php';
 
+/**
+ * Class ChatRepository
+ * 
+ * This class is the repository for the chats.
+ * It contains all the queries to the database regarding the Chats.
+ * 
+ */
 class ChatRepository extends AbstractRepository
 {
-    // private $dbConnector;
-
-    // public function __construct() {
-    //     $this->dbConnector = DBConnectorFactory::getConnector();
-    // }
-
+    /**
+     * Function to create a new chat
+     *
+     * @param int $userId
+     * @param int $characterId
+     * 
+     * @return int
+     */
     public function create($userId, $characterId) {
         try {
             switch (__DB_INFOS__['database_type']) {
@@ -38,7 +47,11 @@ class ChatRepository extends AbstractRepository
         }
     }
     
-
+    /**
+     * Function to get all the chats
+     *
+     * @return array
+     */
     public function getAll() {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -55,6 +68,7 @@ class ChatRepository extends AbstractRepository
         try {
             $chatsArray = $this->dbConnector->select($sql);
             $chats = [];
+
             foreach ($chatsArray as $chatData) {
                 $builder = new ChatBuilder();
                 $chat = $builder->withId($chatData['id'])
@@ -67,6 +81,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Chat by its id
+     *
+     * @param int $chatId
+     * 
+     * @return Chat
+     */
     public function getById($chatId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -97,6 +118,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Chat by a User id
+     *
+     * @param int $userId
+     * 
+     * @return Chat
+     */
     public function getByUserId($userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -128,6 +156,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Chat by a Character id
+     *
+     * @param int $characterId
+     * 
+     * @return Chat
+     */
     public function getByCharacterId($characterId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -159,6 +194,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to get a Chat by a Universe id
+     *
+     * @param int $universeId
+     * 
+     * @return Chat
+     */
     public function getByUniverseId($universeId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -222,6 +264,13 @@ class ChatRepository extends AbstractRepository
     //     }
     // }
 
+    /**
+     * Function to delete a Chat by its id
+     *
+     * @param int $chatId
+     * 
+     * @return bool
+     */
     public function delete($chatId) {
         try {
             $this->unlinkChatFromUser($chatId);
@@ -246,6 +295,14 @@ class ChatRepository extends AbstractRepository
         }
     }    
 
+    /**
+     * Function to link a Chat to a User
+     *
+     * @param int $chatId
+     * @param int $userId
+     * 
+     * @return bool
+     */
     public function linkChatToUser($chatId, $userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -269,6 +326,14 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to link a Chat to a Character
+     *
+     * @param int $chatId
+     * @param int $characterId
+     * 
+     * @return bool
+     */
     public function linkChatToCharacter($chatId, $characterId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -292,6 +357,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to unlink a Chat from a User
+     *
+     * @param int $chatId
+     * 
+     * @return bool
+     */
     public function unlinkChatFromUser($chatId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -313,6 +385,13 @@ class ChatRepository extends AbstractRepository
         }
     }
     
+    /**
+     * Function to unlink a Chat from a Character
+     *
+     * @param int $chatId
+     * 
+     * @return bool
+     */
     public function unlinkChatFromCharacter($chatId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -334,6 +413,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to check if a User exists
+     *
+     * @param int $userId
+     * 
+     * @return bool
+     */
     public function userExists($userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -370,6 +456,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to check if a Character exists
+     *
+     * @param int $characterId
+     * 
+     * @return bool
+     */
     public function characterExists($characterId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -394,6 +487,13 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /** 
+     * Function to get the details of a Character by its linked chatId
+     * 
+     * @param int $chatId
+     * 
+     * @return Character
+     */
     public function getCharacterDetailsByChatId($chatId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
@@ -425,6 +525,14 @@ class ChatRepository extends AbstractRepository
         }
     }
 
+    /**
+     * Function to check if a User is the owner of a Chat
+     * 
+     * @param int $chatId
+     * @param int $userId
+     * 
+     * @return bool
+     */
     public function isUserChatOwner($chatId, $userId) {
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
