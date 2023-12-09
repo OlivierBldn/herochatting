@@ -444,19 +444,11 @@ class ChatController {
             // Begin a transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
 
-            // Suppression des messages liés à ce chat
+            // Delete all the Messages from the Chat
             $messages = $messageRepository->getMessagesByChatId($chatId);
                 foreach ($messages as $message) {
                     $messageRepository->delete($message->getId());
             }
-
-            // // Delete all the Messages from the Chat
-            // $messages = $messageRepository->getMessagesByChatId($chatId);
-            // $messageController = new MessageController();
-
-            // foreach ($messages as $message) {
-            //     $messageController->deleteMessage('DELETE', $message->getId());
-            // }
 
             // Delete the Chat
             $this->chatRepository->delete($chatId);

@@ -272,3 +272,24 @@ your_host/your_website_url/users/{id}
 
 
 ## If you have any problem with the api, feel free to have a look at the logs files or contact me !
+
+
+PS: If you aim to use this on production, you have to update the ctrl.AuthController.php file by uncommenting/deleting some lines :
+
+```php
+    // Commented out for production
+    // return json_encode(['token' => $token]);
+
+    // Return the token and the expiration time
+    // Used to make troobleshooting easier locally
+    // Preferably, only return the token if used on production
+    echo json_encode([
+        'token' => $token,
+        'expire_at' => $expire_at,
+        'user' => [
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'username' => $user->getUsername()
+        ]
+    ]);
+```
