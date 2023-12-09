@@ -5,6 +5,7 @@ require_once __DIR__ . '/../Repository/repo.UniverseRepository.php';
 require_once __DIR__ . '/../Repository/repo.CharacterRepository.php';
 require_once __DIR__ . '/../Repository/repo.ChatRepository.php';
 require_once __DIR__ . '/../Repository/repo.MessageRepository.php';
+require_once __DIR__ . '/../Repository/repo.UserRepository.php';
 require_once __DIR__ . '/../Class/Service/srv.OpenAIService.php';
 require_once __DIR__ . '/../Class/Service/srv.StableDiffusionService.php';
 require_once __DIR__ . '/../Class/Middleware/mdw.OwnershipVerifierMiddleware.php';
@@ -36,7 +37,7 @@ class UniverseController
         // Check if the request method is POST
         if ($requestMethod !== 'POST') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
@@ -46,7 +47,7 @@ class UniverseController
         // Check if the user id is set in the URL
         if(!isset($segments[3])) {
             http_response_code(400);
-            echo json_encode(['message' => 'URL malformée']);
+            echo json_encode(['message' => 'Il manque l\'identifiant de l\'utilisateur dans l\'URL']);
             return;
         }
 
@@ -56,7 +57,14 @@ class UniverseController
         // Check if the user exists
         if(!$universeRepository->userExists($userId)) {
             http_response_code(404);
-            echo json_encode(['message' => 'Utilisateur non trouvé']);
+            echo json_encode(['message' => 'Utilisateur non trouve']);
+            return;
+        }
+
+        // Check if the User that sends the request is the owner of the requested User
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur dans l\'URL']);
             return;
         }
 
@@ -67,6 +75,15 @@ class UniverseController
             if (!isset($requestData['name']) || empty($requestData['name'])) {
                 http_response_code(400);
                 echo json_encode(['message' => 'Nom de l\'univers manquant ou invalide']);
+                return;
+            }
+
+            $universeName = $requestData['name'];
+
+            // Check if the Universe name is not already used by the User
+            if ($universeRepository->universeExistsForUser($userId, $universeName)) {
+                http_response_code(409); // Code 409 Conflict
+                echo json_encode(['message' => 'Vous possedez deja un univers avec ce nom']);
                 return;
             }
 
@@ -82,11 +99,11 @@ class UniverseController
                     $newUniverse = new Universe();
 
                     // Generate a description for the Universe using the OpenAI API
-                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
+                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son epoque, son histoire et ses specificites.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
     
                     // Generate a description for the Universe image using the OpenAI API
-                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit décrire l'univers {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
+                    $imagePrompt = "Ecris moi un prompt pour generer une image avec l'intelligence artificielle Text-to-image nomme StableDiffusion afin de representer l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit decrire l'univers {$requestData['name']} d'un point de vue general et egalement d'un point de vue graphique. Le prompt ne doit pas depasser 300 caracteres.";
                     $imageDescription = $openAIService->generateDescription($imagePrompt);
 
                     // Generate an image for the Universe using the StableDiffusion API
@@ -103,10 +120,10 @@ class UniverseController
                 default:
                     // By default, create a new Universe
                     $newUniverse = new Universe();
-                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son époque, son histoire et ses spécificités.";
+                    $prompt = "Fais-moi une description de l'univers de {$requestData['name']}. Son epoque, son histoire et ses specificites.";
                     $requestData['description'] = $openAIService->generateDescription($prompt);
 
-                    $imagePrompt = "Ecris moi un prompt pour générer une image avec l'intelligence artificielle Text-to-image nommé StableDiffusion afin de représenter l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit décrire l'univers {$requestData['name']} d'un point de vue général et également d'un point de vue graphique. Le prompt ne doit pas dépasser 300 caractères.";
+                    $imagePrompt = "Ecris moi un prompt pour generer une image avec l'intelligence artificielle Text-to-image nomme StableDiffusion afin de representer l'univers {$requestData['name']}. Le prompt doit etre en anglais, il doit decrire l'univers {$requestData['name']} d'un point de vue general et egalement d'un point de vue graphique. Le prompt ne doit pas depasser 300 caracteres.";
                     $imageDescription = $openAIService->generateDescription($imagePrompt);
                     $requestData['image'] = $stableDiffusionService->generateImage($imageDescription);
 
@@ -128,19 +145,19 @@ class UniverseController
 
                 $successResponse = [
                     'success' => true,
-                    'message' => 'Univers créé avec succès.',
+                    'message' => 'Univers cree avec succes',
                     'universeId' => $universeId,
                     'imageFileName' => $imageFileName,
                 ];
                 http_response_code(201);
                 echo json_encode($successResponse);
             } else {
-                throw new Exception("Erreur lors de la création de l'univers");
+                throw new Exception("Erreur lors de la creation de l'univers");
             }
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la création de l\'univers : ' . $e->getMessage()
+                'message' => 'Erreur lors de la creation de l\'univers : ' . $e->getMessage()
             ];
             http_response_code(500);
             echo json_encode($errorResponse);
@@ -177,7 +194,7 @@ class UniverseController
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
@@ -190,7 +207,7 @@ class UniverseController
         // Check if the User id is set in the URL
         if(!isset($segments[3])) {
             http_response_code(400);
-            echo json_encode(['message' => 'URL malformée']);
+            echo json_encode(['message' => 'Il manque l\'identifiant de l\'utilisateur dans l\'URL']);
             return;
         }
 
@@ -202,6 +219,13 @@ class UniverseController
             echo json_encode(['message' => 'Utilisateur invalide']);
             return;
         }
+    
+        // Check if the User that sends the request is the owner of the requested User
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur dans l\'URL']);
+            return;
+        }
         
         try {
             $universes = $universeRepository->getAllByUserId($userId);
@@ -210,7 +234,7 @@ class UniverseController
             if (empty($universes)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucun univers trouvé.',
+                    'message' => 'Aucun univers trouve.',
                 ];
             } else {
                 // Return an array of Universes if some Universes were found
@@ -231,7 +255,7 @@ class UniverseController
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des univers : ' . $e->getMessage()
+                'message' => 'Erreur lors de la recuperation des univers : ' . $e->getMessage()
             ];
 
             header('Content-Type: application/json');
@@ -250,7 +274,7 @@ class UniverseController
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
@@ -264,7 +288,7 @@ class UniverseController
             if (empty($universes)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucun univers trouvé.',
+                    'message' => 'Aucun univers trouve.',
                     'data' => []
                 ];
             } else {
@@ -286,7 +310,7 @@ class UniverseController
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des univers : ' . $e->getMessage()
+                'message' => 'Erreur lors de la recuperation des univers : ' . $e->getMessage()
             ];
 
             header('Content-Type: application/json');
@@ -307,15 +331,7 @@ class UniverseController
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
-            return;
-        }
-
-        // Check if the User that sent the request is the owner of the Universe
-        $ownershipVerifier = new OwnershipVerifierMiddleware();
-        if (!$ownershipVerifier->handle($userId, $messageId)) {
-            http_response_code(403);
-            echo json_encode(['message' => 'Accès refusé']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
@@ -325,17 +341,35 @@ class UniverseController
 
             // Return the Universe if it was found
             if ($universe !== null) {
+
+                $userRepository = new UserRepository();
+                $userId = $universeRepository->getUniverseUserId($universeId);
+        
+                // Check if the User that sends the request exists
+                if (!$userRepository->getById($userId)) {
+                    http_response_code(404);
+                    echo json_encode(['message' => 'Utilisateur invalide']);
+                    return;
+                }
+        
+                // Check if the User that sent the request is the owner of the Universe
+                if (!$this->ownershipVerifier->handle($userId, 'user')) {
+                    http_response_code(403);
+                    echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur dans l\'URL']);
+                    return;
+                }
+
                 $universeData = $universe->toMap();
 
                 http_response_code(200);
                 echo json_encode($universeData);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Univers non trouvé']);
+                echo json_encode(['message' => 'Univers non trouve']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la récupération de l\'univers : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la recuperation de l\'univers : ' . $e->getMessage()]);
         }
     }
 
@@ -351,7 +385,7 @@ class UniverseController
         // Check if the request method is PUT
         if ($requestMethod !== 'PUT') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
         
@@ -362,7 +396,24 @@ class UniverseController
             // Check if the Universe exists
             if (!$existingUniverse) {
                 http_response_code(404);
-                echo json_encode(['message' => 'Univers non trouvé']);
+                echo json_encode(['message' => 'Univers non trouve']);
+                return;
+            }
+
+            // Check if the User that sends the request exists
+            $userRepository = new UserRepository();
+            $userId = $universeRepository->getUniverseUserId($universeId);
+
+            if (!$userRepository->getById($userId)) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Utilisateur non trouve']);
+                return;
+            }
+    
+            // Check if the User that sends the request is the owner of the requested User
+            if (!$this->ownershipVerifier->handle($userId, 'user')) {
+                http_response_code(403);
+                echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur dans l\'URL']);
                 return;
             }
 
@@ -389,13 +440,13 @@ class UniverseController
     
             if ($success) {
                 http_response_code(200);
-                echo json_encode(['message' => 'Univers mis à jour avec succes']);
+                echo json_encode(['message' => 'Univers mis a jour avec succes']);
             } else {
-                throw new Exception("Erreur lors de la mise à jour de l'univers");
+                throw new Exception("Erreur lors de la mise a jour de l'univers");
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la mise à jour de l\'univers : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la mise a jour de l\'univers : ' . $e->getMessage()]);
         }
     }
 
@@ -416,43 +467,51 @@ class UniverseController
         }
 
         try {
-            $chatRepository = new ChatRepository();
-            $messageRepository = new MessageRepository();
+
             $universeRepository = new UniverseRepository();
-            $characterRepository = new CharacterRepository();
 
             // Check if the Universe exists
             $universe = $universeRepository->getById($universeId);
             if (!$universe) {
                 http_response_code(404);
-                echo json_encode(['message' => 'Univers non trouvé']);
+                echo json_encode(['message' => 'Univers non trouve']);
+                return;
+            }
+
+            // Check if the User that sends the request is the owner of the Universe
+            $userId = $universeRepository->getUniverseUserId($universeId);
+
+            $userRepository = new UserRepository();
+
+            if (!$userRepository->getById($userId)) {
+                http_response_code(404);
+                echo json_encode(['message' => 'Utilisateur non trouve']);
+                return;
+            }
+    
+            // Check if the User that sends the request is the owner of the requested User
+            if (!$this->ownershipVerifier->handle($userId, 'user')) {
+                http_response_code(403);
+                echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur dans l\'URL']);
                 return;
             }
 
             // Begin a transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
 
+            $characterRepository = new CharacterRepository();
+
+            $characterController = new CharacterController();
 
             // Delete the image of the Universe if it is not used by other entities
             $universeImage = $universe->getImage();
             $stableDiffusionService = StableDiffusionService::getInstance();
             $stableDiffusionService->deleteImageIfUnused($universeImage, $universeId, 'universe');
             
-
-            // Delete the Chats and Messages linked to the Universe
-            $chats = $chatRepository->getByUniverseId($universeId);
-            foreach ($chats as $chat) {
-                $messages = $messageRepository->getMessagesByChatId($chat->getId());
-                foreach ($messages as $message) {
-                    $messageRepository->delete($message->getId());
-                }
-                $chatRepository->delete($chat->getId());
-            }
-
             // Delete the Characters linked to the Universe
             $characters = $characterRepository->getAllByUniverseId($universeId);
             foreach ($characters as $character) {
-                $characterRepository->delete($character->getId());
+                $characterController->deleteCharacter('DELETE', $character->getId());
             }
 
             // Delete the Universe

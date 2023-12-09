@@ -55,14 +55,17 @@ composer install
 
 Create your database using mysql, postgresql or sqlite.
 
+## If you just want to make a quick try, you can directly process requests using the sqlite3 database which comes with the project. Otherwise:
+
 ## Option 1 :
 
 Create a new database, then create the tables by copying and pasting the queries written in the corresponding file of your Database type from the TablesCreationRequests directory.
 If you do so, please paste all at once or proceed in order from the top of the file to the bottom.
+And if you choose a slite3 database, the file has to be in the /database folder.
 
 ## Option 2 :
 
-create a new database, then import the file corresponding to your
+Create a new database, then import the file corresponding to your
 Database type from the EmptyDatabases directory.
 
 ## If you choose to create a sqlite database, put the file in the database folder.
@@ -96,7 +99,7 @@ Then you will have to subscribe.
 
 Go to the /config directory.
 
-In the cfg_apiConfig.php file, replace Your_Secret_Key by a radom chain of characters.
+In the cfg_apiConfig.php file, replace Your_Secret_Key by a random chain of characters.
 
 In the cfg_dbConfig.php file, replace the dummy values by those of your database.
 

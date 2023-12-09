@@ -30,7 +30,7 @@ class DBConnectorFactory
                 $realDatabase = new PostgreSQLDatabase();
                 break;
             default:
-                throw new Exception("Type de base de données non supporté");
+                throw new Exception("Type de base de donnees non supporte");
         }
 
         return new DatabaseProxy($realDatabase);

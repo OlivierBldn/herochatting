@@ -121,13 +121,12 @@ class User
     public static function fromMap($map): ?User
     {
         if (!$map) {
-            return null; // Gestion d'une entrée vide ou invalide
+            return null;
         }
     
         $user = new User();
         $user->setId($map['id'] ?? null);
         $user->setEmail($map['email'] ?? null);
-        // $user->setPassword($map['password'] ?? null);
         $user->setUsername($map['username'] ?? null);
         $user->setFirstName($map['firstName'] ?? null);
         $user->setLastName($map['lastName'] ?? null);

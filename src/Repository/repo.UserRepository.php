@@ -61,7 +61,7 @@ class UserRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -72,10 +72,10 @@ class UserRepository extends AbstractRepository
 
                 return $id;
             } else {
-                throw new Exception("Erreur lors de la création de l'utilisateur");
+                throw new Exception("Erreur lors de la creation de l'utilisateur");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la création de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la creation de l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -95,7 +95,7 @@ class UserRepository extends AbstractRepository
                 $sql = 'SELECT * FROM "user"';
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }        
 
         try {
@@ -109,7 +109,7 @@ class UserRepository extends AbstractRepository
 
             return $allUsersArrayObject;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de tous les utilisateurs : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de tous les utilisateurs : " . $e->getMessage());
         }
     }
 
@@ -134,7 +134,7 @@ class UserRepository extends AbstractRepository
                 $params = [$id];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -146,7 +146,7 @@ class UserRepository extends AbstractRepository
                 return null;
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -171,7 +171,7 @@ class UserRepository extends AbstractRepository
                 $params = [$email];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -183,7 +183,7 @@ class UserRepository extends AbstractRepository
                 return null;
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -200,7 +200,7 @@ class UserRepository extends AbstractRepository
         $existingUser = $this->getById($userId);
     
         if (!$existingUser) {
-            throw new Exception("Utilisateur non trouvé");
+            throw new Exception("Utilisateur non trouve");
         }
     
         $existingUser->setEmail($userData['email'] ?? $existingUser->getEmail());
@@ -241,7 +241,7 @@ class UserRepository extends AbstractRepository
                     ];
                     break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -250,10 +250,10 @@ class UserRepository extends AbstractRepository
             if ($success) {
                 return true;
             } else {
-                throw new Exception("Erreur lors de la mise à jour de l'utilisateur");
+                throw new Exception("Erreur lors de la mise a jour de l'utilisateur");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la mise à jour de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la mise a jour de l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -289,7 +289,7 @@ class UserRepository extends AbstractRepository
                     $sqlDeleteUser = 'DELETE FROM "user" WHERE id = $1';
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
 
             // Execute the query to delete the user regarding the database type
@@ -326,7 +326,7 @@ class UserRepository extends AbstractRepository
                 $params = [$userId, $selfId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         return $this->executeOwnershipQuery($sql, $params);

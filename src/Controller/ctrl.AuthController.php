@@ -29,7 +29,7 @@ class AuthController {
         // Check if the email and the password are set. If not, return an error
         if ($email === null || $password === null) {
             http_response_code(400);
-            return json_encode(['error' => 'Requête invalide, il manque un identifiant']);
+            return json_encode(['error' => 'Requete invalide, il manque un identifiant']);
         }
 
         $userRepository = new UserRepository();
@@ -74,7 +74,8 @@ class AuthController {
             ]);
         } else {
             http_response_code(401);
-            return json_encode(['error' => 'Authentification échouée']);
+            echo json_encode(['error' => 'Authentification echouee, veuillez verifier vos identifiants']);
+            return;
         }
     }
 }

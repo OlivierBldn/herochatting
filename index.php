@@ -14,7 +14,7 @@ $chatRoutes = require __DIR__ . '/config/routes/chat-routes.php';
 // Enregistrement de l'autoloader
 Autoloader::register();
 
-// Récupérer la méthode de requête et l'URI de la demande
+// Recuperer la methode de requete et l'URI de la demande
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 $basePath = '/'.__WEBSITE_URL__;
@@ -23,7 +23,7 @@ $uri = str_replace($basePath, '', $uri);
 // Chargement de configuration de routage
 $routes = array_merge($userRoutes, $universeRoutes, $characterRoutes, $authRoutes, $messageRoutes, $chatRoutes);
 
-// Création d'une instance de RouterController
+// Creation d'une instance de RouterController
 $routeHandler = new RouteHandler();
 
 // Appel de la fonction de routage

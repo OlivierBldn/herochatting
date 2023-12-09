@@ -20,9 +20,8 @@ interface CharacterPrototype
      * Declare the function to set the name of the CharacterPrototype
      *
      * @param string $name
-     * @return void
      */
-    public function setName($name): void;
+    public function setName($name);
 
     /**
      * Declare the function to set the image of the CharacterPrototype
@@ -30,7 +29,7 @@ interface CharacterPrototype
      * @param string $image
      * @return void
      */
-    public function setImage($image): void;
+    public function setImage($image);
 
     /**
      * Declare the function to set the description of the CharacterPrototype
@@ -38,12 +37,12 @@ interface CharacterPrototype
      * @param string $description
      * @return void
      */
-    public function setDescription($description): void;
+    public function setDescription($description);
 
     /**
      * Declare the function to create a Character object from the CharacterPrototype
      * 
      * @return array
      */
-    public function toMap(): array;
+    public function toMap();
 }

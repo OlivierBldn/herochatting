@@ -1,6 +1,7 @@
 <?php // path: src/Class/Builder/bldr.ChatBuilder.php
 
 require_once __DIR__ . '/../../Repository/repo.MessageRepository.php';
+require_once __DIR__ . '/../../Repository/repo.ChatRepository.php';
 
 /**
  * ChatBuilder
@@ -33,6 +34,24 @@ class ChatBuilder {
      */
     public function addParticipant($participant) {
         $this->chat->addParticipant($participant);
+        return $this;
+    }
+
+    /**
+     * Function to add a collection of participants to the chat
+     *
+     * @param int $chatId
+     * @return ChatBuilder
+     */
+    public function loadParticipants($chatId) {
+
+        $chatRepository = new ChatRepository();
+        $participants = $chatRepository->getParticipantsByChatId($chatId);
+
+        foreach ($participants as $participant) {
+            $this->chat->addParticipant($participant);
+        }
+
         return $this;
     }
 

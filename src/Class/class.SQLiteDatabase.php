@@ -25,7 +25,7 @@ class SQLiteDatabase extends AbstractDatabase
         try {
             $this->connection = new SQLite3($databaseFile);
         } catch (Exception $e) {
-            die("Erreur de connexion à la base de données : " . $e->getMessage());
+            die("Erreur de connexion a la base de donnees : " . $e->getMessage());
         }
     }
     
@@ -43,7 +43,7 @@ class SQLiteDatabase extends AbstractDatabase
             $stmt = $this->connection->prepare($query);
 
             if ($stmt === false) {
-                die("Erreur de préparation de la requête SQLite : " . $this->connection->lastErrorMsg());
+                die("Erreur de preparation de la requete SQLite : " . $this->connection->lastErrorMsg());
             }
 
             foreach ($params as $param => $value) {
@@ -53,7 +53,7 @@ class SQLiteDatabase extends AbstractDatabase
             $result = $stmt->execute();
 
             if ($result === false) {
-                die("Erreur lors de l'exécution de la requête SQLite : " . $this->connection->lastErrorMsg());
+                die("Erreur lors de l'execution de la requete SQLite : " . $this->connection->lastErrorMsg());
             }
 
             $return = [];
@@ -64,7 +64,7 @@ class SQLiteDatabase extends AbstractDatabase
 
             return $return;
         } catch (Exception $e) {
-            die("Erreur lors de la sélection dans la base de données SQLite : " . $e->getMessage());
+            die("Erreur lors de la selection dans la base de donnees SQLite : " . $e->getMessage());
         }
     }
 
@@ -82,7 +82,7 @@ class SQLiteDatabase extends AbstractDatabase
             $stmt = $this->connection->prepare($query);
 
             if ($stmt === false) {
-                die("Erreur de préparation de la requête SQLite : " . $this->connection->lastErrorMsg());
+                die("Erreur de preparation de la requete SQLite : " . $this->connection->lastErrorMsg());
             }
 
             foreach ($params as $param => $value) {
@@ -92,12 +92,12 @@ class SQLiteDatabase extends AbstractDatabase
             $result = $stmt->execute();
 
             if ($result === false) {
-                die("Erreur lors de l'exécution de la requête SQLite : " . $this->connection->lastErrorMsg());
+                die("Erreur lors de l'execution de la requete SQLite : " . $this->connection->lastErrorMsg());
             }
 
             return true;
         } catch (Exception $e) {
-            die("Erreur lors de l'exécution de la requête SQLite : " . $e->getMessage());
+            die("Erreur lors de l'execution de la requete SQLite : " . $e->getMessage());
         }
     }
 

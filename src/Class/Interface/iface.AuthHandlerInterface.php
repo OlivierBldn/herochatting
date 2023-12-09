@@ -19,7 +19,7 @@ interface AuthHandlerInterface {
      * Function to handle the request submitted to the handler
      *
      * @param Request $request
-     * @return mixed
+     * @param string $entityType
      */
-    public function handle($request): mixed;
+    public function handle($request, $entityType = null);
 }

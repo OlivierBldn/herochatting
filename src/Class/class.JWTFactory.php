@@ -32,7 +32,6 @@ class JWTFactory {
      * Function to validate a JWT token
      *
      * @param string $token
-     * @return mixed
      */
     public static function validateToken($token) {
         // Get the JWT key from the singleton

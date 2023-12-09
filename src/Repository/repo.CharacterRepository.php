@@ -52,7 +52,7 @@ class CharacterRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -67,10 +67,10 @@ class CharacterRepository extends AbstractRepository
 
                 return $characterId;
             } else {
-                throw new Exception("Erreur lors de la création du personnage");
+                throw new Exception("Erreur lors de la creation du personnage");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la création du personnage : " . $e->getMessage());
+            throw new Exception("Erreur lors de la creation du personnage : " . $e->getMessage());
         }
     }
 
@@ -102,7 +102,7 @@ class CharacterRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -111,10 +111,10 @@ class CharacterRepository extends AbstractRepository
             if ($success) {
                 return true;
             } else {
-                throw new Exception("Erreur lors de l'association du personnage à l'univers");
+                throw new Exception("Erreur lors de l'association du personnage a l'univers");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de l'association du personnage à l'univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de l'association du personnage a l'univers : " . $e->getMessage());
         }
     }
     
@@ -134,7 +134,7 @@ class CharacterRepository extends AbstractRepository
                 $sql = 'SELECT * FROM "character"';
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -149,7 +149,7 @@ class CharacterRepository extends AbstractRepository
 
             return $allCharactersArrayObject;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de tous les personnages : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de tous les personnages : " . $e->getMessage());
         }
     }
 
@@ -177,7 +177,7 @@ class CharacterRepository extends AbstractRepository
                 $parameters = [$universeId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -191,7 +191,7 @@ class CharacterRepository extends AbstractRepository
 
             return $characterObjects;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des personnages de l'univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des personnages de l'univers : " . $e->getMessage());
         }
     }
 
@@ -217,7 +217,7 @@ class CharacterRepository extends AbstractRepository
                 $params = [$id];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -230,7 +230,7 @@ class CharacterRepository extends AbstractRepository
                 return null;
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération du personnage : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation du personnage : " . $e->getMessage());
         }
     }
 
@@ -254,7 +254,7 @@ class CharacterRepository extends AbstractRepository
                 $params = [$name];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -263,7 +263,7 @@ class CharacterRepository extends AbstractRepository
             // Convert the result into a Character object if a Character is found
             return $character ? Character::fromMap($character[0]) : null;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des personnages par nom : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des personnages par nom : " . $e->getMessage());
         }
     }
 
@@ -293,7 +293,7 @@ class CharacterRepository extends AbstractRepository
                 $params = [$characterName, $universeName];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -302,7 +302,7 @@ class CharacterRepository extends AbstractRepository
             // Convert the result into a Character object if a Character is found
             return $character ? Character::fromMap($character[0]) : null;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des personnages par nom et univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des personnages par nom et univers : " . $e->getMessage());
         }
     }
 
@@ -331,7 +331,7 @@ class CharacterRepository extends AbstractRepository
                 $params = [$userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -344,7 +344,7 @@ class CharacterRepository extends AbstractRepository
             }
             return $characters;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des personnages par utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des personnages par utilisateur : " . $e->getMessage());
         }
     }
 
@@ -361,7 +361,7 @@ class CharacterRepository extends AbstractRepository
         $existingCharacter = $this->getById($characterId);
     
         if (!$existingCharacter) {
-            throw new Exception("Personnage non trouvé");
+            throw new Exception("Personnage non trouve");
         }
     
         $name = $characterData['name'] ?? $existingCharacter->getName();
@@ -386,7 +386,7 @@ class CharacterRepository extends AbstractRepository
                 $parameters = [$name, $description, $image, $characterId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -395,10 +395,10 @@ class CharacterRepository extends AbstractRepository
             if ($success) {
                 return true;
             } else {
-                throw new Exception("Erreur lors de la mise à jour du personnage");
+                throw new Exception("Erreur lors de la mise a jour du personnage");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la mise à jour du personnage : " . $e->getMessage());
+            throw new Exception("Erreur lors de la mise a jour du personnage : " . $e->getMessage());
         }
     }
 
@@ -427,7 +427,7 @@ class CharacterRepository extends AbstractRepository
                     $params = [$characterId];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
 
@@ -453,7 +453,7 @@ class CharacterRepository extends AbstractRepository
                     ];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
 
@@ -469,7 +469,7 @@ class CharacterRepository extends AbstractRepository
                     $params = [$characterId];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
     
@@ -503,7 +503,7 @@ class CharacterRepository extends AbstractRepository
                 $params = [$universeId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -520,12 +520,12 @@ class CharacterRepository extends AbstractRepository
                     break;
         
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
         
             return $count > 0;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la vérification de l'existence de l'univers: " . $e->getMessage());
+            throw new Exception("Erreur lors de la verification de l'existence de l'univers: " . $e->getMessage());
         }
     }
 
@@ -548,16 +548,16 @@ class CharacterRepository extends AbstractRepository
                 $params = [$characterId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
             $result = $this->dbConnector->select($sql, $params);
 
-            // Retourner l'ID de l'univers si trouvé
+            // Retourner l'ID de l'univers si trouve
             return $result ? $result[0]['universeId'] : null;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de l'ID de l'univers associé : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de l'ID de l'univers associe : " . $e->getMessage());
         }
     }
 
@@ -582,7 +582,7 @@ class CharacterRepository extends AbstractRepository
                     $params = [$universeId];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
 
             $result = $this->dbConnector->select($sql, $params);
@@ -590,7 +590,7 @@ class CharacterRepository extends AbstractRepository
             // Check if a record is returned and return the name of the universe
             return $result ? $result[0]['name'] : null;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération du nom de l'univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation du nom de l'univers : " . $e->getMessage());
         }
     }
 
@@ -618,7 +618,7 @@ class CharacterRepository extends AbstractRepository
                 $params = [$characterId, $userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         return $this->executeOwnershipQuery($sql, $params);
@@ -659,7 +659,7 @@ class CharacterRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         return $this->executeImageTracking($sql, $params);
@@ -696,9 +696,79 @@ class CharacterRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         return $this->executeImageReferencing($sql, $parameters);
+    }
+
+    /**
+     * Function to get the ID of the User that owns the Character
+     * 
+     * @param int $characterId
+     * 
+     * @return int|null
+     */
+    public function getCharacterUserId($characterId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT uu.userId FROM `universe_character` AS uc
+                        JOIN `user_universe` AS uu ON uc.universeId = uu.universeId
+                        WHERE uc.characterId = :characterId';
+                $params = [':characterId' => $characterId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT uu."userId" FROM "universe_character" AS uc
+                        JOIN "user_universe" AS uu ON uc."universeId" = uu."universeId"
+                        WHERE uc."characterId" = $1';
+                $params = [$characterId];
+                break;
+            default:
+                throw new Exception("Type de base de donnees non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+
+            return $result ? $result[0]['userId'] : null;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la recuperation de l'ID de l'univers associe : " . $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Check if a Character already exists in a Universe
+     *
+     * @param string $characterName
+     * @param int $universeId
+     * @return bool
+     */
+    public function characterExistsInUniverse($characterName, $universeId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `universe_character` uc
+                        JOIN `character` c ON uc.characterId = c.id
+                        WHERE c.name = :characterName AND uc.universeId = :universeId';
+                $params = [':characterName' => $characterName, ':universeId' => $universeId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "universe_character" uc
+                        JOIN "character" c ON uc."characterId" = c.id
+                        WHERE c.name = $1 AND uc."universeId" = $2';
+                $params = [$characterName, $universeId];
+                break;
+            default:
+                throw new Exception("Type de base de donnees non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+            return $result[0]['COUNT(*)'] > 0;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la verification de l'existence du personnage : " . $e->getMessage());
+        }
     }
 }

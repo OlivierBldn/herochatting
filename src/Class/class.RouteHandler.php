@@ -28,10 +28,10 @@ class RouteHandler
      */
     function routeRequest($uri, $routes, $requestMethod)
     {
-        // Validation de la méthode de requête HTTP
+        // Check if the request method is allowed
         if (!in_array($requestMethod, ['GET', 'POST', 'PUT', 'DELETE'])) {
-            http_response_code(405); // Méthode non autorisée
-            echo json_encode(['message' => 'Méthode de requête non autorisée']);
+            http_response_code(405); // Methode non autorisee
+            echo json_encode(['message' => 'Methode de requete non autorisee']);
 
             return;
         }
@@ -56,7 +56,7 @@ class RouteHandler
                 // If the class does not exist return a 404 response
                 if (!class_exists($className)) {
                     http_response_code(404);
-                    echo json_encode(['message' => 'Classe non trouvée']);
+                    echo json_encode(['message' => 'Classe non trouvee']);
                     return;
                 }
                 $controller = new $controllerName();
@@ -64,7 +64,7 @@ class RouteHandler
                 // If the method does not exist return a 404 response
                 if (!method_exists($controller, $methodName)) {
                     http_response_code(404);
-                    echo json_encode(['message' => 'Méthode non trouvée']);
+                    echo json_encode(['message' => 'Methode non trouvee']);
                     return;
                 }
 
@@ -88,6 +88,6 @@ class RouteHandler
         }
 
         http_response_code(404);
-        echo json_encode(['message' => 'Route non trouvée']);
+        echo json_encode(['message' => 'Route non trouvee']);
     }
 }

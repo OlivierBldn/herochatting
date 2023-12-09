@@ -75,13 +75,13 @@ class OpenAIService
         $this->logResponse($response);
     
         if ($response === false) {
-            return 'Erreur lors de la connexion à OpenAI';
+            return 'Erreur lors de la connexion a OpenAI';
         }
     
         $responseData = json_decode($response, true);
 
         if ($httpCode != 200) {
-            return 'Erreur lors de la réponse OpenAI: HTTP Code ' . $httpCode . ' - Réponse: ' . json_encode($responseData);
+            return 'Erreur lors de la reponse OpenAI: HTTP Code ' . $httpCode . ' - Reponse: ' . json_encode($responseData);
         }
     
         return $responseData['choices'][0]['text'] ?? 'Description non disponible';
@@ -110,7 +110,7 @@ class OpenAIService
     private function formatPrompt($userMessage, Character $character) {
         $characterName = $character->getName();
         $characterDescription = $character->getDescription();
-        $prompt = "Tu parles avec {$characterName}, un personnage décrit comme {$characterDescription}. L'utilisateur répond : '{$userMessage}'";
+        $prompt = "Tu parles avec {$characterName}, un personnage decrit comme {$characterDescription}. L'utilisateur repond : '{$userMessage}'";
         
         return $prompt;
     }
@@ -143,6 +143,6 @@ class OpenAIService
         $logFile = __DIR__ . '/../../../logs/open_ai.log';
         $timestamp = date('Y-m-d H:i:s');
         $formattedResponse = json_encode($response, JSON_PRETTY_PRINT);
-    file_put_contents($logFile, "[$timestamp] Réponse API OpenAI : $formattedResponse\n", FILE_APPEND);
+    file_put_contents($logFile, "[$timestamp] Reponse API OpenAI : $formattedResponse\n", FILE_APPEND);
     }
 }

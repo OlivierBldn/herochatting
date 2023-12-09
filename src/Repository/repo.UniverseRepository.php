@@ -51,7 +51,7 @@ class UniverseRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -64,10 +64,10 @@ class UniverseRepository extends AbstractRepository
 
                 return $universeId;
             } else {
-                throw new Exception("Erreur lors de la création de l'univers");
+                throw new Exception("Erreur lors de la creation de l'univers");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la création de l'univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la creation de l'univers : " . $e->getMessage());
         }
     }
 
@@ -98,7 +98,7 @@ class UniverseRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -107,10 +107,10 @@ class UniverseRepository extends AbstractRepository
             if ($success) {
                 return true;
             } else {
-                throw new Exception("Erreur lors de l'association de l'univers à l'utilisateur");
+                throw new Exception("Erreur lors de l'association de l'univers a l'utilisateur");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de l'association de l'univers à l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de l'association de l'univers a l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -130,7 +130,7 @@ class UniverseRepository extends AbstractRepository
                 $sql = 'SELECT * FROM "universe"';
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -144,7 +144,7 @@ class UniverseRepository extends AbstractRepository
 
             return $allUniversesArrayObject;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de tous les univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de tous les univers : " . $e->getMessage());
         }
     }
 
@@ -170,7 +170,7 @@ class UniverseRepository extends AbstractRepository
                 $parameters = [$userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -183,7 +183,7 @@ class UniverseRepository extends AbstractRepository
     
             return $universeObjects;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des univers de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des univers de l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -208,7 +208,7 @@ class UniverseRepository extends AbstractRepository
                 $params = [$id];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -220,7 +220,7 @@ class UniverseRepository extends AbstractRepository
                 return null;
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de l'univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de l'univers : " . $e->getMessage());
         }
     }
 
@@ -243,7 +243,7 @@ class UniverseRepository extends AbstractRepository
                 $params = [$name];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -251,7 +251,7 @@ class UniverseRepository extends AbstractRepository
 
             return $universe ? Universe::fromMap($universe[0]) : null;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des univers par nom : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des univers par nom : " . $e->getMessage());
         }
     }
 
@@ -267,7 +267,7 @@ class UniverseRepository extends AbstractRepository
         $existingUniverse = $this->getById($universeId);
     
         if (!$existingUniverse) {
-            throw new Exception("Univers non trouvé");
+            throw new Exception("Univers non trouve");
         }
     
         $name = $universeData['name'] ?? $existingUniverse->getName();
@@ -297,7 +297,7 @@ class UniverseRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -306,10 +306,10 @@ class UniverseRepository extends AbstractRepository
             if ($success) {
                 return true;
             } else {
-                throw new Exception("Erreur lors de la mise à jour de l'univers");
+                throw new Exception("Erreur lors de la mise a jour de l'univers");
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la mise à jour de l'univers : " . $e->getMessage());
+            throw new Exception("Erreur lors de la mise a jour de l'univers : " . $e->getMessage());
         }
     }
 
@@ -337,7 +337,7 @@ class UniverseRepository extends AbstractRepository
                     $params = [$universeId];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
 
@@ -363,7 +363,7 @@ class UniverseRepository extends AbstractRepository
                     ];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
 
@@ -379,7 +379,7 @@ class UniverseRepository extends AbstractRepository
                     $params = [$universeId];
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             $this->dbConnector->execute($sql, $params);
 
@@ -412,7 +412,7 @@ class UniverseRepository extends AbstractRepository
                 $params = [$userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -429,12 +429,12 @@ class UniverseRepository extends AbstractRepository
                     break;
         
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
         
             return $count > 0;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la vérification de l'existence de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la verification de l'existence de l'utilisateur : " . $e->getMessage());
         }
     }
 
@@ -458,7 +458,7 @@ class UniverseRepository extends AbstractRepository
                 $params = [$universeId, $userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         return $this->executeOwnershipQuery($sql, $params);
@@ -499,7 +499,7 @@ class UniverseRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         return $this->executeImageTracking($sql, $params);
@@ -536,9 +536,90 @@ class UniverseRepository extends AbstractRepository
                 ];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         return $this->executeImageReferencing($sql, $parameters);
+    }
+
+    /**
+     * Function to get the id of the User who owns a Universe
+     * 
+     * @param int $universeId
+     * 
+     * @return int $userId
+     */
+    public function getUniverseUserId($universeId) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT userId FROM `user_universe` WHERE universeId = :universeId';
+                $params = [':universeId' => $universeId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT "userId" FROM "user_universe" WHERE "universeId" = $1';
+                $params = [$universeId];
+                break;
+            default:
+                throw new Exception("Type de base de donnees non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+        
+            switch (__DB_INFOS__['database_type']) {
+                case 'mysql':
+                case 'sqlite':
+                    $userId = $result[0]['userId'] ?? 0;
+                    break;
+        
+                case 'pgsql':
+                    $userId = $result[0]['userId'] ?? 0;
+                    break;
+        
+                default:
+                    throw new Exception("Type de base de donnees non reconnu");
+            }
+        
+            return $userId;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la recuperation de l'utilisateur de l'univers : " . $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Function to execute a query to check if a Universe already exists fora User
+     * 
+     * @param string $sql
+     * @param array $params
+     * 
+     * @return bool
+     */
+    public function universeExistsForUser($userId, $universeName) {
+        switch (__DB_INFOS__['database_type']) {
+            case 'mysql':
+            case 'sqlite':
+                $sql = 'SELECT COUNT(*) FROM `universe` u
+                        JOIN `user_universe` uu ON u.id = uu.universeId
+                        WHERE u.name = :universeName AND uu.userId = :userId';
+                $params = [':universeName' => $universeName, ':userId' => $userId];
+                break;
+            case 'pgsql':
+                $sql = 'SELECT COUNT(*) FROM "universe" u
+                        JOIN "user_universe" uu ON u.id = uu."universeId"
+                        WHERE u.name = $1 AND uu."userId" = $2';
+                $params = [$universeName, $userId];
+                break;
+            default:
+                throw new Exception("Type de base de données non reconnu");
+        }
+
+        try {
+            $result = $this->dbConnector->select($sql, $params);
+            return $result[0]['COUNT(*)'] > 0;
+        } catch (Exception $e) {
+            throw new Exception("Erreur lors de la vérification de l'existence de l'univers : " . $e->getMessage());
+        }
     }
 }

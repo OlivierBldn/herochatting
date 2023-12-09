@@ -12,7 +12,7 @@ class ErrorHandler {
         // Logger l'exception
         error_log("Exception: " . $exception->getMessage());
 
-        // Renvoyer une réponse d'erreur standardisée
+        // Renvoyer une reponse d'erreur standardisee
         http_response_code(500);
         echo json_encode([
             "success" => false,
@@ -22,16 +22,16 @@ class ErrorHandler {
 
     public static function handleError($errno, $errstr, $errfile, $errline) {
         // Logger l'erreur
-        error_log("Erreur : [$errno] $errstr dans le fichier $errfile à la ligne $errline");
+        error_log("Erreur : [$errno] $errstr dans le fichier $errfile a la ligne $errline");
 
-        // Renvoyer une réponse d'erreur standardisée
+        // Renvoyer une reponse d'erreur standardisee
         http_response_code(500);
         echo json_encode([
             "success" => false,
             "message" => "Une erreur interne s'est produite."
         ]);
 
-        // Ne pas exécuter le gestionnaire d'erreur PHP interne
+        // Ne pas executer le gestionnaire d'erreur PHP interne
         return true;
     }
 

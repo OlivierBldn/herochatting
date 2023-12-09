@@ -1,0 +1,1014 @@
+{
+	"info": {
+		"_postman_id": "c8e9470d-be04-4b53-ad0f-f16c981565bc",
+		"name": "HEROCHATTING",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "29804918"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "UpdateUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\" : \"olivier\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/2",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\" : \"firstname\",\r\n    \"lastName\" : \"lastname\",\r\n    \"username\" : \"username\",\r\n    \"password\" : \"password\",\r\n    \"email\" : \"mail@mail.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/register",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Universe",
+			"item": [
+				{
+					"name": "CreateUniverse",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"Harry Potter\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1/universes",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1",
+								"universes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUniverse",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/universes/173",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"universes",
+								"173"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUniverse",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"description\" : \"ok\",\r\n    \"name\" : \"Star Wars\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/universes/43",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"universes",
+								"43"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllUniverses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/universes",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"universes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllUniversesByUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1/universes",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1",
+								"universes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUniverseById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/universes/1",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"universes",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Character",
+			"item": [
+				{
+					"name": "CreateCharacter",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\" : \"Buzz\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/universes/75/characters",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"universes",
+								"75",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteCharacter",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/characters/61",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"characters",
+								"61"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateCharacter",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"description\" : \"Maître\",\r\n    \"image\" : \"yoda.jpeg\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/characters/21",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"characters",
+								"21"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllCharacters",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/characters",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCharacterById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/characters/1",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"characters",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllCharactersByBuniverseId",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/universes/1/characters",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"universes",
+								"1",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllCharactersByUserId",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1/characters",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Message",
+			"item": [
+				{
+					"name": "CreateMessage",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"content\" : \"Est-ce que tu iras à la coupe du monde de quidich cette année ?\",\r\n    \"isHuman\" : 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1/chats/1/messages",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1",
+								"chats",
+								"1",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteMessage",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/messages/14",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"messages",
+								"14"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetMessageById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/messages/1",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"messages",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetMessagesByChatId",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1/chats/1/messages",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1",
+								"chats",
+								"1",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllMessages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/messages",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Conversation",
+			"item": [
+				{
+					"name": "CreateChat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"userId\" : 28,\r\n    \"characterId\" : 50\r\n}"
+						},
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/chats",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteChat",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/chats/5",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"chats",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetChatById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/chats/1",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"chats",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetChatByUserId",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/users/1/chats",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"users",
+								"1",
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetChatByCharacterId",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/characters/1/chats",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"characters",
+								"1",
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetAllChats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{TOKEN}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{HOSTNAME}}/{{API_URL}}/chats",
+							"host": [
+								"{{HOSTNAME}}"
+							],
+							"path": [
+								"{{API_URL}}",
+								"chats"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "CreateToken",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"mail@mail.com\",\r\n    \"password\" : \"password\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{HOSTNAME}}/{{API_URL}}/auth/login",
+					"host": [
+						"{{HOSTNAME}}"
+					],
+					"path": [
+						"{{API_URL}}",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "API_URL",
+			"value": "herochatting"
+		},
+		{
+			"key": "HOSTNAME",
+			"value": "localhost"
+		},
+		{
+			"key": "TOKEN",
+			"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDIxMTI4MzAsImF1ZCI6Imhlcm9jaGF0dGluZyIsImV4cCI6MTcwMjE5OTIzMCwiaWQiOjEsImVtYWlsIjoibWFpbEBtYWlsLmNvbSIsInVzZXJuYW1lIjoidXNlcm5hbWUifQ.tc6-yg2yZYpebfvob1ixWjTyXatgYAzHF2SrppI6e1k"
+		}
+	]
+}

@@ -38,7 +38,7 @@ class UserController
         // Check if the request method is POST
         if ($requestMethod !== 'POST') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
     
@@ -50,7 +50,7 @@ class UserController
                 empty($requestData['email']) || empty($requestData['password']) || empty($requestData['username']) ||
                 empty($requestData['firstName']) || empty($requestData['lastName'])) {
                 http_response_code(400);
-                echo json_encode(['message' => 'Données manquantes ou invalides']);
+                echo json_encode(['message' => 'Donnees manquantes ou invalides']);
                 return;
             }
     
@@ -62,17 +62,17 @@ class UserController
             if ($success) {
                 $successResponse = [
                     'success' => true,
-                    'message' => 'Utilisateur créé avec succès.'
+                    'message' => 'Utilisateur numero ' . $success . ' cree avec succes.'
                 ];
                 http_response_code(201);
                 echo json_encode($successResponse);
             } else {
-                throw new Exception("Erreur lors de la création de l'utilisateur");
+                throw new Exception("Erreur lors de la creation de l'utilisateur");
             }
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la création de l\'utilisateur : ' . $e->getMessage()
+                'message' => 'Erreur lors de la creation de l\'utilisateur : ' . $e->getMessage()
             ];
             http_response_code(500);
             echo json_encode($errorResponse);
@@ -92,7 +92,7 @@ class UserController
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
     
@@ -106,7 +106,7 @@ class UserController
             if (empty($users)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucun utilisateur trouvé.',
+                    'message' => 'Aucun utilisateur trouve.',
                     'data' => []
                 ];
             } else {
@@ -128,7 +128,7 @@ class UserController
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des utilisateurs : ' . $e->getMessage()
+                'message' => 'Erreur lors de la recuperation des utilisateurs : ' . $e->getMessage()
             ];
     
             header('Content-Type: application/json');
@@ -151,15 +151,14 @@ class UserController
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
         // Check if the User that sends the request is the owner of the requested User
-        $ownershipVerifier = new OwnershipVerifierMiddleware();
-        if (!$ownershipVerifier->handle($userId)) {
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
             http_response_code(403);
-            echo json_encode(['message' => 'Accès refusé']);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur']);
             return;
         }
 
@@ -175,11 +174,11 @@ class UserController
                 echo json_encode($userData);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Utilisateur non trouvé']);
+                echo json_encode(['message' => 'Utilisateur non trouve']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la récupération de l\'utilisateur : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la recuperation de l\'utilisateur : ' . $e->getMessage()]);
         }
     }
 
@@ -197,7 +196,14 @@ class UserController
         // Check if the request method is PUT
         if ($requestMethod !== 'PUT') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
+            return;
+        }
+
+        // Check if the User that sends the request is the owner of the requested User
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur']);
             return;
         }
         
@@ -213,7 +219,7 @@ class UserController
     
             if (empty($requestData)) {
                 http_response_code(400);
-                echo json_encode(['message' => 'Aucune donnée fournie pour la mise à jour']);
+                echo json_encode(['message' => 'Aucune donnee fournie pour la mise a jour']);
                 return;
             }
     
@@ -224,13 +230,13 @@ class UserController
     
             if ($success) {
                 http_response_code(200);
-                echo json_encode(['message' => 'Utilisateur mis à jour avec succès']);
+                echo json_encode(['message' => 'Utilisateur mis a jour avec succes']);
             } else {
-                throw new Exception("Erreur lors de la mise à jour de l'utilisateur");
+                throw new Exception("Erreur lors de la mise a jour de l'utilisateur");
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la mise à jour de l\'utilisateur : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la mise a jour de l\'utilisateur : ' . $e->getMessage()]);
         }
     }
 
@@ -248,51 +254,39 @@ class UserController
         // Check if the request method is DELETE
         if ($requestMethod !== 'DELETE') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
+            return;
+        }
+
+        $userRepository = new UserRepository();
+
+        if (!$userRepository->getById($userId)) {
+            http_response_code(404);
+            echo json_encode(['message' => 'Utilisateur non trouve']);
+            return;
+        }
+
+        // Check if the User that sends the request is the owner of the requested User
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur']);
             return;
         }
 
         try {
-            $chatRepository = new ChatRepository();
-            $messageRepository = new MessageRepository();
-            $universeRepository = new UniverseRepository();
-            $userRepository = new UserRepository();
-            $characterRepository = new CharacterRepository();
+
+            $universeRepository = new UniverseRepository();;
+            $universeController = new UniverseController();
 
             // Begin a transaction to execute multiple queries
             $this->dbConnector->beginTransaction();
 
-            // Delete the User's Chats and Messages
-            $chats = $chatRepository->getByUserId($userId);
-            foreach ($chats as $chat) {
-                $messages = $messageRepository->getMessagesByChatId($chat->getId());
-                foreach ($messages as $message) {
-                    $messageRepository->delete($message->getId());
-                }
-                $chatRepository->delete($chat->getId());
-            }
-
-            
-            $stableDiffusionService = StableDiffusionService::getInstance();
-            
-            // Delete the User's Characters
-            $characters = $characterRepository->getByUserId($userId);
-            foreach ($characters as $character) {
-                $characterId = $character->getId();
-                $characterImage = $character->getImage();
-                $stableDiffusionService->deleteImageIfUnused($characterImage, $characterId, 'character');
-                $characterRepository->delete($character->getId());
-            }
-
             // Delete the User's Universes
             $universes = $universeRepository->getAllByUserId($userId);
             foreach ($universes as $universe) {
-                $universeId = $universe->getId();
-                $universeImage = $universe->getImage();
-                $stableDiffusionService->deleteImageIfUnused($universeImage, $universed, 'universe');
-                $universeRepository->delete($universe->getId());
+                $universeController->deleteUniverse('DELETE', $universe->getId());
             }
-
+            
             // Delete the User
             $userRepository->delete($userId);
 
@@ -300,7 +294,7 @@ class UserController
             $this->dbConnector->commit();
 
             http_response_code(200);
-            echo json_encode(['message' => 'Utilisateur supprimé avec succès']);
+            echo json_encode(['message' => 'Utilisateur supprime avec succes']);
         } catch (Exception $e) {
             // Cancel the transaction if an error occurs
             $this->dbConnector->rollBack();

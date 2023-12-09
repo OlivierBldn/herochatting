@@ -38,70 +38,63 @@ class OwnershipVerifierMiddleware implements AuthHandlerInterface
      * Function to handle the request submitted to the handler using the JWTFactory
      *
      * @param Request $request
-     * @return mixed
      */
-    public function handle($request) {
+    public function handle($entityId, $entityType = null) {
         $token = JWTFactory::getAuthorizationToken();
         $decodedToken = JWTFactory::validateToken($token);
         if (!$decodedToken) {
             http_response_code(401);
-            echo json_encode(['error' => 'Accès non autorisé']);
+            echo json_encode(['error' => 'Acces non autorise']);
             return null;
         }
 
         // Use the token payload to get the user ID and the uri to get the entity type and ID
         $userId = $decodedToken->id;
 
-        $requestUri = $_SERVER['REQUEST_URI'];
-        $segments = explode('/', $requestUri);
-
-        $entityType = $segments[2];
-        $entityId = $segments[3];
-
         // Depending on the entity type and id, check if the user is the owner of the requested resource using the corresponding repository
         switch ($entityType) {
-            case 'chats':
+            case 'chat':
                 $repository = new ChatRepository($this->dbConnector);
                 if (!$repository->isUserChatOwner($entityId, $userId)) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Accès refusé']);
+                    echo json_encode(['error' => 'Acces refuse']);
                     return null;
                 }
                 break;
-            case 'messages':
+            case 'message':
                 $repository = new MessageRepository($this->dbConnector);
                 if (!$repository->isUserMessageOwner($entityId, $userId)) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Accès refusé']);
+                    echo json_encode(['error' => 'Acces refuse']);
                     return null;
                 }
                 break;
-            case 'users':
+            case 'user':
                 if ($entityId != $userId) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Accès refusé']);
+                    echo json_encode(['error' => 'Acces refuse']);
                     return null;
                 }
                 break;
-            case 'universes':
+            case 'universe':
                 $repository = new UniverseRepository($this->dbConnector);
                 if (!$repository->isUserUniverseOwner($entityId, $userId)) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Accès refusé']);
+                    echo json_encode(['error' => 'Acces refuse']);
                     return null;
                 }
                 break;
-            case 'characters':
+            case 'character':
                 $repository = new CharacterRepository($this->dbConnector);
                 if (!$repository->isUserCharacterOwner($entityId, $userId)) {
                     http_response_code(403);
-                    echo json_encode(['error' => 'Accès refusé']);
+                    echo json_encode(['error' => 'Acces refuse']);
                     return null;
                 }
                 break;
             default:
                 http_response_code(404);
-                echo json_encode(['error' => 'Ressource non trouvée']);
+                echo json_encode(['error' => 'Ressource non trouvee']);
                 return null;
         }
 

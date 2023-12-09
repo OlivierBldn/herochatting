@@ -32,7 +32,7 @@ class MessageRepository extends AbstractRepository
                 $params = [$content, $createdAt, $isHuman];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -43,9 +43,10 @@ class MessageRepository extends AbstractRepository
     
             return $messageId;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la création du message: " . $e->getMessage());
+            throw new Exception("Erreur lors de la creation du message: " . $e->getMessage());
         }
     }
+
 
     /**
      * Function to link a Message to a Chat
@@ -66,15 +67,16 @@ class MessageRepository extends AbstractRepository
                 $params = [$chatId, $messageId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
             $this->dbConnector->execute($sql, $params);
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de l'association du message à la conversation: " . $e->getMessage());
+            throw new Exception("Erreur lors de l'association du message a la conversation: " . $e->getMessage());
         }
     }
+
 
     /**
      * Function to get all the messages
@@ -91,7 +93,7 @@ class MessageRepository extends AbstractRepository
                 $sql = 'SELECT * FROM "message"';
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -105,9 +107,10 @@ class MessageRepository extends AbstractRepository
 
             return $allMessagesArrayObject;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération de tous les messages : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation de tous les messages : " . $e->getMessage());
         }
     }
+    
 
     /**
      * Function to get a message by its id
@@ -127,7 +130,7 @@ class MessageRepository extends AbstractRepository
                 $params = [$messageId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -138,9 +141,10 @@ class MessageRepository extends AbstractRepository
                 return null;
             }
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération du message : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation du message : " . $e->getMessage());
         }
     }
+    
 
     /**
      * Function to get all the messages by a Chat id
@@ -151,14 +155,14 @@ class MessageRepository extends AbstractRepository
     public function getMessagesByChatId($chatId) {
 
         if (!$this->chatExists($chatId)) {
-            throw new Exception("Chat not found");
+            throw new Exception("Conversation non trouvee");
         }
 
         switch (__DB_INFOS__['database_type']) {
             case 'mysql':
             case 'sqlite':
-                $sql = 'SELECT m.* FROM message m 
-                        INNER JOIN chat_message cm ON m.id = cm.messageId 
+                $sql = 'SELECT m.* FROM `message` m 
+                        INNER JOIN `chat_message` cm ON m.id = cm.messageId 
                         WHERE cm.chatId = :chatId';
                 $params = [':chatId' => $chatId];
                 break;
@@ -169,7 +173,7 @@ class MessageRepository extends AbstractRepository
                 $params = [$chatId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -180,42 +184,10 @@ class MessageRepository extends AbstractRepository
             }
             return $messages;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la récupération des messages : " . $e->getMessage());
+            throw new Exception("Erreur lors de la recuperation des messages : " . $e->getMessage());
         }
     }
 
-    // /**
-    //  * Function to update a Message
-    //  * 
-    //  * @param int $messageId
-    //  * @param array $messageData
-    //  * 
-    //  * @return bool
-    //  */
-    // public function update($messageId, $messageData) {
-    //     $content = $messageData['content'];
-
-    //     switch (__DB_INFOS__['database_type']) {
-    //         case 'mysql':
-    //         case 'sqlite':
-    //             $sql = 'UPDATE `message` SET content = :content WHERE id = :messageId';
-    //             $params = [':content' => $content, ':messageId' => $messageId];
-    //             break;
-    //         case 'pgsql':
-    //             $sql = 'UPDATE "message" SET content = $1 WHERE id = $2';
-    //             $params = [$content, $messageId];
-    //             break;
-    //         default:
-    //             throw new Exception("Type de base de données non reconnu");
-    //     }
-
-    //     try {
-    //         $success = $this->dbConnector->execute($sql, $params);
-    //         return $success;
-    //     } catch (Exception $e) {
-    //         throw new Exception("Erreur lors de la mise à jour du message: " . $e->getMessage());
-    //     }
-    // }
 
     /**
      * Function to delete a Message
@@ -241,7 +213,7 @@ class MessageRepository extends AbstractRepository
                     $count = $result[0]['count'] ?? 0;
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
     
             if ($count == 0) {
@@ -286,6 +258,7 @@ class MessageRepository extends AbstractRepository
         }
     }
 
+
     /**
      * Function to check if a User exists
      *
@@ -304,7 +277,7 @@ class MessageRepository extends AbstractRepository
                 $params = [$userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
     
         try {
@@ -321,14 +294,15 @@ class MessageRepository extends AbstractRepository
                     break;
         
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
         
             return $count > 0;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la vérification de l'existence de l'utilisateur : " . $e->getMessage());
+            throw new Exception("Erreur lors de la verification de l'existence de l'utilisateur : " . $e->getMessage());
         }
     }
+
 
     /**
      * Function to check if a Chat exists
@@ -348,7 +322,7 @@ class MessageRepository extends AbstractRepository
                 $params = [$chatId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         try {
@@ -365,14 +339,15 @@ class MessageRepository extends AbstractRepository
                     break;
         
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
         
             return $count > 0;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la vérification de l'existence de la conversation : " . $e->getMessage());
+            throw new Exception("Erreur lors de la verification de l'existence de la conversation : " . $e->getMessage());
         }
     }
+
 
     /**
      * Function to check if a User is the owner of a Message
@@ -398,7 +373,7 @@ class MessageRepository extends AbstractRepository
                 $params = [$messageId, $userId];
                 break;
             default:
-                throw new Exception("Type de base de données non reconnu");
+                throw new Exception("Type de base de donnees non reconnu");
         }
 
         return $this->executeOwnershipQuery($sql, $params);

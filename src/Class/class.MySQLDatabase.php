@@ -28,7 +28,7 @@ class MySQLDatabase extends AbstractDatabase
 
             $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            die("Erreur de connexion à la base de données : " . $e->getMessage());
+            die("Erreur de connexion a la base de donnees : " . $e->getMessage());
         }
     }
 
@@ -47,7 +47,7 @@ class MySQLDatabase extends AbstractDatabase
             $stmt->execute($params);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            die("Erreur lors de la sélection dans la base de données MySQL : " . $e->getMessage());
+            die("Erreur lors de la selection dans la base de donnees MySQL : " . $e->getMessage());
         }
     }
 
@@ -65,7 +65,7 @@ class MySQLDatabase extends AbstractDatabase
             $stmt = $this->connection->prepare($query);
             return $stmt->execute($params);
         } catch (PDOException $e) {
-            die("Erreur lors de l'exécution de la requête MySQL : " . $e->getMessage());
+            die("Erreur lors de l'execution de la requete MySQL : " . $e->getMessage());
         }
     }
 

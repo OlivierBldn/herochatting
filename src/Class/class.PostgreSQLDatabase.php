@@ -29,7 +29,7 @@ class PostgreSQLDatabase extends AbstractDatabase
         $this->connection = pg_connect($connectionString);
 
         if (!$this->connection) {
-            die("Erreur de connexion à la base de données : " . pg_last_error());
+            die("Erreur de connexion a la base de donnees : " . pg_last_error());
         }
     }
 
@@ -50,7 +50,7 @@ class PostgreSQLDatabase extends AbstractDatabase
         }
 
         if (!$result) {
-            die("Erreur lors de la sélection dans la base de données PostgreSQL : " . pg_last_error($this->connection));
+            die("Erreur lors de la selection dans la base de donnees PostgreSQL : " . pg_last_error($this->connection));
         }
 
         return pg_fetch_all($result);
@@ -69,7 +69,7 @@ class PostgreSQLDatabase extends AbstractDatabase
         $result = pg_query_params($this->connection, $query, $params);
 
         if (!$result) {
-            die("Erreur lors de l'exécution de la requête PostgreSQL : " . pg_last_error($this->connection));
+            die("Erreur lors de l'execution de la requete PostgreSQL : " . pg_last_error($this->connection));
         }
 
         return true;

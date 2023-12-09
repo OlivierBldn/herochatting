@@ -32,7 +32,7 @@ class MessageController {
         // Check if the request method is POST
         if ($requestMethod !== 'POST') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
     
@@ -47,19 +47,34 @@ class MessageController {
         }
     
         $userId = (int) $segments[3];
-        $chatId = (int) $segments[5];
-    
+
         // Check if the user exist
         if (!$this->messageRepository->userExists($userId)) {
             http_response_code(404);
-            echo json_encode(['message' => 'Utilisateur non trouvé']);
+            echo json_encode(['message' => 'Utilisateur non trouve']);
             return;
         }
-    
+
+        // Check if the User is the owner of the requested User id
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur']);
+            return;
+        }
+
+        $chatId = (int) $segments[5];
+
         // Check if the chat exist
         if (!$this->messageRepository->chatExists($chatId)) {
             http_response_code(404);
-            echo json_encode(['message' => 'Chat non trouvé']);
+            echo json_encode(['message' => 'Chat non trouve']);
+            return;
+        }
+
+        // Check if the User is the owner of the requested Chat
+        if (!$this->ownershipVerifier->handle($chatId, 'chat')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de la conversation']);
             return;
         }
     
@@ -88,10 +103,10 @@ class MessageController {
             }
     
             http_response_code(201);
-            echo json_encode(['success' => true, 'message' => 'Message créé avec succès.', 'messageId' => $userMessageId]);
+            echo json_encode(['success' => true, 'message' => 'Message cree avec succes.', 'messageId' => $userMessageId]);
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur lors de la création du message : ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Erreur lors de la creation du message : ' . $e->getMessage()]);
         }
     }
     
@@ -127,7 +142,7 @@ class MessageController {
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
@@ -138,7 +153,7 @@ class MessageController {
             if (empty($messages)) {
                 $response = [
                     'success' => true,
-                    'message' => 'Aucune conversation trouvée.',
+                    'message' => 'Aucune conversation trouvee.',
                     'data' => []
                 ];
             } else {
@@ -160,7 +175,7 @@ class MessageController {
         } catch (Exception $e) {
             $errorResponse = [
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des messages : ' . $e->getMessage()
+                'message' => 'Erreur lors de la recuperation des messages : ' . $e->getMessage()
             ];
 
             header('Content-Type: application/json');
@@ -181,15 +196,14 @@ class MessageController {
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
             return;
         }
 
         // Check if the User that sent the request is the owner of the message
-        $ownershipVerifier = new OwnershipVerifierMiddleware();
-        if (!$ownershipVerifier->handle($userId, $messageId)) {
+        if (!$this->ownershipVerifier->handle($messageId, 'message')) {
             http_response_code(403);
-            echo json_encode(['message' => 'Accès refusé']);
+            echo json_encode(['message' => 'Acces refuse']);
             return;
         }
 
@@ -204,11 +218,11 @@ class MessageController {
                 echo json_encode($messageData);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Message non trouvé']);
+                echo json_encode(['message' => 'Message non trouve']);
             }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la récupération du message : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la recuperation du message : ' . $e->getMessage()]);
         }
     }
 
@@ -219,7 +233,7 @@ class MessageController {
      * @param int $chatId
      * @return void
      */
-    public function getMessagesByChatId($requestMethod, $chatId)
+    public function getMessagesByChatId($requestMethod)
     {
         // Check if the request method is GET
         if ($requestMethod !== 'GET') {
@@ -250,15 +264,31 @@ class MessageController {
         // Check if the user exist
         if(!$this->messageRepository->userExists($userId)) {
             http_response_code(404);
-            echo json_encode(['message' => 'Utilisateur non trouvé']);
+            echo json_encode(['message' => 'Utilisateur non trouve']);
             return;
         }
+
+        // Check if the User is the owner of the requested User id
+        if (!$this->ownershipVerifier->handle($userId, 'user')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur']);
+            return;
+        }
+
+        $chatId = (int) $segments[5];
 
         try {
             // Check if the chat exist
             if (!$this->chatRepository->getById($chatId)) {
                 http_response_code(404);
-                echo json_encode(['message' => 'Conversation non trouvée']);
+                echo json_encode(['message' => 'Conversation non trouvee']);
+                return;
+            }
+
+            // Check if the User is the owner of the requested Chat id
+            if (!$this->ownershipVerifier->handle($chatId, 'chat')) {
+                http_response_code(403);
+                echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de la conversation']);
                 return;
             }
 
@@ -273,56 +303,9 @@ class MessageController {
             echo json_encode(['messages' => $messageData]);
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['message' => 'Erreur lors de la récupération des messages : ' . $e->getMessage()]);
+            echo json_encode(['message' => 'Erreur lors de la recuperation des messages : ' . $e->getMessage()]);
         }
     }
-
-    // /**
-    //  * Function to update a message
-    //  *
-    //  * @param string $requestMethod
-    //  * @param int $messageId
-    //  * @return void
-    //  */
-    // public function updateMessage($requestMethod, $messageId)
-    // {
-    //     // Check if the request method is PUT
-    //     if ($requestMethod !== 'PUT') {
-    //         http_response_code(405);
-    //         echo json_encode(['message' => 'Méthode non autorisée']);
-    //         return;
-    //     }
-
-    //     try {
-    //         $requestData = json_decode(file_get_contents('php://input'), true);
-
-    //         // Check if the content is set and not empty
-    //         if (empty($requestData) || !isset($requestData['content'])) {
-    //             http_response_code(400);
-    //             echo json_encode(['message' => 'Données manquantes ou invalides pour la mise à jour']);
-    //             return;
-    //         }
-
-    //         // Get the message by its ID
-    //         $updatedMessage = Message::fromMap([
-    //             'id' => $messageId,
-    //             'content' => $requestData['content']
-    //         ]);
-
-    //         // Update the message using the MessageRepository
-    //         $success = $this->messageRepository->update($messageId, $updatedMessage->toMap());
-
-    //         if ($success) {
-    //             http_response_code(200);
-    //             echo json_encode(['message' => 'Message mis à jour avec succès']);
-    //         } else {
-    //             throw new Exception("Erreur lors de la mise à jour du message");
-    //         }
-    //     } catch (Exception $e) {
-    //         http_response_code(500);
-    //         echo json_encode(['message' => 'Erreur lors de la mise à jour du message : ' . $e->getMessage()]);
-    //     }
-    // }
 
     /**
      * Function to delete a message
@@ -336,7 +319,14 @@ class MessageController {
         // Check if the request method is DELETE
         if ($requestMethod !== 'DELETE') {
             http_response_code(405);
-            echo json_encode(['message' => 'Méthode non autorisée']);
+            echo json_encode(['message' => 'Methode non autorisee']);
+            return;
+        }
+
+        // Check if the User is the owner of the requested User id
+        if (!$this->ownershipVerifier->handle($messageId, 'message')) {
+            http_response_code(403);
+            echo json_encode(['message' => 'Acces refuse, verifiez l\'identifiant de l\'utilisateur']);
             return;
         }
 
@@ -346,17 +336,17 @@ class MessageController {
             
             if (!$message) {
                 http_response_code(404);
-                echo json_encode(['message' => 'Message non trouvée']);
+                echo json_encode(['message' => 'Message non trouvee']);
                 return;
             }
 
             // Delete the message using the MessageRepository
             if ($this->messageRepository->delete($messageId)) {
                 http_response_code(200);
-                echo json_encode(['message' => 'Message supprimé avec succès']);
+                echo json_encode(['message' => 'Message supprime avec succes']);
             } else {
                 http_response_code(404);
-                echo json_encode(['message' => 'Message non trouvé']);
+                echo json_encode(['message' => 'Message non trouve']);
             }
         } catch (Exception $e) {
             http_response_code(500);

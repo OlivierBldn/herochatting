@@ -89,7 +89,7 @@ class StableDiffusionService extends AbstractRepository
         $this->logResponse($response);
     
         if ($response === false) {
-            $this->logError("Erreur cURL lors de la connexion à Stable Diffusion: " . $error);
+            $this->logError("Erreur cURL lors de la connexion a Stable Diffusion: " . $error);
             return 'Image non disponible #1';
         }
     
@@ -117,22 +117,22 @@ class StableDiffusionService extends AbstractRepository
                 return $this->handleProcessingImage($responseData, $originalPrompt, $attempt);
             break;
             case 'failed':
-                $this->logError("La requête a échoué : " . $responseData['messege']);
+                $this->logError("La requete a echoue : " . $responseData['messege']);
 
                 // Regenerate the prompt if the attempt failed to increase success rate or return an error message if the maximum number of attempts is reached
                 if ($attempt < 3) {
                     $newPrompt = $this->regeneratePrompt($originalPrompt);
                     return $this->generateImage($newPrompt, $attempt + 1);
                 } else {
-                    return 'Image non disponible après plusieurs tentatives';
+                    return 'Image non disponible apres plusieurs tentatives';
                 }
             break;
             case 'error':
-                $this->logError("Erreur de réponse API: " . $responseData['error']['message']);
+                $this->logError("Erreur de reponse API: " . $responseData['error']['message']);
                 return 'Image non disponible #2';
             break;
             default:
-                $this->logError("Réponse API invalide ou image non générée.");
+                $this->logError("Reponse API invalide ou image non generee.");
                 return 'Image non disponible #4';
             break;
         }
@@ -152,7 +152,7 @@ class StableDiffusionService extends AbstractRepository
         // Download the image from the Stable Diffusion API
         $imageContent = file_get_contents($imageUrl);
         if ($imageContent === false) {
-            $this->logError("Erreur lors du téléchargement de l'image depuis l'URL : $imageUrl");
+            $this->logError("Erreur lors du telechargement de l'image depuis l'URL : $imageUrl");
     
             // Regenerate the prompt if the attempt is the second or fourth one to increase success rate
             if ($attempt < $maxAttempts) {
@@ -167,7 +167,7 @@ class StableDiffusionService extends AbstractRepository
 
         // If the upload directory does not exist or is not writable, log an error and return a message
         if (!file_exists($uploadPath) || !is_writable($uploadPath)) {
-            $this->logError("Le répertoire d'upload n'existe pas ou n'est pas accessible en écriture : $uploadPath");
+            $this->logError("Le repertoire d'upload n'existe pas ou n'est pas accessible en ecriture : $uploadPath");
             return 'Image non disponible #6';
         }
     
@@ -203,7 +203,7 @@ class StableDiffusionService extends AbstractRepository
         while ($attempt < $maxAttempts) {
             if ($fetchUrl) {
                 $nb = $attempt + 1;
-                $this->logAttempt("Tentative de récupération de l'image $nb/$maxAttempts, URL: $fetchUrl");
+                $this->logAttempt("Tentative de recuperation de l'image $nb/$maxAttempts, URL: $fetchUrl");
     
                 // Wait for the x amount of time equal to the ETA returned by the Stable Diffusion API
                 sleep($eta);
@@ -224,7 +224,7 @@ class StableDiffusionService extends AbstractRepository
             $eta += 5;
         }
     
-        $this->logError("Image non récupérée après $maxAttempts tentatives.");
+        $this->logError("Image non recuperee apres $maxAttempts tentatives.");
         return 'Image non disponible';
     }
     
@@ -254,7 +254,7 @@ class StableDiffusionService extends AbstractRepository
         $this->logResponse($response);
     
         if ($response === false) {
-            $this->logError("Erreur cURL lors du téléchargement de l'image depuis l'URL: $fetchUrl, Erreur: $error");
+            $this->logError("Erreur cURL lors du telechargement de l'image depuis l'URL: $fetchUrl, Erreur: $error");
             return 'Image non disponible';
         }
     
@@ -284,7 +284,7 @@ class StableDiffusionService extends AbstractRepository
 
                 // If the image is used by other universes, do not delete it
                 if ($universeRepository->isImageUsedByOthers($imageFileName, $entityId, $entityType)) {
-                    $this->logError("L'univers $entityId utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+                    $this->logError("L'univers $entityId utilise l'image $imageFileName. L'image ne sera pas supprimee.");
                 } else {
                     $this->deleteImage($imageFileName);
                 }
@@ -294,14 +294,14 @@ class StableDiffusionService extends AbstractRepository
 
                 // If the image is used by other characters, do not delete it
                 if ($characterRepository->isImageUsedByOthers($imageFileName, $entityId, $entityType)) {
-                    $this->logError("Le personnage $entityId utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+                    $this->logError("Le personnage $entityId utilise l'image $imageFileName. L'image ne sera pas supprimee.");
                 } else {
                     $this->deleteImage($imageFileName);
                 }
-                $this->logError("L'utilisateur $entityId utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+                $this->logError("L'utilisateur $entityId utilise l'image $imageFileName. L'image ne sera pas supprimee.");
             break;
             default:
-                $this->logError("L'entité $entityId de type $entityType utilise l'image $imageFileName. L'image ne sera pas supprimée.");
+                $this->logError("L'entite $entityId de type $entityType utilise l'image $imageFileName. L'image ne sera pas supprimee.");
             break;
         }
     }
@@ -331,7 +331,7 @@ class StableDiffusionService extends AbstractRepository
      */
     private function regeneratePrompt($originalPrompt) {
     
-        $newPromptRequest = "Reformule ce prompt d'une manière différente pour que Stable Diffusion génère une nouvelle image : \"$originalPrompt\" Rappelles-toi que le prompt ne doit pas dépasser 300 caractères.";
+        $newPromptRequest = "Reformule ce prompt d'une maniere differente pour que Stable Diffusion genere une nouvelle image : \"$originalPrompt\" Rappelles-toi que le prompt ne doit pas depasser 300 caracteres.";
     
         $openAIService = OpenAIService::getInstance();
 
@@ -340,7 +340,7 @@ class StableDiffusionService extends AbstractRepository
     
         // If the new prompt is empty or the default prompt, log an error and return the original prompt
         if (empty($newPrompt) || $newPrompt === 'Description non disponible') {
-            $this->logError("Erreur lors de la régénération du prompt via OpenAI.");
+            $this->logError("Erreur lors de la regeneration du prompt via OpenAI.");
             return $originalPrompt;
         }
     
@@ -381,6 +381,6 @@ class StableDiffusionService extends AbstractRepository
         $logFile = __DIR__ . '/../../../logs/stable_diffusion.log';
         $timestamp = date('Y-m-d H:i:s');
         $formattedResponse = json_encode($response, JSON_PRETTY_PRINT);
-        file_put_contents($logFile, "[$timestamp] Réponse API Stable Diffusion : $formattedResponse\n", FILE_APPEND);
+        file_put_contents($logFile, "[$timestamp] Reponse API Stable Diffusion : $formattedResponse\n", FILE_APPEND);
     }
 }

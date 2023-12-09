@@ -42,11 +42,11 @@ abstract class AbstractRepository {
                     $count = $result[0]['count'] ?? 0;
                     break;
                 default:
-                    throw new Exception("Type de base de données non reconnu");
+                    throw new Exception("Type de base de donnees non reconnu");
             }
             return $count > 0;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la vérification de la propriété : " . $e->getMessage());
+            throw new Exception("Erreur lors de la verification de la propriete : " . $e->getMessage());
         }
     }
 
@@ -64,7 +64,7 @@ abstract class AbstractRepository {
             $success = $this->dbConnector->execute($sql, $parameters);
             return $success;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de l'ajout de la référence d'image : " . $e->getMessage());
+            throw new Exception("Erreur lors de l'ajout de la reference d'image : " . $e->getMessage());
         }
     }
 
@@ -92,7 +92,7 @@ abstract class AbstractRepository {
             }
             return $count > 0;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la vérification de l'utilisation de l'image par d'autres entités : " . $e->getMessage());
+            throw new Exception("Erreur lors de la verification de l'utilisation de l'image par d'autres entites : " . $e->getMessage());
         }
     }
 }

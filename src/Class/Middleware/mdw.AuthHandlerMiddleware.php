@@ -28,9 +28,9 @@ class AuthHandlerMiddleware implements AuthHandlerInterface {
      * Function to handle the request submitted to the handler
      *
      * @param Request $request
-     * @return mixed
+     * @param string $entityType
      */
-    public function handle($request) {
+    public function handle($request, $entityType = null) {
         $headers = apache_request_headers();
 
         // Check if the request contains an Authorization header
@@ -40,7 +40,7 @@ class AuthHandlerMiddleware implements AuthHandlerInterface {
             // Check if the token is valid using the JWTFactory
             $isValid = JWTFactory::validateToken($token);
             if ($isValid) {
-                return $this->nextHandler ? $this->nextHandler->handle($request) : true;
+                return $this->nextHandler ? $this->nextHandler->handle($request, null) : true;
 
                 // To use instead in case middlewares chain setted up
                 // return $this->nextHandler ? $this->nextHandler->handle($request) : null;
@@ -48,7 +48,7 @@ class AuthHandlerMiddleware implements AuthHandlerInterface {
         }
 
         http_response_code(401);
-        echo json_encode(['error' => 'Accès non autorisé']);
+        echo json_encode(['error' => 'Acces non autorise']);
         return null;
     }
 }
